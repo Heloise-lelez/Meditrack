@@ -1,5 +1,5 @@
 <script setup>
-  import { ref } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import TabBar from './layout/tabbar/tabbar-component.vue';
   import Home from './components/home/home-component.vue';
   import Etapes from './components/etapes/etapes-component.vue';
@@ -8,18 +8,50 @@
   import AuthComponent from './components/auth/auth-component.vue';
   import NotFound from './components/not-found/not-found-component.vue';
   import ProfileComponent from './components/profile/profile-component.vue';
+  import AdminComponent from './components/admin/admin-component.vue';
+  import DoctorPatientsComponent from './components/doctor/doctor-patients-component.vue';
+  import AssistantComponent from './components/assistant/assistant-component.vue';
   import { useAuth } from './composables/useAuth';
 
-  const { user, loading } = useAuth();
+  const { user, userRole, loading } = useAuth();
   const activeTab = ref('home');
 
-  const navigationTabs = [
+  const PATIENT_TABS = [
     { id: 'home', label: 'Accueil', icon: 'home' },
     { id: 'steps', label: 'Étapes', icon: 'steps' },
     { id: 'appointments', label: 'Rendez-vous', icon: 'calendar' },
     { id: 'documents', label: 'Documents', icon: 'documents' },
     { id: 'profile', label: 'Profil', icon: 'profile' },
   ];
+
+  const DOCTOR_TABS = [
+    { id: 'patients', label: 'Mes patients', icon: 'patients' },
+    { id: 'profile', label: 'Profil', icon: 'profile' },
+  ];
+
+  const ASSISTANT_TABS = [
+    { id: 'assignments', label: 'Assignations', icon: 'assign' },
+    { id: 'profile', label: 'Profil', icon: 'profile' },
+  ];
+
+  const ADMIN_TABS = [
+    { id: 'admin', label: 'Administration', icon: 'admin' },
+    { id: 'profile', label: 'Profil', icon: 'profile' },
+  ];
+
+  const navigationTabs = computed(() => {
+    if (userRole.value === 'DOCTOR') return DOCTOR_TABS;
+    if (userRole.value === 'ASSISTANT') return ASSISTANT_TABS;
+    if (userRole.value === 'SUPER_ADMIN') return ADMIN_TABS;
+    return PATIENT_TABS;
+  });
+
+  const defaultTab = computed(() => navigationTabs.value[0]?.id ?? 'home');
+
+  // Reset to the first tab when the role changes (e.g., after login)
+  watch(userRole, () => {
+    activeTab.value = defaultTab.value;
+  });
 
   const handleTabChange = (newTab) => {
     activeTab.value = newTab;
@@ -37,38 +69,47 @@
 
   <!-- Main app when logged in -->
   <div v-else id="app" role="application" aria-label="Application Meditrack">
-    <!-- Home Tab -->
+
+    <!-- ── PATIENT & default tabs ──────────────────────────── -->
     <section v-if="activeTab === 'home'" aria-label="Page d'accueil">
       <Home />
     </section>
-
-    <!-- Steps Tab -->
     <section v-else-if="activeTab === 'steps'" aria-label="Page des étapes">
       <Etapes />
     </section>
-
-    <!-- Appointments Tab -->
     <section v-else-if="activeTab === 'appointments'" class="tab-content" aria-label="Page des rendez-vous">
       <rdvComponent />
     </section>
-
-    <!-- Documents Tab -->
     <section v-else-if="activeTab === 'documents'" class="tab-content" aria-label="Page des documents">
       <docComponent />
     </section>
 
-    <!-- Profile Tab -->
+    <!-- ── DOCTOR tabs ─────────────────────────────────────── -->
+    <section v-else-if="activeTab === 'patients'" aria-label="Mes patients">
+      <DoctorPatientsComponent />
+    </section>
+
+    <!-- ── ASSISTANT tabs ──────────────────────────────────── -->
+    <section v-else-if="activeTab === 'assignments'" aria-label="Gestion des assignations">
+      <AssistantComponent />
+    </section>
+
+    <!-- ── SUPER_ADMIN tabs ────────────────────────────────── -->
+    <section v-else-if="activeTab === 'admin'" aria-label="Administration">
+      <AdminComponent />
+    </section>
+
+    <!-- ── Shared: Profile ────────────────────────────────── -->
     <section v-else-if="activeTab === 'profile'" aria-label="Page profil">
       <ProfileComponent />
     </section>
 
     <!-- 404 fallback -->
     <section v-else aria-label="Page introuvable">
-      <NotFound @go-home="handleTabChange('home')" />
+      <NotFound @go-home="handleTabChange(defaultTab)" />
     </section>
 
-    <!-- TabBar Navigation -->
-    <TabBar :tabs="navigationTabs" default-tab="home" @tab-change="handleTabChange" />
+    <TabBar :tabs="navigationTabs" :default-tab="defaultTab" @tab-change="handleTabChange" />
   </div>
 </template>
 
@@ -133,5 +174,4 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
 </style>

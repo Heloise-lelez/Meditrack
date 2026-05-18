@@ -21,6 +21,24 @@
       </div>
     </section>
 
+    <!-- Mes médecins (PATIENT uniquement) -->
+    <section v-if="userRole === 'PATIENT'" class="info-section doctors-section" aria-label="Mes médecins">
+      <h3 class="section-title">Mes médecins</h3>
+      <div v-if="loadingDoctors" class="doctors-loading" role="status">
+        <div class="mini-spinner" aria-hidden="true"></div>
+      </div>
+      <p v-else-if="myDoctors.length === 0" class="doctors-empty">Aucun médecin assigné.</p>
+      <div
+        v-else
+        v-for="d in myDoctors"
+        :key="d.id"
+        class="info-row"
+      >
+        <span class="info-label">Dr.</span>
+        <span class="info-value">{{ d.prenom }} {{ d.nom }}</span>
+      </div>
+    </section>
+
     <p v-if="logoutError" class="logout-error" role="alert">{{ logoutError }}</p>
 
     <button class="logout-btn" aria-label="Se déconnecter" :disabled="loggingOut" @click="handleSignOut">
@@ -30,10 +48,11 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useAuth } from '../../composables/useAuth';
+import { api } from '../../lib/api';
 
-const { user, signOut } = useAuth();
+const { user, userRole, signOut } = useAuth();
 
 const nom = computed(() => user.value?.user_metadata?.nom ?? '');
 const prenom = computed(() => user.value?.user_metadata?.prenom ?? '');
@@ -54,6 +73,8 @@ const initials = computed(() => {
 
 const loggingOut = ref(false);
 const logoutError = ref(null);
+const myDoctors = ref([]);
+const loadingDoctors = ref(false);
 
 async function handleSignOut() {
   loggingOut.value = true;
@@ -67,6 +88,17 @@ async function handleSignOut() {
     loggingOut.value = false;
   }
 }
+
+onMounted(async () => {
+  if (userRole.value === 'PATIENT') {
+    loadingDoctors.value = true;
+    try {
+      myDoctors.value = await api.get('/api/profile/my-doctors');
+    } finally {
+      loadingDoctors.value = false;
+    }
+  }
+});
 </script>
 
 <style scoped>
@@ -136,6 +168,19 @@ async function handleSignOut() {
   overflow: hidden;
 }
 
+.section-title {
+  padding: 14px 18px 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3a8d7a;
+}
+
+.doctors-section .info-row:first-of-type {
+  border-top: 1px solid #f3f4f6;
+  margin-top: 10px;
+}
+
 .info-row {
   display: flex;
   justify-content: space-between;
@@ -159,6 +204,30 @@ async function handleSignOut() {
   font-weight: 500;
   text-align: right;
   word-break: break-all;
+}
+
+.doctors-loading {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.mini-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #d1faf5;
+  border-top-color: #3a8d7a;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.doctors-empty {
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #aaa;
+  margin: 0;
 }
 
 .logout-btn {

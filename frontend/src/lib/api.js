@@ -17,11 +17,12 @@ async function request(path, options = {}) {
     headers['Content-Type'] = 'application/json';
   }
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
-  const json = await res.json();
   if (res.status === 401) {
     await supabase.auth.signOut();
     throw new Error('Session expirée. Veuillez vous reconnecter.');
   }
+  if (res.status === 204) return null;
+  const json = await res.json();
   if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
   return json;
 }
@@ -33,5 +34,16 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
-  delete: (path) => request(path, { method: 'DELETE' }),
+  put: (path, body) =>
+    request(path, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+  // For multipart/form-data (file uploads) — do NOT stringify, browser sets Content-Type with boundary
+  postForm: (path, formData) => request(path, { method: 'POST', body: formData }),
+  delete: (path, body) =>
+    request(path, {
+      method: 'DELETE',
+      body: body ? JSON.stringify(body) : undefined,
+    }),
 };
