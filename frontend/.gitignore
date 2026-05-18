@@ -1,5 +1,4 @@
-# Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,17 +6,24 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.vite/
+
+.env
+.env.*
+!.env.example
+!.env_exemple
+
 .DS_Store
-dist
-dist-ssr
-coverage
 *.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
@@ -29,11 +35,9 @@ coverage
 .eslintcache
 
 # Cypress
-/cypress/videos/
-/cypress/screenshots/
+cypress/videos/
+cypress/screenshots/
 
 # Vitest
 __screenshots__/
-.vercel
-
-.env
+.vercel/

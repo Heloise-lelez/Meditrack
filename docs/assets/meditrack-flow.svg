@@ -1,0 +1,43 @@
+<svg width="980" height="260" viewBox="0 0 980 260" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Parcours fonctionnel Meditrack</title>
+  <desc id="desc">Schéma des modules accueil, étapes, rendez-vous, documents et Supabase.</desc>
+  <rect width="980" height="260" rx="24" fill="#F8FBFF"/>
+  <rect x="32" y="38" width="174" height="150" rx="20" fill="#FFFFFF" stroke="#DCEAF5"/>
+  <rect x="270" y="38" width="174" height="150" rx="20" fill="#FFFFFF" stroke="#DCEAF5"/>
+  <rect x="508" y="38" width="174" height="150" rx="20" fill="#FFFFFF" stroke="#DCEAF5"/>
+  <rect x="746" y="38" width="174" height="150" rx="20" fill="#FFFFFF" stroke="#DCEAF5"/>
+
+  <path d="M206 113H270" stroke="#9DB8CB" stroke-width="3" stroke-linecap="round"/>
+  <path d="M444 113H508" stroke="#9DB8CB" stroke-width="3" stroke-linecap="round"/>
+  <path d="M682 113H746" stroke="#9DB8CB" stroke-width="3" stroke-linecap="round"/>
+  <path d="M258 104L270 113L258 122" stroke="#9DB8CB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M496 104L508 113L496 122" stroke="#9DB8CB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M734 104L746 113L734 122" stroke="#9DB8CB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="119" cy="82" r="22" fill="#EAF2FF"/>
+  <path d="M107 84L119 72L131 84V99H111V84" stroke="#2563EB" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="119" y="130" text-anchor="middle" fill="#173B57" font-family="Arial, sans-serif" font-size="18" font-weight="700">Accueil</text>
+  <text x="119" y="154" text-anchor="middle" fill="#70879A" font-family="Arial, sans-serif" font-size="13">Synthèse quotidienne</text>
+
+  <circle cx="357" cy="82" r="22" fill="#EAF8F2"/>
+  <path d="M346 82L354 90L369 74" stroke="#2FBF8F" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="357" y="130" text-anchor="middle" fill="#173B57" font-family="Arial, sans-serif" font-size="18" font-weight="700">Étapes</text>
+  <text x="357" y="154" text-anchor="middle" fill="#70879A" font-family="Arial, sans-serif" font-size="13">Progression du parcours</text>
+
+  <circle cx="595" cy="82" r="22" fill="#FFF5DD"/>
+  <path d="M584 72H606V97H584V72Z" stroke="#C77D13" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M584 82H606" stroke="#C77D13" stroke-width="4" stroke-linecap="round"/>
+  <text x="595" y="130" text-anchor="middle" fill="#173B57" font-family="Arial, sans-serif" font-size="18" font-weight="700">Rendez-vous</text>
+  <text x="595" y="154" text-anchor="middle" fill="#70879A" font-family="Arial, sans-serif" font-size="13">Planning médical</text>
+
+  <circle cx="833" cy="82" r="22" fill="#F0ECFF"/>
+  <path d="M822 70H837L846 79V98H822V70Z" stroke="#6D5BD0" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M837 70V80H846" stroke="#6D5BD0" stroke-width="4" stroke-linejoin="round"/>
+  <text x="833" y="130" text-anchor="middle" fill="#173B57" font-family="Arial, sans-serif" font-size="18" font-weight="700">Documents</text>
+  <text x="833" y="154" text-anchor="middle" fill="#70879A" font-family="Arial, sans-serif" font-size="13">Fichiers et bilans</text>
+
+  <rect x="344" y="210" width="292" height="34" rx="17" fill="#173B57"/>
+  <circle cx="372" cy="227" r="8" fill="#2FBF8F"/>
+  <text x="390" y="232" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="14" font-weight="700">Données synchronisées avec Supabase</text>
+  <path d="M490 188V210" stroke="#9DB8CB" stroke-width="3" stroke-linecap="round"/>
+</svg>
