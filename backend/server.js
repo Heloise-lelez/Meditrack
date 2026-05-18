@@ -1,30 +1,28 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import { createClient } from "@supabase/supabase-js";
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
+import rendezvousRouter from './routes/rendezvous.js';
+import documentsRouter from './routes/documents.js';
+import { errorHandler } from './middleware/errorHandler.js';
+
 const app = express();
-app.use(cors());
+
+app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' }));
 app.use(express.json());
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE
-);
-
-app.get("/", (req, res) => {
-  res.json({ message: "API is running" });
+app.get('/', (req, res) => {
+  res.json({ message: 'API is running' });
 });
 
-// Exemple : récupérer des données supabase
-app.get("/users", async (req, res) => {
-  const { data, error } = await supabase.from("users").select("*");
-  if (error) return res.status(500).json(error);
-  res.json(data);
-});
+app.use('/api/rendezvous', rendezvousRouter);
+app.use('/api/documents', documentsRouter);
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+app.use(errorHandler);
+
+const PORT = process.env.PORT ?? 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

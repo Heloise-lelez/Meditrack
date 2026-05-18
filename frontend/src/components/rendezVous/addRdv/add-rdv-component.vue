@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { supabase } from '../../../lib/supabase';
+import { api } from '../../../lib/api';
 
 const props = defineProps({
   upcomingCount: { type: Number, default: 0 },
@@ -64,7 +64,7 @@ const submit = async () => {
   try {
     const startsAt = `${form.value.date}T${form.value.heure}:00`;
 
-    const { error } = await supabase.from('rendezvous').insert({
+    await api.post('/api/rendezvous', {
       doctor_first_name: form.value.prenom,
       doctor_last_name: form.value.nom,
       profession: form.value.profession,
@@ -74,14 +74,11 @@ const submit = async () => {
       starts_at: startsAt,
     });
 
-    if (error) {
-      console.error(error);
-      errorMessage.value = error.message || "Impossible d'ajouter le rendez-vous.";
-      return;
-    }
-
     emit('created');
     closeModal();
+  } catch (err) {
+    console.error(err);
+    errorMessage.value = err.message || "Impossible d'ajouter le rendez-vous.";
   } finally {
     saving.value = false;
   }

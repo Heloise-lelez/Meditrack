@@ -19,3 +19,35 @@ The backend is responsible for:
 - **Database & Auth:** Supabase
 
 The backend is designed for reliability, scalability, and easy integration with the Vue.js frontend.
+
+## Environment
+
+Create a `backend/.env` file with:
+
+```env
+SUPABASE_URL=https://xyz.supabase.co
+SUPABASE_SERVICE_ROLE=your_service_role_key
+```
+
+## Commands
+
+From the repository root:
+
+```bash
+npm run start:backend
+```
+
+From this `backend` folder:
+
+```bash
+npm install
+npm start
+```
+
+For development with Node watch mode:
+
+```bash
+npm run dev
+```
+
+The API runs on `http://localhost:3000`.

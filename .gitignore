@@ -1,66 +1,68 @@
-# macOS
-.DS_Store
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Node
+# Dependencies
 node_modules/
-npm-debug.log*
-yarn-error.log*
-pnpm-lock.yaml
-package-lock.json
-dist/
-build/
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.env
-.env.*.local
-venv/
-.venv/
-env/
-pip-wheel-metadata/
-pip-log.txt
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.pytest_cache/
-*.egg-info/
+# Build outputs
 dist/
+dist-ssr/
 build/
+.vite/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env_exemple
 
 # Logs
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Databases
-*.sqlite3
-*.db
+# Test and coverage output
+coverage/
+.nyc_output/
+__screenshots__/
+cypress/videos/
+cypress/screenshots/
 
-# IDEs and editors
-.vscode/
+# Caches
+.eslintcache
+*.tsbuildinfo
+.cache/
+.parcel-cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editors
 .idea/
+.vscode/*
+!.vscode/extensions.json
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.user
+*.sw?
 
-# Docker
-docker-compose.override.yml
-
-# Temporary files
+# Databases and local artifacts
+*.sqlite
+*.sqlite3
+*.db
 *.tmp
-*.swp
-*.lock
 *.bak
 
+# Deploy/local overrides
+.vercel/
+.netlify/
+docker-compose.override.yml
 # Compiled / binary files
 *.o
 *.so
@@ -75,3 +77,6 @@ coverage.xml
 # Misc
 coverage/
 *.local
+
+# Claude Code
+.claude/
