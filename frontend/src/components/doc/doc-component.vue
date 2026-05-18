@@ -188,6 +188,7 @@
 import { ref, computed, onMounted } from 'vue';
 import './Doc.css';
 import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api';
 
 const activeCategory = ref('all');
 
@@ -217,35 +218,28 @@ const uploadForm = ref({
 const loadDocuments = async () => {
   loading.value = true;
   errorMessage.value = null;
-
-  const { data, error } = await supabase
-    .from('document')
-    .select('*')
-    .order('publication_date', { ascending: false });
-
-  if (error) {
-    console.error('Erreur lors du chargement des documents :', error);
+  try {
+    const data = await api.get('/api/documents');
+    documents.value = (data || []).map((row) => ({
+      id: row.id_document,
+      title: row.titre,
+      category: row.type,
+      date: row.publication_date
+        ? new Date(row.publication_date).toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          })
+        : '',
+      size: row.size_kb ? `${row.size_kb} KB` : '',
+      downloadLink: row.download_link ?? null,
+    }));
+  } catch (err) {
+    console.error('Erreur lors du chargement des documents :', err);
     errorMessage.value = 'Impossible de charger les documents.';
+  } finally {
     loading.value = false;
-    return;
   }
-
-  documents.value = (data || []).map((row) => ({
-    id: row.id_document,
-    title: row.titre,
-    category: row.type,
-    date: row.publication_date
-      ? new Date(row.publication_date).toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        })
-      : '',
-    size: row.size_kb ? `${row.size_kb} KB` : '',
-    downloadLink: row.download_link ?? null,
-  }));
-
-  loading.value = false;
 };
 
 onMounted(() => {
@@ -343,15 +337,15 @@ const submitUpload = async () => {
     const sizeKb = Math.max(1, Math.round(selectedFile.value.size / 1024));
     const publicationDate = uploadForm.value.publicationDate || null;
 
-    const { error: insertErr } = await supabase.from('document').insert({
-      titre: uploadForm.value.title,
-      type: uploadForm.value.type,
-      publication_date: publicationDate,
-      download_link: publicUrl,
-      size_kb: sizeKb,
-    });
-
-    if (insertErr) {
+    try {
+      await api.post('/api/documents', {
+        titre: uploadForm.value.title,
+        type: uploadForm.value.type,
+        publication_date: publicationDate,
+        download_link: publicUrl,
+        size_kb: sizeKb,
+      });
+    } catch (insertErr) {
       console.error(insertErr);
       uploadErrorMessage.value = "Fichier envoyé, mais impossible d'enregistrer en base.";
       uploading.value = false;

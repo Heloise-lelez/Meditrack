@@ -63,3 +63,20 @@ Desktop.ini
 .vercel/
 .netlify/
 docker-compose.override.yml
+# Compiled / binary files
+*.o
+*.so
+*.dll
+*.exe
+*.class
+
+# Coverage reports
+coverage/
+coverage.xml
+
+# Misc
+coverage/
+*.local
+
+# Claude Code
+.claude/

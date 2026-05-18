@@ -129,68 +129,52 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import './home.css';
-import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api';
 
 const nextRdv = ref(null);
 const recentDocs = ref([]);
 
 const loadNextRdv = async () => {
-  const nowIso = new Date().toISOString();
-  const { data, error } = await supabase
-    .from('rendezvous')
-    .select('*')
-    .gte('starts_at', nowIso)
-    .order('starts_at', { ascending: true })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    console.error(error);
+  try {
+    const data = await api.get('/api/rendezvous/next');
+    if (!data) {
+      nextRdv.value = null;
+      return;
+    }
+    const d = new Date(data.starts_at);
+    nextRdv.value = {
+      prenom: data.doctor_first_name,
+      nom: data.doctor_last_name,
+      profession: data.profession,
+      operation: data.operation,
+      dateShort: d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+      heure: d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    };
+  } catch (err) {
+    console.error(err);
     nextRdv.value = null;
-    return;
   }
-
-  if (!data) {
-    nextRdv.value = null;
-    return;
-  }
-
-  const d = new Date(data.starts_at);
-  nextRdv.value = {
-    prenom: data.doctor_first_name,
-    nom: data.doctor_last_name,
-    profession: data.profession,
-    operation: data.operation,
-    dateShort: d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
-    heure: d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-  };
 };
 
 const loadRecentDocs = async () => {
-  const { data, error } = await supabase
-    .from('document')
-    .select('id_document,titre,type,publication_date')
-    .order('publication_date', { ascending: false })
-    .limit(3);
-
-  if (error) {
-    console.error(error);
+  try {
+    const data = await api.get('/api/documents?limit=3');
+    recentDocs.value = (data || []).map((row) => ({
+      id: row.id_document,
+      title: row.titre,
+      type: row.type,
+      date: row.publication_date
+        ? new Date(row.publication_date).toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          })
+        : '',
+    }));
+  } catch (err) {
+    console.error(err);
     recentDocs.value = [];
-    return;
   }
-
-  recentDocs.value = (data || []).map((row) => ({
-    id: row.id_document,
-    title: row.titre,
-    type: row.type,
-    date: row.publication_date
-      ? new Date(row.publication_date).toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        })
-      : '',
-  }));
 };
 
 onMounted(() => {
