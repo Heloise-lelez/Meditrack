@@ -1,3 +1,15 @@
-node_modules
+node_modules/
+dist/
+build/
+
 .env
-package-lock.json
+.env.*
+!.env.example
+!.env_exemple
+
+logs/
+*.log
+npm-debug.log*
+
+.DS_Store
+.eslintcache
