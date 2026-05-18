@@ -1,13 +1,16 @@
 <script setup>
   import { ref } from 'vue';
   import TabBar from './layout/tabbar/tabbar-component.vue';
-  import Header from './components/Chirurgie_Suivi/Header.vue';
   import Home from './components/home/home-component.vue';
   import Etapes from './components/etapes/etapes-component.vue';
-  import ContainerSection from './components/container/ContainerSection.vue';
   import rdvComponent from './components/rendezVous/rdv-component.vue';
   import docComponent from './components/doc/doc-component.vue';
+  import AuthComponent from './components/auth/auth-component.vue';
+  import NotFound from './components/not-found/not-found-component.vue';
+  import ProfileComponent from './components/profile/profile-component.vue';
+  import { useAuth } from './composables/useAuth';
 
+  const { user, loading } = useAuth();
   const activeTab = ref('home');
 
   const navigationTabs = [
@@ -15,6 +18,7 @@
     { id: 'steps', label: 'Étapes', icon: 'steps' },
     { id: 'appointments', label: 'Rendez-vous', icon: 'calendar' },
     { id: 'documents', label: 'Documents', icon: 'documents' },
+    { id: 'profile', label: 'Profil', icon: 'profile' },
   ];
 
   const handleTabChange = (newTab) => {
@@ -23,29 +27,44 @@
 </script>
 
 <template>
-  <div id="app" role="application" aria-label="Application Meditrack">
+  <!-- Loading state while resolving session -->
+  <div v-if="loading" class="auth-loading" role="status" aria-label="Chargement">
+    <div class="spinner" aria-hidden="true"></div>
+  </div>
+
+  <!-- Auth screen when not logged in -->
+  <AuthComponent v-else-if="!user" />
+
+  <!-- Main app when logged in -->
+  <div v-else id="app" role="application" aria-label="Application Meditrack">
     <!-- Home Tab -->
     <section v-if="activeTab === 'home'" aria-label="Page d'accueil">
-      <a href="#" class="backup-link" @click.prevent="handleTabChange(navigationTabs[0].id)" aria-label="Retour à l'accueil">Retour à l'accueil</a>
       <Home />
     </section>
 
     <!-- Steps Tab -->
-    <section v-if="activeTab === 'steps'" aria-label="Page des étapes">
-      <a href="#" class="backup-link" @click.prevent="handleTabChange(navigationTabs[0].id)" aria-label="Retour à l'accueil">Retour à l'accueil</a>
+    <section v-else-if="activeTab === 'steps'" aria-label="Page des étapes">
       <Etapes />
     </section>
 
     <!-- Appointments Tab -->
-    <section v-if="activeTab === 'appointments'" class="tab-content" aria-label="Page des rendez-vous">
-      <a href="#" class="backup-link" @click.prevent="handleTabChange(navigationTabs[0].id)" aria-label="Retour à l'accueil">Retour à l'accueil</a>
+    <section v-else-if="activeTab === 'appointments'" class="tab-content" aria-label="Page des rendez-vous">
       <rdvComponent />
     </section>
 
     <!-- Documents Tab -->
-    <section v-if="activeTab === 'documents'" class="tab-content" aria-label="Page des documents">
-      <a href="#" class="backup-link" @click.prevent="handleTabChange(navigationTabs[0].id)" aria-label="Retour à l'accueil">Retour à l'accueil</a>
+    <section v-else-if="activeTab === 'documents'" class="tab-content" aria-label="Page des documents">
       <docComponent />
+    </section>
+
+    <!-- Profile Tab -->
+    <section v-else-if="activeTab === 'profile'" aria-label="Page profil">
+      <ProfileComponent />
+    </section>
+
+    <!-- 404 fallback -->
+    <section v-else aria-label="Page introuvable">
+      <NotFound @go-home="handleTabChange('home')" />
     </section>
 
     <!-- TabBar Navigation -->
@@ -65,24 +84,6 @@
 
 .tab-content {
   padding: 16px;
-}
-
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.container h1 {
-  font-size: 24px;
-  margin-bottom: 12px;
-}
-
-.container p {
-  color: #6b7280;
 }
 
 @media (min-width: 768px) {
@@ -107,9 +108,30 @@
   display: inline-block;
 }
 
-/* visible focus outline for keyboard users */
 .backup-link:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 3px;
 }
+
+.auth-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0faf8;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #d1faf5;
+  border-top-color: #3a8d7a;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 </style>
