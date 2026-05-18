@@ -1,10 +1,11 @@
-import { supabase } from '../lib/supabase.js';
+import { createUserClient } from '../lib/supabase.js';
 
 const REQUIRED = ['doctor_first_name', 'doctor_last_name', 'profession', 'operation', 'address', 'starts_at'];
 
 export async function listRendezvous(req, res, next) {
   try {
-    const { data, error } = await supabase
+    const db = createUserClient(req.userToken);
+    const { data, error } = await db
       .from('rendezvous')
       .select('*')
       .eq('user_id', req.user.id)
@@ -19,7 +20,8 @@ export async function listRendezvous(req, res, next) {
 
 export async function nextRendezvous(req, res, next) {
   try {
-    const { data, error } = await supabase
+    const db = createUserClient(req.userToken);
+    const { data, error } = await db
       .from('rendezvous')
       .select('*')
       .eq('user_id', req.user.id)
@@ -43,8 +45,9 @@ export async function createRendezvous(req, res, next) {
     }
 
     const { doctor_first_name, doctor_last_name, profession, operation, address, starts_at, profile_picture } = req.body;
+    const db = createUserClient(req.userToken);
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('rendezvous')
       .insert({
         doctor_first_name,
@@ -69,7 +72,8 @@ export async function createRendezvous(req, res, next) {
 export async function deleteRendezvous(req, res, next) {
   try {
     const { id } = req.params;
-    const { error } = await supabase
+    const db = createUserClient(req.userToken);
+    const { error } = await db
       .from('rendezvous')
       .delete()
       .eq('id_rendezvous', id)
