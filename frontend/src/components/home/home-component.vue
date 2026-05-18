@@ -14,11 +14,6 @@
         <p>Voici votre suivi du jour</p>
       </section>
 
-      <!-- Status Badge -->
-      <section class="status-badge" role="status" aria-live="polite">
-        <span>Statut : Convalescence - Jour 3 post-op</span>
-      </section>
-
       <!-- Next Appointment -->
       <section class="appointment-card" aria-label="Prochain rendez-vous">
         <header class="appointment-header">
@@ -29,7 +24,7 @@
           <h3 v-else tabindex="0">Aucun rendez-vous</h3>
           <p class="specialty" v-if="nextRdv">{{ nextRdv.profession }}</p>
           <p class="description" v-if="nextRdv">{{ nextRdv.operation }}</p>
-          <p class="description" v-else>Ajoute ton premier rendez-vous dans l’onglet “Rendez-vous”.</p>
+          <p class="description" v-else>Ajoute ton premier rendez-vous dans l'onglet "Rendez-vous".</p>
         </article>
         <div class="appointment-divider" role="presentation"></div>
         <div class="appointment-details">
@@ -52,41 +47,41 @@
       <section class="section" aria-label="Tâches du jour">
         <header class="section-header">
           <h2 tabindex="0">Tâches du jour</h2>
-          <span class="count" aria-label="3 tâches à accomplir">3 tâches</span>
+          <span v-if="taches.length" class="count" :aria-label="`${taches.length} tâches`">{{ taches.length }} tâche{{ taches.length > 1 ? 's' : '' }}</span>
         </header>
 
         <ul class="tasks" role="list">
-          <li class="task" role="listitem">
-            <div class="task-left">
-              <div class="task-indicator done" aria-hidden="true"></div>
-              <div class="task-info">
-                <div class="task-title">Soins de la plaie</div>
-                <time class="task-time">09:00</time>
-              </div>
-            </div>
-            <span class="task-status done" aria-label="Tâche accompllie">Fait</span>
-          </li>
-
-          <li class="task" role="listitem">
+          <li v-if="taches.length === 0" class="task" role="listitem">
             <div class="task-left">
               <div class="task-indicator pending" aria-hidden="true"></div>
               <div class="task-info">
-                <div class="task-title">Prise médicament anti-douleur</div>
-                <time class="task-time">12:00</time>
+                <div class="task-title">Aucune tâche pour aujourd'hui</div>
               </div>
             </div>
-            <span class="task-status pending" aria-label="Tâche à faire">À faire</span>
           </li>
 
-          <li class="task" role="listitem">
+          <li
+            v-for="tache in taches"
+            :key="tache.id_tache"
+            class="task"
+            role="listitem"
+          >
             <div class="task-left">
-              <div class="task-indicator pending" aria-hidden="true"></div>
+              <div class="task-indicator" :class="tache.statut === 'fait' ? 'done' : 'pending'" aria-hidden="true"></div>
               <div class="task-info">
-                <div class="task-title">Exercices de mobilisation</div>
-                <time class="task-time">15:00</time>
+                <div class="task-title">{{ TASK_LABELS[tache.nom_tache] ?? tache.nom_tache }}</div>
+                <time v-if="tache.heure" class="task-time">{{ tache.heure.slice(0, 5) }}</time>
+                <p v-if="tache.commentaire" class="task-comment">{{ tache.commentaire }}</p>
               </div>
             </div>
-            <span class="task-status pending" aria-label="Tâche à faire">À faire</span>
+            <button
+              class="task-status"
+              :class="tache.statut === 'fait' ? 'done' : 'pending'"
+              :aria-label="tache.statut === 'fait' ? 'Marquer comme à faire' : 'Marquer comme fait'"
+              @click="toggleTache(tache)"
+            >
+              {{ tache.statut === 'fait' ? 'Fait' : tache.statut === 'ratee' ? 'Ratée' : 'À faire' }}
+            </button>
           </li>
         </ul>
       </section>
@@ -102,7 +97,7 @@
             <div class="doc-icon" aria-hidden="true">📄</div>
             <div class="doc-info">
               <div class="doc-title">Aucun document récent</div>
-              <div class="doc-meta">Ajoute tes documents dans l’onglet “Documents”.</div>
+              <div class="doc-meta">Ajoute tes documents dans l'onglet "Documents".</div>
             </div>
           </li>
 
@@ -131,16 +126,27 @@ import { onMounted, ref } from 'vue';
 import './home.css';
 import { api } from '../../lib/api';
 
+const TASK_LABELS = {
+  prise_medicaments: 'Prise de médicaments',
+  chimio: 'Chimiothérapie',
+  irm: 'IRM',
+  scanner: 'Scanner',
+  prise_de_sang: 'Prise de sang',
+  consultation: 'Consultation',
+  radiotherapie: 'Radiothérapie',
+  soins_infirmiers: 'Soins infirmiers',
+};
+
 const nextRdv = ref(null);
 const recentDocs = ref([]);
+const taches = ref([]);
+
+const todayISO = () => new Date().toISOString().slice(0, 10);
 
 const loadNextRdv = async () => {
   try {
     const data = await api.get('/api/rendezvous/next');
-    if (!data) {
-      nextRdv.value = null;
-      return;
-    }
+    if (!data) { nextRdv.value = null; return; }
     const d = new Date(data.starts_at);
     nextRdv.value = {
       prenom: data.doctor_first_name,
@@ -150,9 +156,26 @@ const loadNextRdv = async () => {
       dateShort: d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
       heure: d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     };
-  } catch (err) {
-    console.error(err);
+  } catch {
     nextRdv.value = null;
+  }
+};
+
+const loadTaches = async () => {
+  try {
+    taches.value = await api.get(`/api/taches?date=${todayISO()}`);
+  } catch {
+    taches.value = [];
+  }
+};
+
+const toggleTache = async (tache) => {
+  const newStatut = tache.statut === 'fait' ? 'a_faire' : 'fait';
+  try {
+    const updated = await api.put(`/api/taches/${tache.id_tache}`, { statut: newStatut });
+    tache.statut = updated.statut;
+  } catch {
+    // keep UI consistent on failure
   }
 };
 
@@ -164,21 +187,17 @@ const loadRecentDocs = async () => {
       title: row.titre,
       type: row.type,
       date: row.publication_date
-        ? new Date(row.publication_date).toLocaleDateString('fr-FR', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          })
+        ? new Date(row.publication_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
         : '',
     }));
-  } catch (err) {
-    console.error(err);
+  } catch {
     recentDocs.value = [];
   }
 };
 
 onMounted(() => {
   loadNextRdv();
+  loadTaches();
   loadRecentDocs();
 });
 </script>

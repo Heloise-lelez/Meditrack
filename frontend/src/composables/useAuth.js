@@ -1,17 +1,36 @@
 import { ref } from 'vue';
 import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 
 const user = ref(null);
+const userRole = ref(null);
 const loading = ref(true);
 
-// Resolve initial session once on module load
+async function fetchRole() {
+  try {
+    const data = await api.get('/api/profile/my-role');
+    userRole.value = data.role ?? 'PATIENT';
+  } catch {
+    userRole.value = 'PATIENT';
+  }
+}
+
 supabase.auth.getSession().then(({ data }) => {
   user.value = data.session?.user ?? null;
-  loading.value = false;
+  if (user.value) {
+    fetchRole().finally(() => { loading.value = false; });
+  } else {
+    loading.value = false;
+  }
 });
 
 supabase.auth.onAuthStateChange((_event, session) => {
   user.value = session?.user ?? null;
+  if (user.value) {
+    fetchRole();
+  } else {
+    userRole.value = null;
+  }
 });
 
 export function useAuth() {
@@ -33,5 +52,5 @@ export function useAuth() {
     await supabase.auth.signOut();
   }
 
-  return { user, loading, signIn, signUp, signOut };
+  return { user, userRole, loading, signIn, signUp, signOut };
 }
