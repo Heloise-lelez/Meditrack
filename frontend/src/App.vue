@@ -7,9 +7,10 @@
   import docComponent from './components/doc/doc-component.vue';
   import AuthComponent from './components/auth/auth-component.vue';
   import NotFound from './components/not-found/not-found-component.vue';
+  import ProfileComponent from './components/profile/profile-component.vue';
   import { useAuth } from './composables/useAuth';
 
-  const { user, loading, signOut } = useAuth();
+  const { user, loading } = useAuth();
   const activeTab = ref('home');
 
   const navigationTabs = [
@@ -17,6 +18,7 @@
     { id: 'steps', label: 'Étapes', icon: 'steps' },
     { id: 'appointments', label: 'Rendez-vous', icon: 'calendar' },
     { id: 'documents', label: 'Documents', icon: 'documents' },
+    { id: 'profile', label: 'Profil', icon: 'profile' },
   ];
 
   const handleTabChange = (newTab) => {
@@ -35,11 +37,6 @@
 
   <!-- Main app when logged in -->
   <div v-else id="app" role="application" aria-label="Application Meditrack">
-    <!-- Logout button -->
-    <button class="logout-btn" aria-label="Se déconnecter" @click="signOut">
-      Déconnexion
-    </button>
-
     <!-- Home Tab -->
     <section v-if="activeTab === 'home'" aria-label="Page d'accueil">
       <Home />
@@ -58,6 +55,11 @@
     <!-- Documents Tab -->
     <section v-else-if="activeTab === 'documents'" class="tab-content" aria-label="Page des documents">
       <docComponent />
+    </section>
+
+    <!-- Profile Tab -->
+    <section v-else-if="activeTab === 'profile'" aria-label="Page profil">
+      <ProfileComponent />
     </section>
 
     <!-- 404 fallback -->
@@ -132,24 +134,4 @@
   to { transform: rotate(360deg); }
 }
 
-.logout-btn {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  z-index: 50;
-  padding: 6px 14px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #374151;
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-
-.logout-btn:hover {
-  background: #f9fafb;
-  color: #b91c1c;
-  border-color: #fca5a5;
-}
 </style>
