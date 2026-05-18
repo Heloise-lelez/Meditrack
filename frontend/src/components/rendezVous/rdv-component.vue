@@ -56,6 +56,7 @@ const formatTime = (iso) =>
 const isDetailsOpen = ref(false);
 const selectedRdv = ref(null);
 const selectedIsPast = ref(false);
+const deleteError = ref(null);
 
 const openDetails = (rdv, isPast) => {
   selectedRdv.value = rdv;
@@ -67,6 +68,20 @@ const closeDetails = () => {
   isDetailsOpen.value = false;
   selectedRdv.value = null;
   selectedIsPast.value = false;
+  deleteError.value = null;
+};
+
+const deleteRdv = async (id) => {
+  if (!confirm('Supprimer ce rendez-vous ?')) return;
+  deleteError.value = null;
+  try {
+    await api.delete(`/api/rendezvous/${id}`);
+    closeDetails();
+    await loadRdvs();
+  } catch (err) {
+    console.error(err);
+    deleteError.value = 'Impossible de supprimer ce rendez-vous.';
+  }
 };
 </script>
 
@@ -175,6 +190,16 @@ const closeDetails = () => {
           {{ selectedIsPast ? 'Passé' : 'À venir' }}
         </p>
       </div>
+
+      <p v-if="deleteError" style="margin:8px 0 0;color:#b91c1c;font-size:12px;" role="alert">{{ deleteError }}</p>
+
+      <button
+        type="button"
+        style="margin-top:16px;width:100%;padding:10px;border:none;border-radius:10px;background:#fef2f2;color:#b91c1c;font-size:14px;font-weight:600;cursor:pointer;"
+        @click="deleteRdv(selectedRdv.id_rendezvous)"
+      >
+        Supprimer ce rendez-vous
+      </button>
     </div>
   </div>
 

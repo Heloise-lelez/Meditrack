@@ -5,6 +5,7 @@ export async function listDocuments(req, res, next) {
     let query = supabase
       .from('document')
       .select('*')
+      .eq('user_id', req.user.id)
       .order('publication_date', { ascending: false });
 
     const limit = parseInt(req.query.limit, 10);
@@ -37,6 +38,7 @@ export async function createDocument(req, res, next) {
         publication_date: publication_date ?? null,
         download_link: download_link ?? null,
         size_kb: size_kb ?? null,
+        user_id: req.user.id,
       })
       .select()
       .single();
@@ -85,8 +87,9 @@ export async function uploadDocument(req, res, next) {
           titre,
           type,
           publication_date: publication_date || null,
-          download_link: storagePath, // stores the path, not a public URL
+          download_link: storagePath,
           size_kb: sizeKb,
+          user_id: req.user.id,
         })
         .select()
         .single();
@@ -112,6 +115,7 @@ export async function getDocumentUrl(req, res, next) {
       .from('document')
       .select('download_link')
       .eq('id_document', id)
+      .eq('user_id', req.user.id)
       .single();
 
     if (fetchErr || !doc) return res.status(404).json({ error: 'Document introuvable' });
@@ -119,11 +123,42 @@ export async function getDocumentUrl(req, res, next) {
 
     const { data: signed, error: signErr } = await supabase.storage
       .from('documents')
-      .createSignedUrl(doc.download_link, 3600); // valid for 1 hour
+      .createSignedUrl(doc.download_link, 3600);
 
     if (signErr) throw signErr;
 
     res.json({ url: signed.signedUrl });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteDocument(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const { data: doc, error: fetchErr } = await supabase
+      .from('document')
+      .select('download_link')
+      .eq('id_document', id)
+      .eq('user_id', req.user.id)
+      .single();
+
+    if (fetchErr || !doc) return res.status(404).json({ error: 'Document introuvable' });
+
+    if (doc.download_link) {
+      await supabase.storage.from('documents').remove([doc.download_link]);
+    }
+
+    const { error: delErr } = await supabase
+      .from('document')
+      .delete()
+      .eq('id_document', id)
+      .eq('user_id', req.user.id);
+
+    if (delErr) throw delErr;
+
+    res.status(204).end();
   } catch (err) {
     next(err);
   }

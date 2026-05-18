@@ -7,6 +7,7 @@ export async function listRendezvous(req, res, next) {
     const { data, error } = await supabase
       .from('rendezvous')
       .select('*')
+      .eq('user_id', req.user.id)
       .order('starts_at', { ascending: true });
 
     if (error) throw error;
@@ -21,6 +22,7 @@ export async function nextRendezvous(req, res, next) {
     const { data, error } = await supabase
       .from('rendezvous')
       .select('*')
+      .eq('user_id', req.user.id)
       .gte('starts_at', new Date().toISOString())
       .order('starts_at', { ascending: true })
       .limit(1)
@@ -44,12 +46,37 @@ export async function createRendezvous(req, res, next) {
 
     const { data, error } = await supabase
       .from('rendezvous')
-      .insert({ doctor_first_name, doctor_last_name, profession, operation, address, starts_at, profile_picture: profile_picture ?? null })
+      .insert({
+        doctor_first_name,
+        doctor_last_name,
+        profession,
+        operation,
+        address,
+        starts_at,
+        profile_picture: profile_picture ?? null,
+        user_id: req.user.id,
+      })
       .select()
       .single();
 
     if (error) throw error;
     res.status(201).json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteRendezvous(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { error } = await supabase
+      .from('rendezvous')
+      .delete()
+      .eq('id_rendezvous', id)
+      .eq('user_id', req.user.id);
+
+    if (error) throw error;
+    res.status(204).end();
   } catch (err) {
     next(err);
   }

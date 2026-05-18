@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { listDocuments, createDocument, uploadDocument, getDocumentUrl } from '../controllers/documentsController.js';
+import { requireAuth } from '../middleware/auth.js';
+import { listDocuments, createDocument, uploadDocument, getDocumentUrl, deleteDocument } from '../controllers/documentsController.js';
 
 const ALLOWED_MIME_TYPES = new Set([
   'application/pdf',
@@ -25,6 +26,7 @@ const upload = multer({
 });
 
 const router = Router();
+router.use(requireAuth);
 
 router.get('/', listDocuments);
 router.get('/:id/url', getDocumentUrl);
@@ -38,5 +40,6 @@ router.post('/upload', (req, res, next) => {
     return res.status(400).json({ error: err.message });
   });
 }, uploadDocument);
+router.delete('/:id', deleteDocument);
 
 export default router;
