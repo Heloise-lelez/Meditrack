@@ -4,7 +4,7 @@ import './rdv.css';
 import Header from '../Chirurgie_Suivi/Header.vue';
 import RdvCardsComponent from './rdvCards/rdv-cards-component.vue';
 import addRdvComponent from './addRdv/add-rdv-component.vue';
-import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api';
 
 const rdvs = ref([]);
 const loading = ref(true);
@@ -13,21 +13,15 @@ const errorMessage = ref(null);
 const loadRdvs = async () => {
   loading.value = true;
   errorMessage.value = null;
-
-  const { data, error } = await supabase
-    .from('rendezvous')
-    .select('*')
-    .order('starts_at', { ascending: true });
-
-  if (error) {
-    console.error(error);
+  try {
+    rdvs.value = await api.get('/api/rendezvous');
+  } catch (err) {
+    console.error(err);
     errorMessage.value = "Impossible de charger les rendez-vous.";
+    rdvs.value = [];
+  } finally {
     loading.value = false;
-    return;
   }
-
-  rdvs.value = data || [];
-  loading.value = false;
 };
 
 onMounted(() => {
