@@ -92,6 +92,20 @@
               </svg>
               <span>Télécharger</span>
             </button>
+            <button
+              class="action-btn delete-btn"
+              :aria-label="`Supprimer le document ${doc.title}`"
+              title="Supprimer"
+              @click="deleteDoc(doc)"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6M14 11v6" />
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+              </svg>
+              <span>Supprimer</span>
+            </button>
           </div>
         </article>
       </section>
@@ -188,6 +202,7 @@
 import { ref, computed, onMounted } from 'vue';
 import './Doc.css';
 import { api } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 
 const activeCategory = ref('all');
 
@@ -308,9 +323,12 @@ const submitUpload = async () => {
       formData.append('publication_date', uploadForm.value.publicationDate);
     }
 
-    const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+    const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
     const res = await fetch(`${BASE}/api/documents/upload`, {
       method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,
     });
     const json = await res.json();
@@ -347,6 +365,17 @@ const openDoc = async (doc) => {
     return;
   }
   window.open(url, '_blank', 'noopener,noreferrer');
+};
+
+const deleteDoc = async (doc) => {
+  if (!confirm(`Supprimer "${doc.title}" ?`)) return;
+  try {
+    await api.delete(`/api/documents/${doc.id}`);
+    await loadDocuments();
+  } catch (err) {
+    console.error(err);
+    errorMessage.value = 'Impossible de supprimer le document.';
+  }
 };
 
 const downloadDoc = async (doc) => {
