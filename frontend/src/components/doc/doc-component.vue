@@ -187,7 +187,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import './Doc.css';
-import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
 
 const activeCategory = ref('all');
@@ -288,13 +287,6 @@ const onFileSelected = (e) => {
   isUploadModalOpen.value = true;
 };
 
-const safeFilename = (name) =>
-  name
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9._-]/g, '');
-
 const submitUpload = async () => {
   uploadErrorMessage.value = null;
   if (!selectedFile.value) {
@@ -308,72 +300,63 @@ const submitUpload = async () => {
 
   uploading.value = true;
   try {
-    const bucket = 'documents';
-    const ext = selectedFile.value.name.includes('.')
-      ? selectedFile.value.name.split('.').pop()
-      : '';
-    const randomId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    const path = `uploads/${randomId}-${safeFilename(uploadForm.value.title)}${ext ? `.${ext}` : ''}`;
-
-    const { error: uploadErr } = await supabase.storage
-      .from(bucket)
-      .upload(path, selectedFile.value, {
-        contentType: selectedFile.value.type || 'application/octet-stream',
-        upsert: false,
-      });
-
-    if (uploadErr) {
-      console.error('Erreur upload:', uploadErr);
-      uploadErrorMessage.value =
-  'Erreur: ' +
-  (uploadErr.message ||
-    "Échec de l'envoi du fichier. Vérifie que le bucket \"documents\" existe et que les policies RLS sont configurées.");      uploading.value = false;
-      return;
+    const formData = new FormData();
+    formData.append('file', selectedFile.value);
+    formData.append('titre', uploadForm.value.title);
+    formData.append('type', uploadForm.value.type);
+    if (uploadForm.value.publicationDate) {
+      formData.append('publication_date', uploadForm.value.publicationDate);
     }
 
-    const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(path);
-    const publicUrl = publicUrlData?.publicUrl ?? null;
-
-    const sizeKb = Math.max(1, Math.round(selectedFile.value.size / 1024));
-    const publicationDate = uploadForm.value.publicationDate || null;
-
-    try {
-      await api.post('/api/documents', {
-        titre: uploadForm.value.title,
-        type: uploadForm.value.type,
-        publication_date: publicationDate,
-        download_link: publicUrl,
-        size_kb: sizeKb,
-      });
-    } catch (insertErr) {
-      console.error(insertErr);
-      uploadErrorMessage.value = "Fichier envoyé, mais impossible d'enregistrer en base.";
-      uploading.value = false;
+    const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+    const res = await fetch(`${BASE}/api/documents/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      uploadErrorMessage.value = json.error ?? "Échec de l'envoi du fichier.";
       return;
     }
 
     await loadDocuments();
     closeUploadModal();
+  } catch (err) {
+    console.error(err);
+    uploadErrorMessage.value = "Erreur réseau lors de l'envoi du fichier.";
   } finally {
     uploading.value = false;
   }
 };
 
-const openDoc = (doc) => {
-  if (!doc?.downloadLink) {
+async function fetchSignedUrl(doc) {
+  if (!doc?.id) return null;
+  try {
+    const { url } = await api.get(`/api/documents/${doc.id}/url`);
+    return url ?? null;
+  } catch (err) {
+    console.error('Impossible de récupérer le lien signé :', err);
+    return null;
+  }
+}
+
+const openDoc = async (doc) => {
+  const url = await fetchSignedUrl(doc);
+  if (!url) {
     alert("Aucun lien de document n'est disponible.");
     return;
   }
-  window.open(doc.downloadLink, '_blank', 'noopener,noreferrer');
+  window.open(url, '_blank', 'noopener,noreferrer');
 };
 
-const downloadDoc = (doc) => {
-  if (!doc?.downloadLink) {
+const downloadDoc = async (doc) => {
+  const url = await fetchSignedUrl(doc);
+  if (!url) {
     alert("Aucun lien de téléchargement n'est disponible.");
     return;
   }
   const a = document.createElement('a');
-  a.href = doc.downloadLink;
+  a.href = url;
   a.target = '_blank';
   a.rel = 'noopener noreferrer';
   a.download = '';
