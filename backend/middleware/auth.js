@@ -8,5 +8,6 @@ export async function requireAuth(req, res, next) {
   if (error || !data.user) return res.status(401).json({ error: 'Unauthorized' });
 
   req.user = data.user;
+  req.userToken = token;
   next();
 }
