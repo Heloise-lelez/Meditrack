@@ -22,7 +22,9 @@ app.use('/api/documents', documentsRouter);
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT ?? 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+export default app;
+
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT ?? 3000;
+  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+}
