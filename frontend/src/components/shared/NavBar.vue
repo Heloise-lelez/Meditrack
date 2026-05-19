@@ -19,7 +19,7 @@ export default {
       const isPatient = userRole.value === ROLES.PATIENT;
       const isDoctor = userRole.value === ROLES.DOCTOR;
       const isAssistant = userRole.value === ROLES.ASSISTANT;
-      const isSuperAdmin = userRole.value === ROLES.SUPERADMIN;
+      const isSuperAdmin = userRole.value === ROLES.SUPER_ADMIN;
 
       return [
         {
