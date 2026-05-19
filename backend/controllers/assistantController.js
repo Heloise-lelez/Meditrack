@@ -79,7 +79,8 @@ export async function createAssignment(req, res, next) {
       .single();
 
     if (error) {
-      if (error.code === '23505') return res.status(409).json({ error: 'Assignation déjà existante' });
+      if (error.code === '23505')
+        return res.status(409).json({ error: 'Assignation déjà existante' });
       throw error;
     }
     res.status(201).json(data);

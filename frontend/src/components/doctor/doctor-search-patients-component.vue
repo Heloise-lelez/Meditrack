@@ -17,11 +17,7 @@
     </div>
 
     <section v-if="results.length" class="results-section" aria-label="Résultats de recherche">
-      <div
-        v-for="p in results"
-        :key="p.id"
-        class="patient-row"
-      >
+      <div v-for="p in results" :key="p.id" class="patient-row">
         <span class="patient-name">{{ p.prenom }} {{ p.nom }}</span>
         <button
           v-if="assignedIds.has(p.id)"
@@ -31,12 +27,7 @@
         >
           {{ loadingId === p.id ? '…' : 'Se désassigner' }}
         </button>
-        <button
-          v-else
-          class="btn-assign"
-          :disabled="loadingId === p.id"
-          @click="assign(p)"
-        >
+        <button v-else class="btn-assign" :disabled="loadingId === p.id" @click="assign(p)">
           {{ loadingId === p.id ? '…' : "S'assigner" }}
         </button>
       </div>
@@ -74,7 +65,10 @@ function onInput() {
   errorMsg.value = null;
   clearTimeout(debounceTimer);
   const q = query.value.trim();
-  if (q.length < 2) { results.value = []; return; }
+  if (q.length < 2) {
+    results.value = [];
+    return;
+  }
   debounceTimer = setTimeout(() => search(q), 300);
 }
 
@@ -96,7 +90,7 @@ async function assign(patient) {
     await api.post('/api/doctor/patients/self-assign', { patient_id: patient.id });
     assignedIds.value = new Set([...assignedIds.value, patient.id]);
   } catch (err) {
-    errorMsg.value = err.message ?? 'Erreur lors de l\'assignation.';
+    errorMsg.value = err.message ?? "Erreur lors de l'assignation.";
   } finally {
     loadingId.value = null;
   }

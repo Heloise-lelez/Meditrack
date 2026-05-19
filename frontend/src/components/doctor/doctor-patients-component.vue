@@ -33,15 +33,25 @@
             @click="selectedPatient = p"
             @keydown.enter.space.prevent="selectedPatient = p"
           >
-            <div class="patient-avatar" aria-hidden="true">
-              {{ p.prenom[0] }}{{ p.nom[0] }}
-            </div>
+            <div class="patient-avatar" aria-hidden="true">{{ p.prenom[0] }}{{ p.nom[0] }}</div>
             <div class="patient-info">
               <div class="patient-name">{{ p.prenom }} {{ p.nom }}</div>
               <div class="patient-meta">Assigné le {{ formatDate(p.assigned_at) }}</div>
             </div>
-            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="9 18 15 12 9 6"/>
+            <svg
+              class="chevron"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="9 18 15 12 9 6" />
             </svg>
           </li>
         </ul>

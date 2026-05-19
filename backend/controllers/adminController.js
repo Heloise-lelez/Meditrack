@@ -106,7 +106,9 @@ export async function updateUserEtablissement(req, res, next) {
 
     if (fetchErr || !profile) return res.status(404).json({ error: 'Utilisateur introuvable' });
     if (!ETAB_ROLES.includes(profile.role)) {
-      return res.status(400).json({ error: 'Seuls les DOCTOR et ASSISTANT peuvent être assignés à un établissement' });
+      return res
+        .status(400)
+        .json({ error: 'Seuls les DOCTOR et ASSISTANT peuvent être assignés à un établissement' });
     }
 
     const { data, error } = await supabaseAdmin

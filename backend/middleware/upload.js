@@ -24,7 +24,9 @@ export const upload = multer({
 
 export function handleUploadError(err, res) {
   if (err?.code === 'LIMIT_FILE_SIZE') {
-    return res.status(413).json({ error: `Fichier trop volumineux. Taille maximale : ${MAX_SIZE_BYTES / 1024 / 1024} Mo.` });
+    return res.status(413).json({
+      error: `Fichier trop volumineux. Taille maximale : ${MAX_SIZE_BYTES / 1024 / 1024} Mo.`,
+    });
   }
   if (err) return res.status(400).json({ error: err.message });
 }

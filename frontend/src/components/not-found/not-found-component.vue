@@ -4,9 +4,7 @@
       <span class="not-found-icon" aria-hidden="true">🔍</span>
       <h1>Page introuvable</h1>
       <p>Cette section n'existe pas.</p>
-      <button class="home-btn" @click="emit('go-home')">
-        Retour à l'accueil
-      </button>
+      <button class="home-btn" @click="emit('go-home')">Retour à l'accueil</button>
     </div>
   </main>
 </template>

@@ -3,12 +3,22 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 import { upload, handleUploadError } from '../middleware/upload.js';
 import {
   listMyPatients,
-  listPatientRendezvous, createPatientRendezvous, deletePatientRendezvous,
-  listPatientTaches, createPatientTache, deletePatientTache,
-  listPatientEtapes, createPatientEtape, deletePatientEtape,
-  listPatientDocuments, uploadDocumentForPatient,
-  getMyProfile, updateMyProfile,
-  searchPatients, selfAssign, selfUnassign,
+  listPatientRendezvous,
+  createPatientRendezvous,
+  deletePatientRendezvous,
+  listPatientTaches,
+  createPatientTache,
+  deletePatientTache,
+  listPatientEtapes,
+  createPatientEtape,
+  deletePatientEtape,
+  listPatientDocuments,
+  uploadDocumentForPatient,
+  getMyProfile,
+  updateMyProfile,
+  searchPatients,
+  selfAssign,
+  selfUnassign,
 } from '../controllers/doctorController.js';
 
 const router = Router();
@@ -37,11 +47,16 @@ router.post('/patients/:pid/etapes', ...isDoctor, createPatientEtape);
 router.delete('/patients/:pid/etapes/:id', ...isDoctor, deletePatientEtape);
 
 router.get('/patients/:pid/documents', ...isDoctor, listPatientDocuments);
-router.post('/patients/:pid/documents/upload', ...isDoctor, (req, res, next) => {
-  upload.single('file')(req, res, (err) => {
-    if (!err) return next();
-    handleUploadError(err, res);
-  });
-}, uploadDocumentForPatient);
+router.post(
+  '/patients/:pid/documents/upload',
+  ...isDoctor,
+  (req, res, next) => {
+    upload.single('file')(req, res, (err) => {
+      if (!err) return next();
+      handleUploadError(err, res);
+    });
+  },
+  uploadDocumentForPatient
+);
 
 export default router;

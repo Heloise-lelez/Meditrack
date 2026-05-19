@@ -15,9 +15,7 @@ export const supabaseAdmin = createClient(
 );
 
 export function createUserClient(userJwt) {
-  return createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-    { global: { headers: { Authorization: `Bearer ${userJwt}` } } }
-  );
+  return createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${userJwt}` } },
+  });
 }

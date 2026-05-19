@@ -35,7 +35,9 @@
               >
                 <option v-for="r in ROLES" :key="r" :value="r">{{ r }}</option>
               </select>
-              <span v-if="saving === u.id" class="saving-indicator" aria-live="polite">Sauvegarde…</span>
+              <span v-if="saving === u.id" class="saving-indicator" aria-live="polite"
+                >Sauvegarde…</span
+              >
             </td>
             <td>
               <template v-if="u.role === 'DOCTOR' || u.role === 'ASSISTANT'">
@@ -48,7 +50,9 @@
                   <option value="">— Aucun —</option>
                   <option v-for="e in etablissements" :key="e.id" :value="e.id">{{ e.nom }}</option>
                 </select>
-                <span v-if="savingEtab === u.id" class="saving-indicator" aria-live="polite">Sauvegarde…</span>
+                <span v-if="savingEtab === u.id" class="saving-indicator" aria-live="polite"
+                  >Sauvegarde…</span
+                >
               </template>
               <span v-else>—</span>
             </td>
@@ -58,8 +62,10 @@
     </div>
 
     <!-- Établissements section -->
-    <div class="admin-container" style="margin-top: 32px;">
-      <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 16px;">Gestion des établissements</h2>
+    <div class="admin-container" style="margin-top: 32px">
+      <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 16px">
+        Gestion des établissements
+      </h2>
 
       <form class="etab-form" @submit.prevent="submitEtablissement">
         <input
@@ -81,9 +87,16 @@
           {{ creatingEtab ? 'Création…' : 'Créer' }}
         </button>
       </form>
-      <p v-if="etabError" class="admin-error" role="alert" style="margin-top: 8px;">{{ etabError }}</p>
+      <p v-if="etabError" class="admin-error" role="alert" style="margin-top: 8px">
+        {{ etabError }}
+      </p>
 
-      <table v-if="etablissements.length" class="users-table" style="margin-top: 16px;" aria-label="Liste des établissements">
+      <table
+        v-if="etablissements.length"
+        class="users-table"
+        style="margin-top: 16px"
+        aria-label="Liste des établissements"
+      >
         <thead>
           <tr>
             <th scope="col">Nom</th>
@@ -99,7 +112,9 @@
           </tr>
         </tbody>
       </table>
-      <p v-else-if="!loading" style="color: #6b7280; font-size: 0.875rem; margin-top: 12px;">Aucun établissement créé.</p>
+      <p v-else-if="!loading" style="color: #6b7280; font-size: 0.875rem; margin-top: 12px">
+        Aucun établissement créé.
+      </p>
     </div>
   </main>
 </template>

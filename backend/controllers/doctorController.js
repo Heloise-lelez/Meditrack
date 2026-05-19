@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../lib/supabase.js';
-import { encryptBuffer } from '../lib/encrypt.js';
+import { encryptBuffer, decryptBuffer } from '../lib/encrypt.js';
 
 // Verify that patientId is assigned to this doctor; returns 403 if not
 async function assertPatientOfDoctor(doctorId, patientId, res) {
@@ -72,14 +72,39 @@ export async function createPatientRendezvous(req, res, next) {
     const { pid } = req.params;
     if (!(await assertPatientOfDoctor(req.user.id, pid, res))) return;
 
-    const REQUIRED = ['doctor_first_name', 'doctor_last_name', 'profession', 'operation', 'address', 'starts_at'];
+    const REQUIRED = [
+      'doctor_first_name',
+      'doctor_last_name',
+      'profession',
+      'operation',
+      'address',
+      'starts_at',
+    ];
     const missing = REQUIRED.filter((f) => !req.body[f]);
-    if (missing.length) return res.status(400).json({ error: `Champs manquants: ${missing.join(', ')}` });
+    if (missing.length)
+      return res.status(400).json({ error: `Champs manquants: ${missing.join(', ')}` });
 
-    const { doctor_first_name, doctor_last_name, profession, operation, address, starts_at, profile_picture } = req.body;
+    const {
+      doctor_first_name,
+      doctor_last_name,
+      profession,
+      operation,
+      address,
+      starts_at,
+      profile_picture,
+    } = req.body;
     const { data, error } = await supabaseAdmin
       .from('rendezvous')
-      .insert({ doctor_first_name, doctor_last_name, profession, operation, address, starts_at, profile_picture: profile_picture ?? null, user_id: pid })
+      .insert({
+        doctor_first_name,
+        doctor_last_name,
+        profession,
+        operation,
+        address,
+        starts_at,
+        profile_picture: profile_picture ?? null,
+        user_id: pid,
+      })
       .select()
       .single();
 
@@ -138,12 +163,20 @@ export async function createPatientTache(req, res, next) {
 
     const REQUIRED = ['nom_tache', 'date_tache'];
     const missing = REQUIRED.filter((f) => !req.body[f]);
-    if (missing.length) return res.status(400).json({ error: `Champs manquants: ${missing.join(', ')}` });
+    if (missing.length)
+      return res.status(400).json({ error: `Champs manquants: ${missing.join(', ')}` });
 
     const { nom_tache, date_tache, heure, commentaire } = req.body;
     const { data, error } = await supabaseAdmin
       .from('tachesjour')
-      .insert({ nom_tache, date_tache, heure: heure ?? null, commentaire: commentaire ?? null, statut: 'a_faire', user_id: pid })
+      .insert({
+        nom_tache,
+        date_tache,
+        heure: heure ?? null,
+        commentaire: commentaire ?? null,
+        statut: 'a_faire',
+        user_id: pid,
+      })
       .select()
       .single();
 
@@ -199,12 +232,20 @@ export async function createPatientEtape(req, res, next) {
 
     const REQUIRED = ['titre', 'date_debut'];
     const missing = REQUIRED.filter((f) => !req.body[f]);
-    if (missing.length) return res.status(400).json({ error: `Champs manquants: ${missing.join(', ')}` });
+    if (missing.length)
+      return res.status(400).json({ error: `Champs manquants: ${missing.join(', ')}` });
 
     const { titre, detail, date_debut, date_fin, checklist } = req.body;
     const { data, error } = await supabaseAdmin
       .from('etape')
-      .insert({ titre, detail: detail ?? null, date_debut, date_fin: date_fin ?? null, checklist: checklist ?? [], user_id: pid })
+      .insert({
+        titre,
+        detail: detail ?? null,
+        date_debut,
+        date_fin: date_fin ?? null,
+        checklist: checklist ?? [],
+        user_id: pid,
+      })
       .select()
       .single();
 
@@ -255,7 +296,11 @@ export async function updateMyProfile(req, res, next) {
     const { specialite, num_service, horaire_service } = req.body;
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .update({ specialite: specialite ?? null, num_service: num_service ?? null, horaire_service: horaire_service ?? null })
+      .update({
+        specialite: specialite ?? null,
+        num_service: num_service ?? null,
+        horaire_service: horaire_service ?? null,
+      })
       .eq('id', req.user.id)
       .select('id, nom, prenom, tel, specialite, num_service, horaire_service')
       .single();
@@ -301,7 +346,8 @@ export async function selfAssign(req, res, next) {
       .single();
 
     if (error) {
-      if (error.code === '23505') return res.status(409).json({ error: 'Assignation déjà existante' });
+      if (error.code === '23505')
+        return res.status(409).json({ error: 'Assignation déjà existante' });
       throw error;
     }
     res.status(201).json(data);
@@ -348,6 +394,40 @@ export async function listPatientDocuments(req, res, next) {
   }
 }
 
+export async function downloadPatientDocument(req, res, next) {
+  try {
+    const { pid, id } = req.params;
+    if (!(await assertPatientOfDoctor(req.user.id, pid, res))) return;
+
+    const { data: doc, error: fetchErr } = await supabaseAdmin
+      .from('document')
+      .select('download_link, titre, mime_type')
+      .eq('id_document', id)
+      .eq('user_id', pid)
+      .single();
+
+    if (fetchErr || !doc) return res.status(404).json({ error: 'Document introuvable' });
+    if (!doc.download_link)
+      return res.status(404).json({ error: 'Aucun fichier associé à ce document' });
+
+    const { data: blob, error: dlErr } = await supabaseAdmin.storage
+      .from('documents')
+      .download(doc.download_link);
+
+    if (dlErr) throw dlErr;
+
+    const arrayBuffer = await blob.arrayBuffer();
+    const decrypted = decryptBuffer(Buffer.from(arrayBuffer));
+
+    const contentType = doc.mime_type || 'application/octet-stream';
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(doc.titre)}"`);
+    res.send(decrypted);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function uploadDocumentForPatient(req, res, next) {
   try {
     const { pid } = req.params;
@@ -358,10 +438,12 @@ export async function uploadDocumentForPatient(req, res, next) {
     const { titre, type, publication_date } = req.body;
     if (!titre || !type) return res.status(400).json({ error: 'Champs manquants: titre, type' });
 
-    const ext = req.file.originalname.includes('.')
-      ? req.file.originalname.split('.').pop()
-      : '';
-    const safeTitle = titre.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9._-]/g, '');
+    const ext = req.file.originalname.includes('.') ? req.file.originalname.split('.').pop() : '';
+    const safeTitle = titre
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9._-]/g, '');
     const storagePath = `uploads/${crypto.randomUUID()}-${safeTitle}${ext ? `.${ext}` : ''}`;
 
     const encrypted = encryptBuffer(req.file.buffer);
