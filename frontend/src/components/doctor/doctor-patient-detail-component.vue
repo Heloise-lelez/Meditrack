@@ -300,10 +300,7 @@
         </li>
       </ul>
     </section>
-<<<<<<< HEAD
 
-=======
->>>>>>> 0a47edb (feat: aide)
     <!-- ── Aides ──────────────────────────────────────────────── -->
     <section v-if="activeTab === 'aides'" class="section" aria-label="Aides du patient">
       <ul class="item-list" role="list">

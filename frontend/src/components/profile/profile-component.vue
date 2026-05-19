@@ -58,15 +58,7 @@
     </section>
 
     <!-- Mes aides (PATIENT uniquement) -->
-<<<<<<< HEAD
     <section v-if="userRole === 'PATIENT'" class="info-section" aria-label="Mes aides">
-=======
-    <section
-      v-if="userRole === 'PATIENT'"
-      class="info-section"
-      aria-label="Mes aides"
-    >
->>>>>>> 0a47edb (feat: aide)
       <h3 class="section-title">Mes aides</h3>
       <div v-if="loadingAides" class="doctors-loading" role="status">
         <div class="mini-spinner" aria-hidden="true"></div>
@@ -229,13 +221,8 @@ onMounted(async () => {
     loadingAides.value = true;
     try {
       [myDoctors.value, myAides.value] = await Promise.all([
-<<<<<<< HEAD
         api.get('/api/profile/my-doctors').catch(() => []),
         api.get('/api/profile/my-aides').catch(() => []),
-=======
-        api.get('/api/profile/my-doctors'),
-        api.get('/api/profile/my-aides'),
->>>>>>> 0a47edb (feat: aide)
       ]);
     } finally {
       loadingDoctors.value = false;

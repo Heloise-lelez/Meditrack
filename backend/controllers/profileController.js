@@ -63,7 +63,6 @@ export async function getMyRole(req, res, next) {
 
 export async function getMyAides(req, res, next) {
   try {
-<<<<<<< HEAD
     const { data: assignments, error: assignError } = await supabaseAdmin
       .from('aide_patient')
       .select('aide_id, assigned_at')
@@ -88,15 +87,6 @@ export async function getMyAides(req, res, next) {
         profiles: aideMap[a.aide_id] ?? null,
       }))
     );
-=======
-    const { data, error } = await supabaseAdmin
-      .from('aide_patient')
-      .select('aide_id, assigned_at, profiles!aide_patient_aide_id_fkey(id, nom, prenom)')
-      .eq('patient_id', req.user.id);
-
-    if (error) throw error;
-    res.json(data);
->>>>>>> 0a47edb (feat: aide)
   } catch (err) {
     next(err);
   }

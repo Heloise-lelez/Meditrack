@@ -49,10 +49,7 @@ router.post('/patients/:pid/etapes', ...isDoctor, createPatientEtape);
 router.delete('/patients/:pid/etapes/:id', ...isDoctor, deletePatientEtape);
 
 router.get('/patients/:pid/documents', ...isDoctor, listPatientDocuments);
-<<<<<<< HEAD
 router.get('/patients/:pid/documents/:id/download', ...isDoctor, downloadPatientDocument);
-=======
->>>>>>> 0a47edb (feat: aide)
 router.get('/patients/:pid/aides', ...isDoctor, listPatientAides);
 router.post(
   '/patients/:pid/documents/upload',

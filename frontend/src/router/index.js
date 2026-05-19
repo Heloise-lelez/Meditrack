@@ -62,14 +62,11 @@ const routes = [
     component: () => import('@/views/AideView.vue'),
     meta: { requiresRole: 'AIDE' },
   },
-<<<<<<< HEAD
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/NotFoundView.vue'),
   },
-=======
->>>>>>> 0a47edb (feat: aide)
 ];
 
 const router = createRouter({

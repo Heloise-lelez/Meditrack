@@ -174,13 +174,7 @@
           <ul v-else class="person-list" role="list">
             <li v-if="patients.length === 0" class="person-empty">Aucun patient.</li>
             <li v-for="p in patients" :key="p.id" class="person-row doctor-row">
-<<<<<<< HEAD
               <div class="person-avatar" aria-hidden="true">{{ p.prenom[0] }}{{ p.nom[0] }}</div>
-=======
-              <div class="person-avatar" aria-hidden="true">
-                {{ p.prenom[0] }}{{ p.nom[0] }}
-              </div>
->>>>>>> 0a47edb (feat: aide)
               <div class="person-info">
                 <div class="person-name">{{ p.prenom }} {{ p.nom }}</div>
               </div>
@@ -341,19 +335,11 @@ const cancelAideForm = () => {
 onMounted(async () => {
   try {
     const [p, d, a, ai, aa] = await Promise.all([
-<<<<<<< HEAD
       api.get('/api/assistant/patients').catch(() => []),
       api.get('/api/assistant/doctors').catch(() => []),
       api.get('/api/assistant/assignments').catch(() => []),
       api.get('/api/assistant/aides').catch(() => []),
       api.get('/api/assistant/aide-assignments').catch(() => []),
-=======
-      api.get('/api/assistant/patients'),
-      api.get('/api/assistant/doctors'),
-      api.get('/api/assistant/assignments'),
-      api.get('/api/assistant/aides'),
-      api.get('/api/assistant/aide-assignments'),
->>>>>>> 0a47edb (feat: aide)
     ]);
     patients.value = p;
     doctors.value = d;

@@ -1,15 +1,11 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
-<<<<<<< HEAD
 import {
   getMyDoctors,
   getMyRole,
   listDoctors,
   getMyAides,
 } from '../controllers/profileController.js';
-=======
-import { getMyDoctors, getMyRole, listDoctors, getMyAides } from '../controllers/profileController.js';
->>>>>>> 0a47edb (feat: aide)
 
 const router = Router();
 
