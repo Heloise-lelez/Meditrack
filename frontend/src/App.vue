@@ -1,177 +1,67 @@
-<script setup>
-  import { ref, computed, watch } from 'vue';
-  import TabBar from './layout/tabbar/tabbar-component.vue';
-  import Home from './components/home/home-component.vue';
-  import Etapes from './components/etapes/etapes-component.vue';
-  import rdvComponent from './components/rendezVous/rdv-component.vue';
-  import docComponent from './components/doc/doc-component.vue';
-  import AuthComponent from './components/auth/auth-component.vue';
-  import NotFound from './components/not-found/not-found-component.vue';
-  import ProfileComponent from './components/profile/profile-component.vue';
-  import AdminComponent from './components/admin/admin-component.vue';
-  import DoctorPatientsComponent from './components/doctor/doctor-patients-component.vue';
-  import AssistantComponent from './components/assistant/assistant-component.vue';
-  import { useAuth } from './composables/useAuth';
+<script>
+import { createMemoryHistory, createRouter } from "vue-router";
+import NavBar from "./components/layout/navbar/NavBar.vue";
 
-  const { user, userRole, loading } = useAuth();
-  const activeTab = ref('home');
+import HomeView from "./views/HomeView.vue";
+import StepsView from "./views/StepsView.vue";
+import AppointmentsView from "./views/AppointmentsView.vue";
+import DocumentsView from "./views/DocumentsView.vue";
+import ProfileView from "./views/ProfileView.vue";
 
-  const PATIENT_TABS = [
-    { id: 'home', label: 'Accueil', icon: 'home' },
-    { id: 'steps', label: 'Étapes', icon: 'steps' },
-    { id: 'appointments', label: 'Rendez-vous', icon: 'calendar' },
-    { id: 'documents', label: 'Documents', icon: 'documents' },
-    { id: 'profile', label: 'Profil', icon: 'profile' },
-  ];
+const routes = [
+  { path: "/", component: HomeView },
+  { path: "/steps", component: StepsView },
+  { path: "/appointments", component: AppointmentsView },
+  { path: "/documents", component: DocumentsView },
+  { path: "/profile", component: ProfileView },
+];
 
-  const DOCTOR_TABS = [
-    { id: 'patients', label: 'Mes patients', icon: 'patients' },
-    { id: 'profile', label: 'Profil', icon: 'profile' },
-  ];
+export const router = createRouter({
+  history: createMemoryHistory(),
+  routes,
+});
 
-  const ASSISTANT_TABS = [
-    { id: 'assignments', label: 'Assignations', icon: 'assign' },
-    { id: 'profile', label: 'Profil', icon: 'profile' },
-  ];
-
-  const ADMIN_TABS = [
-    { id: 'admin', label: 'Administration', icon: 'admin' },
-    { id: 'profile', label: 'Profil', icon: 'profile' },
-  ];
-
-  const navigationTabs = computed(() => {
-    if (userRole.value === 'DOCTOR') return DOCTOR_TABS;
-    if (userRole.value === 'ASSISTANT') return ASSISTANT_TABS;
-    if (userRole.value === 'SUPER_ADMIN') return ADMIN_TABS;
-    return PATIENT_TABS;
-  });
-
-  const defaultTab = computed(() => navigationTabs.value[0]?.id ?? 'home');
-
-  // Reset to the first tab when the role changes (e.g., after login)
-  watch(userRole, () => {
-    activeTab.value = defaultTab.value;
-  });
-
-  const handleTabChange = (newTab) => {
-    activeTab.value = newTab;
-  };
+export default {
+  components: {
+    NavBar,
+  },
+};
 </script>
 
 <template>
-  <!-- Loading state while resolving session -->
-  <div v-if="loading" class="auth-loading" role="status" aria-label="Chargement">
-    <div class="spinner" aria-hidden="true"></div>
-  </div>
-
-  <!-- Auth screen when not logged in -->
-  <AuthComponent v-else-if="!user" />
-
-  <!-- Main app when logged in -->
-  <div v-else id="app" role="application" aria-label="Application Meditrack">
-
-    <!-- ── PATIENT & default tabs ──────────────────────────── -->
-    <section v-if="activeTab === 'home'" aria-label="Page d'accueil">
-      <Home />
-    </section>
-    <section v-else-if="activeTab === 'steps'" aria-label="Page des étapes">
-      <Etapes />
-    </section>
-    <section v-else-if="activeTab === 'appointments'" class="tab-content" aria-label="Page des rendez-vous">
-      <rdvComponent />
-    </section>
-    <section v-else-if="activeTab === 'documents'" class="tab-content" aria-label="Page des documents">
-      <docComponent />
-    </section>
-
-    <!-- ── DOCTOR tabs ─────────────────────────────────────── -->
-    <section v-else-if="activeTab === 'patients'" aria-label="Mes patients">
-      <DoctorPatientsComponent />
-    </section>
-
-    <!-- ── ASSISTANT tabs ──────────────────────────────────── -->
-    <section v-else-if="activeTab === 'assignments'" aria-label="Gestion des assignations">
-      <AssistantComponent />
-    </section>
-
-    <!-- ── SUPER_ADMIN tabs ────────────────────────────────── -->
-    <section v-else-if="activeTab === 'admin'" aria-label="Administration">
-      <AdminComponent />
-    </section>
-
-    <!-- ── Shared: Profile ────────────────────────────────── -->
-    <section v-else-if="activeTab === 'profile'" aria-label="Page profil">
-      <ProfileComponent />
-    </section>
-
-    <!-- 404 fallback -->
-    <section v-else aria-label="Page introuvable">
-      <NotFound @go-home="handleTabChange(defaultTab)" />
-    </section>
-
-    <TabBar :tabs="navigationTabs" :default-tab="defaultTab" @tab-change="handleTabChange" />
-  </div>
+  <NavBar />
+  <main class="main-content">
+    <RouterView />
+  </main>
 </template>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap');
+<style>
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
 
 #app {
-  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 56px;
-  font-family: 'Arimo', sans-serif;
 }
 
-.tab-content {
-  padding: 16px;
+.main-content {
+  flex: 1;
+  width: 100%;
 }
 
-@media (min-width: 768px) {
-  #app {
-    padding-bottom: 64px;
+@media (max-width: 768px) {
+  .main-content {
+    padding-bottom: 70px;
   }
 }
 
-.backup-link {
-  display: hidden;
-  margin-bottom: 12px;
-  color: transparent;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.backup-link:hover,
-.backup-link:focus,
-.backup-link:focus-visible {
-  opacity: 1;
-  color: #2563eb;
-  display: inline-block;
-}
-
-.backup-link:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 3px;
-}
-
-.auth-loading {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0faf8;
-}
-
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid #d1faf5;
-  border-top-color: #3a8d7a;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@media (min-width: 769px) {
+  .main-content {
+    padding-top: 70px;
+  }
 }
 </style>
