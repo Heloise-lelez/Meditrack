@@ -407,7 +407,8 @@ export async function downloadPatientDocument(req, res, next) {
       .single();
 
     if (fetchErr || !doc) return res.status(404).json({ error: 'Document introuvable' });
-    if (!doc.download_link) return res.status(404).json({ error: 'Aucun fichier associé à ce document' });
+    if (!doc.download_link)
+      return res.status(404).json({ error: 'Aucun fichier associé à ce document' });
 
     const { data: blob, error: dlErr } = await supabaseAdmin.storage
       .from('documents')
