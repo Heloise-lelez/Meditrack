@@ -347,24 +347,32 @@ const submitUpload = async () => {
   }
 };
 
-async function fetchSignedUrl(doc) {
+async function fetchDocBlob(doc) {
   if (!doc?.id) return null;
   try {
-    const { url } = await api.get(`/api/documents/${doc.id}/url`);
-    return url ?? null;
+    const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    const res = await fetch(`${BASE}/api/documents/${doc.id}/download`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.blob();
   } catch (err) {
-    console.error('Impossible de récupérer le lien signé :', err);
+    console.error('Impossible de télécharger le document :', err);
     return null;
   }
 }
 
 const openDoc = async (doc) => {
-  const url = await fetchSignedUrl(doc);
-  if (!url) {
+  const blob = await fetchDocBlob(doc);
+  if (!blob) {
     alert("Aucun lien de document n'est disponible.");
     return;
   }
+  const url = URL.createObjectURL(blob);
   window.open(url, '_blank', 'noopener,noreferrer');
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 };
 
 const deleteDoc = async (doc) => {
@@ -379,18 +387,18 @@ const deleteDoc = async (doc) => {
 };
 
 const downloadDoc = async (doc) => {
-  const url = await fetchSignedUrl(doc);
-  if (!url) {
+  const blob = await fetchDocBlob(doc);
+  if (!blob) {
     alert("Aucun lien de téléchargement n'est disponible.");
     return;
   }
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-  a.download = '';
+  a.download = doc.title || 'document';
   document.body.appendChild(a);
   a.click();
   a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 };
 </script>

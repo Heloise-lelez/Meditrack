@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../lib/supabase.js';
+import { encryptBuffer } from '../lib/encrypt.js';
 
 // Verify that patientId is assigned to this doctor; returns 403 if not
 async function assertPatientOfDoctor(doctorId, patientId, res) {
@@ -363,10 +364,12 @@ export async function uploadDocumentForPatient(req, res, next) {
     const safeTitle = titre.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9._-]/g, '');
     const storagePath = `uploads/${crypto.randomUUID()}-${safeTitle}${ext ? `.${ext}` : ''}`;
 
+    const encrypted = encryptBuffer(req.file.buffer);
+
     const { error: storageErr } = await supabaseAdmin.storage
       .from('documents')
-      .upload(storagePath, req.file.buffer, {
-        contentType: req.file.mimetype || 'application/octet-stream',
+      .upload(storagePath, encrypted, {
+        contentType: 'application/octet-stream',
         upsert: false,
       });
 
@@ -385,6 +388,7 @@ export async function uploadDocumentForPatient(req, res, next) {
           download_link: storagePath,
           size_kb: sizeKb,
           user_id: pid,
+          mime_type: req.file.mimetype || 'application/octet-stream',
         })
         .select()
         .single();
