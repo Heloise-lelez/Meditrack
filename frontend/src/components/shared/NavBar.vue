@@ -59,10 +59,10 @@ export default {
           isDisplayed: isPatient,
         },
         {
-          link: "/admin",
-          title: "Admin",
-          label: "admin",
-          icon: "fa-user-gear",
+          link: '/admin',
+          title: 'Admin',
+          label: 'admin',
+          icon: 'fa-user-gear',
           isDisplayed: isSuperAdmin,
         },
         {
