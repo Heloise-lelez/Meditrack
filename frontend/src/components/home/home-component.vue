@@ -10,7 +10,7 @@
     <div class="container">
       <!-- Greeting -->
       <section class="greeting" aria-label="Accueil personnalisé">
-       <h2>Bonjour</h2>
+        <h2>Bonjour</h2>
         <p>Voici votre suivi du jour</p>
       </section>
 
@@ -24,7 +24,9 @@
           <h3 v-else tabindex="0">Aucun rendez-vous</h3>
           <p class="specialty" v-if="nextRdv">{{ nextRdv.profession }}</p>
           <p class="description" v-if="nextRdv">{{ nextRdv.operation }}</p>
-          <p class="description" v-else>Ajoute ton premier rendez-vous dans l'onglet "Rendez-vous".</p>
+          <p class="description" v-else>
+            Ajoute ton premier rendez-vous dans l'onglet "Rendez-vous".
+          </p>
         </article>
         <div class="appointment-divider" role="presentation"></div>
         <div class="appointment-details">
@@ -47,7 +49,9 @@
       <section class="section" aria-label="Tâches du jour">
         <header class="section-header">
           <h2 tabindex="0">Tâches du jour</h2>
-          <span v-if="taches.length" class="count" :aria-label="`${taches.length} tâches`">{{ taches.length }} tâche{{ taches.length > 1 ? 's' : '' }}</span>
+          <span v-if="taches.length" class="count" :aria-label="`${taches.length} tâches`"
+            >{{ taches.length }} tâche{{ taches.length > 1 ? 's' : '' }}</span
+          >
         </header>
 
         <ul class="tasks" role="list">
@@ -60,14 +64,13 @@
             </div>
           </li>
 
-          <li
-            v-for="tache in taches"
-            :key="tache.id_tache"
-            class="task"
-            role="listitem"
-          >
+          <li v-for="tache in taches" :key="tache.id_tache" class="task" role="listitem">
             <div class="task-left">
-              <div class="task-indicator" :class="tache.statut === 'fait' ? 'done' : 'pending'" aria-hidden="true"></div>
+              <div
+                class="task-indicator"
+                :class="tache.statut === 'fait' ? 'done' : 'pending'"
+                aria-hidden="true"
+              ></div>
               <div class="task-info">
                 <div class="task-title">{{ TASK_LABELS[tache.nom_tache] ?? tache.nom_tache }}</div>
                 <time v-if="tache.heure" class="task-time">{{ tache.heure.slice(0, 5) }}</time>
@@ -80,7 +83,9 @@
               :aria-label="tache.statut === 'fait' ? 'Marquer comme à faire' : 'Marquer comme fait'"
               @click="toggleTache(tache)"
             >
-              {{ tache.statut === 'fait' ? 'Fait' : tache.statut === 'ratee' ? 'Ratée' : 'À faire' }}
+              {{
+                tache.statut === 'fait' ? 'Fait' : tache.statut === 'ratee' ? 'Ratée' : 'À faire'
+              }}
             </button>
           </li>
         </ul>
@@ -101,18 +106,11 @@
             </div>
           </li>
 
-          <li
-            v-for="doc in recentDocs"
-            :key="doc.id"
-            class="document"
-            role="listitem"
-          >
+          <li v-for="doc in recentDocs" :key="doc.id" class="document" role="listitem">
             <div class="doc-icon" aria-hidden="true">📄</div>
             <div class="doc-info">
               <div class="doc-title">{{ doc.title }}</div>
-              <div class="doc-meta">
-                {{ doc.date }} · {{ doc.type }}
-              </div>
+              <div class="doc-meta">{{ doc.date }} · {{ doc.type }}</div>
             </div>
           </li>
         </ul>
@@ -146,7 +144,10 @@ const todayISO = () => new Date().toISOString().slice(0, 10);
 const loadNextRdv = async () => {
   try {
     const data = await api.get('/api/rendezvous/next');
-    if (!data) { nextRdv.value = null; return; }
+    if (!data) {
+      nextRdv.value = null;
+      return;
+    }
     const d = new Date(data.starts_at);
     nextRdv.value = {
       prenom: data.doctor_first_name,
@@ -187,7 +188,11 @@ const loadRecentDocs = async () => {
       title: row.titre,
       type: row.type,
       date: row.publication_date
-        ? new Date(row.publication_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+        ? new Date(row.publication_date).toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          })
         : '',
     }));
   } catch {

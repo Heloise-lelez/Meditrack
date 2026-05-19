@@ -64,10 +64,12 @@ export async function uploadDocument(req, res, next) {
       return res.status(400).json({ error: 'Missing required fields: titre, type' });
     }
 
-    const ext = req.file.originalname.includes('.')
-      ? req.file.originalname.split('.').pop()
-      : '';
-    const safeTitle = titre.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9._-]/g, '');
+    const ext = req.file.originalname.includes('.') ? req.file.originalname.split('.').pop() : '';
+    const safeTitle = titre
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9._-]/g, '');
     const randomId = crypto.randomUUID();
     const storagePath = `uploads/${randomId}-${safeTitle}${ext ? `.${ext}` : ''}`;
 
@@ -128,7 +130,8 @@ export async function downloadDocument(req, res, next) {
       .single();
 
     if (fetchErr || !doc) return res.status(404).json({ error: 'Document introuvable' });
-    if (!doc.download_link) return res.status(404).json({ error: 'Aucun fichier associé à ce document' });
+    if (!doc.download_link)
+      return res.status(404).json({ error: 'Aucun fichier associé à ce document' });
 
     const { data: blob, error: dlErr } = await supabaseAdmin.storage
       .from('documents')

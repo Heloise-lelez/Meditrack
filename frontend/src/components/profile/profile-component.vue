@@ -22,7 +22,11 @@
     </section>
 
     <!-- Mes médecins (PATIENT uniquement) -->
-    <section v-if="userRole === 'PATIENT'" class="info-section doctors-section" aria-label="Mes médecins">
+    <section
+      v-if="userRole === 'PATIENT'"
+      class="info-section doctors-section"
+      aria-label="Mes médecins"
+    >
       <h3 class="section-title">Mes médecins</h3>
       <div v-if="loadingDoctors" class="doctors-loading" role="status">
         <div class="mini-spinner" aria-hidden="true"></div>
@@ -54,20 +58,42 @@
     </section>
 
     <!-- Informations professionnelles (DOCTOR uniquement) -->
-    <section v-if="userRole === 'DOCTOR'" class="info-section" aria-label="Informations professionnelles">
+    <section
+      v-if="userRole === 'DOCTOR'"
+      class="info-section"
+      aria-label="Informations professionnelles"
+    >
       <h3 class="section-title">Informations professionnelles</h3>
       <div class="doctor-edit-form">
         <div class="field-group">
           <label class="field-label" for="specialite">Spécialité</label>
-          <input id="specialite" v-model="doctorProfile.specialite" class="field-input" type="text" placeholder="Ex: Chirurgie orthopédique" />
+          <input
+            id="specialite"
+            v-model="doctorProfile.specialite"
+            class="field-input"
+            type="text"
+            placeholder="Ex: Chirurgie orthopédique"
+          />
         </div>
         <div class="field-group">
           <label class="field-label" for="num_service">N° du service (tél)</label>
-          <input id="num_service" v-model="doctorProfile.num_service" class="field-input" type="text" placeholder="+0300000000" />
+          <input
+            id="num_service"
+            v-model="doctorProfile.num_service"
+            class="field-input"
+            type="text"
+            placeholder="+0300000000"
+          />
         </div>
         <div class="field-group">
           <label class="field-label" for="horaire_service">Horaires du service</label>
-          <input id="horaire_service" v-model="doctorProfile.horaire_service" class="field-input" type="text" placeholder="Ex: Lun-Ven 8h-18h" />
+          <input
+            id="horaire_service"
+            v-model="doctorProfile.horaire_service"
+            class="field-input"
+            type="text"
+            placeholder="Ex: Lun-Ven 8h-18h"
+          />
         </div>
         <p v-if="saveError" class="save-error" role="alert">{{ saveError }}</p>
         <p v-if="saveSuccess" class="save-success" role="status">Informations enregistrées.</p>
@@ -79,7 +105,12 @@
 
     <p v-if="logoutError" class="logout-error" role="alert">{{ logoutError }}</p>
 
-    <button class="logout-btn" aria-label="Se déconnecter" :disabled="loggingOut" @click="handleSignOut">
+    <button
+      class="logout-btn"
+      aria-label="Se déconnecter"
+      :disabled="loggingOut"
+      @click="handleSignOut"
+    >
       {{ loggingOut ? 'Déconnexion…' : 'Se déconnecter' }}
     </button>
   </main>
@@ -148,7 +179,9 @@ async function saveDoctorProfile() {
       horaire_service: updated.horaire_service ?? '',
     };
     saveSuccess.value = true;
-    setTimeout(() => { saveSuccess.value = false; }, 3000);
+    setTimeout(() => {
+      saveSuccess.value = false;
+    }, 3000);
   } catch (err) {
     saveError.value = 'Erreur lors de la sauvegarde.';
     console.error(err);
@@ -174,7 +207,9 @@ onMounted(async () => {
         num_service: p.num_service ?? '',
         horaire_service: p.horaire_service ?? '',
       };
-    } catch { /* non-bloquant */ }
+    } catch {
+      /* non-bloquant */
+    }
   }
 });
 </script>
@@ -299,7 +334,11 @@ onMounted(async () => {
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .doctors-empty {
   padding: 14px 18px;

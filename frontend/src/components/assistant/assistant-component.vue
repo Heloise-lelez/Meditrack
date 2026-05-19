@@ -29,7 +29,11 @@
             <div class="person-info">
               <div class="person-name">{{ p.prenom }} {{ p.nom }}</div>
               <div class="person-doctors">
-                {{ doctorsOf(p.id).map(d => `Dr. ${d.prenom} ${d.nom}`).join(', ') || 'Aucun médecin' }}
+                {{
+                  doctorsOf(p.id)
+                    .map((d) => `Dr. ${d.prenom} ${d.nom}`)
+                    .join(', ') || 'Aucun médecin'
+                }}
               </div>
             </div>
           </li>
@@ -42,12 +46,10 @@
         <p v-if="!selectedPatient" class="col-hint">← Sélectionner un patient pour assigner</p>
         <ul v-else class="person-list" role="list">
           <li v-if="doctors.length === 0" class="person-empty">Aucun médecin.</li>
-          <li
-            v-for="d in doctors"
-            :key="d.id"
-            class="person-row doctor-row"
-          >
-            <div class="person-avatar doctor-avatar" aria-hidden="true">{{ d.prenom[0] }}{{ d.nom[0] }}</div>
+          <li v-for="d in doctors" :key="d.id" class="person-row doctor-row">
+            <div class="person-avatar doctor-avatar" aria-hidden="true">
+              {{ d.prenom[0] }}{{ d.nom[0] }}
+            </div>
             <div class="person-info">
               <div class="person-name">Dr. {{ d.prenom }} {{ d.nom }}</div>
             </div>
@@ -57,14 +59,18 @@
               :aria-label="`Retirer ${d.prenom} ${d.nom} du patient`"
               :disabled="busy"
               @click="unassign(selectedPatient.id, d.id)"
-            >Retirer</button>
+            >
+              Retirer
+            </button>
             <button
               v-else
               class="btn-assign"
               :aria-label="`Assigner ${d.prenom} ${d.nom} au patient`"
               :disabled="busy"
               @click="assign(selectedPatient.id, d.id)"
-            >Assigner</button>
+            >
+              Assigner
+            </button>
           </li>
         </ul>
       </section>
@@ -98,8 +104,11 @@ const assign = async (patient_id, doctor_id) => {
   try {
     await api.post('/api/assistant/assignments', { patient_id, doctor_id });
     assignments.value.push({ patient_id, doctor_id });
-  } catch (e) { alert(e.message); }
-  finally { busy.value = false; }
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    busy.value = false;
+  }
 };
 
 const unassign = async (patient_id, doctor_id) => {
@@ -109,8 +118,11 @@ const unassign = async (patient_id, doctor_id) => {
     assignments.value = assignments.value.filter(
       (a) => !(a.patient_id === patient_id && a.doctor_id === doctor_id)
     );
-  } catch (e) { alert(e.message); }
-  finally { busy.value = false; }
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    busy.value = false;
+  }
 };
 
 onMounted(async () => {

@@ -28,7 +28,11 @@
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .assistant-body {
   display: grid;
@@ -45,7 +49,7 @@
 .col {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   overflow: hidden;
   padding: 0;
 }
@@ -89,12 +93,22 @@
   transition: background 0.15s;
 }
 
-.person-row:last-child { border-bottom: none; }
-.person-row:hover { background: #f9fffe; }
-.person-row.selected { background: #f0faf8; }
+.person-row:last-child {
+  border-bottom: none;
+}
+.person-row:hover {
+  background: #f9fffe;
+}
+.person-row.selected {
+  background: #f0faf8;
+}
 
-.doctor-row { cursor: default; }
-.doctor-row:hover { background: #fff; }
+.doctor-row {
+  cursor: default;
+}
+.doctor-row:hover {
+  background: #fff;
+}
 
 .person-avatar {
   width: 36px;
@@ -115,9 +129,23 @@
   color: #2563eb;
 }
 
-.person-info { flex: 1; overflow: hidden; }
-.person-name { font-weight: 600; color: #1a1a2e; font-size: 0.9rem; }
-.person-doctors { font-size: 0.75rem; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.person-info {
+  flex: 1;
+  overflow: hidden;
+}
+.person-name {
+  font-weight: 600;
+  color: #1a1a2e;
+  font-size: 0.9rem;
+}
+.person-doctors {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .btn-assign {
   background: #3a8d7a;
@@ -131,7 +159,9 @@
   font-family: inherit;
 }
 
-.btn-assign:hover:not(:disabled) { background: #2d7060; }
+.btn-assign:hover:not(:disabled) {
+  background: #2d7060;
+}
 
 .btn-unassign {
   background: none;
@@ -145,7 +175,12 @@
   font-family: inherit;
 }
 
-.btn-unassign:hover:not(:disabled) { background: #fee2e2; }
+.btn-unassign:hover:not(:disabled) {
+  background: #fee2e2;
+}
 
 .btn-assign:disabled,
-.btn-unassign:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-unassign:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

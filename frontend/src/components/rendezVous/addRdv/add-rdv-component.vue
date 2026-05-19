@@ -104,7 +104,9 @@ const submit = async () => {
 onMounted(async () => {
   try {
     doctors.value = await api.get('/api/profile/doctors');
-  } catch { /* non-bloquant */ }
+  } catch {
+    /* non-bloquant */
+  }
 });
 </script>
 
@@ -114,7 +116,16 @@ onMounted(async () => {
       <h2 id="rdv-title">Rendez vous</h2>
       <p>{{ upcomingLabel }}</p>
     </div>
-    <button class="add-rdv-button" type="button" aria-label="Ajouter un nouveau rendez-vous" title="Ajouter" @click="openModal" :disabled="saving"> + </button>
+    <button
+      class="add-rdv-button"
+      type="button"
+      aria-label="Ajouter un nouveau rendez-vous"
+      title="Ajouter"
+      @click="openModal"
+      :disabled="saving"
+    >
+      +
+    </button>
   </div>
 
   <div
@@ -122,19 +133,42 @@ onMounted(async () => {
     role="dialog"
     aria-modal="true"
     aria-label="Ajouter un rendez-vous"
-    style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:14px;z-index:60;"
+    style="
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 60;
+    "
     @click.self="closeModal"
   >
-    <div style="background:#fff;border-radius:14px;max-width:560px;width:100%;padding:20px;max-height:90vh;overflow-y:auto;">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+    <div
+      style="
+        background: #fff;
+        border-radius: 14px;
+        max-width: 560px;
+        width: 100%;
+        padding: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+      "
+    >
+      <div
+        style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px"
+      >
         <div>
-          <h3 style="margin:0;font-size:16px;" tabindex="0">Ajouter un rendez-vous</h3>
-          <p style="margin:4px 0 0;color:#6b7280;font-size:12px;">Renseigne les informations du RDV</p>
+          <h3 style="margin: 0; font-size: 16px" tabindex="0">Ajouter un rendez-vous</h3>
+          <p style="margin: 4px 0 0; color: #6b7280; font-size: 12px">
+            Renseigne les informations du RDV
+          </p>
         </div>
         <button
           type="button"
           class="add-rdv-button"
-          style="background:#e5e7eb;color:#111827;font-size:14px;"
+          style="background: #e5e7eb; color: #111827; font-size: 14px"
           aria-label="Fermer le dialogue d'ajout de rendez-vous"
           @click="closeModal"
           :disabled="saving"
@@ -143,14 +177,26 @@ onMounted(async () => {
         </button>
       </div>
 
-      <form aria-label="Formulaire d'ajout de rendez-vous" style="margin-top:12px;display:flex;flex-direction:column;gap:10px;" @submit.prevent="submit">
-        <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+      <form
+        aria-label="Formulaire d'ajout de rendez-vous"
+        style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px"
+        @submit.prevent="submit"
+      >
+        <label
+          style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #374151"
+        >
           Médecin
           <select
             v-model="selectedDoctorId"
             required
             aria-label="Choisir un médecin"
-            style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;background:#fff;"
+            style="
+              border: 1px solid #e5e7eb;
+              border-radius: 10px;
+              padding: 10px;
+              font-size: 14px;
+              background: #fff;
+            "
             :disabled="saving"
             @change="onDoctorChange"
           >
@@ -161,38 +207,110 @@ onMounted(async () => {
           </select>
         </label>
 
-        <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+        <label
+          style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #374151"
+        >
           Spécialité / Profession
-          <input v-model.trim="form.profession" required type="text" aria-label="Spécialité ou profession du médecin" placeholder="Ex: Cardiologue" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;" :disabled="saving" />
+          <input
+            v-model.trim="form.profession"
+            required
+            type="text"
+            aria-label="Spécialité ou profession du médecin"
+            placeholder="Ex: Cardiologue"
+            style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; font-size: 14px"
+            :disabled="saving"
+          />
         </label>
 
-        <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+        <label
+          style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #374151"
+        >
           Motif / Opération
-          <input v-model.trim="form.operation" required type="text" aria-label="Motif ou opération" placeholder="Ex: Consultation de suivi" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;" :disabled="saving" />
+          <input
+            v-model.trim="form.operation"
+            required
+            type="text"
+            aria-label="Motif ou opération"
+            placeholder="Ex: Consultation de suivi"
+            style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; font-size: 14px"
+            :disabled="saving"
+          />
         </label>
 
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <label style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap">
+          <label
+            style="
+              flex: 1;
+              min-width: 180px;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+              font-size: 12px;
+              color: #374151;
+            "
+          >
             Date
-            <input v-model="form.date" required type="date" aria-label="Date du rendez-vous" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;" :disabled="saving" />
+            <input
+              v-model="form.date"
+              required
+              type="date"
+              aria-label="Date du rendez-vous"
+              style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; font-size: 14px"
+              :disabled="saving"
+            />
           </label>
-          <label style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+          <label
+            style="
+              flex: 1;
+              min-width: 180px;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+              font-size: 12px;
+              color: #374151;
+            "
+          >
             Heure
-            <input v-model="form.heure" required type="time" aria-label="Heure du rendez-vous" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;" :disabled="saving" />
+            <input
+              v-model="form.heure"
+              required
+              type="time"
+              aria-label="Heure du rendez-vous"
+              style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; font-size: 14px"
+              :disabled="saving"
+            />
           </label>
         </div>
 
-        <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+        <label
+          style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #374151"
+        >
           Adresse
-          <input v-model.trim="form.adresse" required type="text" aria-label="Adresse du rendez-vous" placeholder="Ex: 123 Rue de la Santé, Paris" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;" :disabled="saving" />
+          <input
+            v-model.trim="form.adresse"
+            required
+            type="text"
+            aria-label="Adresse du rendez-vous"
+            placeholder="Ex: 123 Rue de la Santé, Paris"
+            style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; font-size: 14px"
+            :disabled="saving"
+          />
         </label>
 
-        <p v-if="errorMessage" style="margin:0;color:#b91c1c;font-size:12px;">{{ errorMessage }}</p>
+        <p v-if="errorMessage" style="margin: 0; color: #b91c1c; font-size: 12px">
+          {{ errorMessage }}
+        </p>
 
         <button
           type="submit"
           class="add-rdv-button"
-          style="width:100%;height:auto;border-radius:12px;padding:12px 16px;font-size:14px;"
+          style="
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+          "
           aria-label="Enregistrer le nouveau rendez-vous"
           :disabled="saving"
         >
@@ -201,38 +319,35 @@ onMounted(async () => {
       </form>
     </div>
   </div>
-
 </template>
 
 <style scoped>
-
 .add-rdv-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
 }
 
 .add-rdv-text h2 {
-    margin: 0;
-    font-size: 24px;
-    color: #0f2722;
+  margin: 0;
+  font-size: 24px;
+  color: #0f2722;
 }
 .add-rdv-text p {
-    margin: 4px 0 0 0;
-    font-size: 14px;
-    color: #6b7280;
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #6b7280;
 }
 
 .add-rdv-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    background-color: #3a8d7a;
-    color: white;
-    font-size: 24px;
-    border: none;
-    cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #3a8d7a;
+  color: white;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
 }
-
 </style>

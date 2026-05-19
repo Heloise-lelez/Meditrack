@@ -3,7 +3,20 @@
     <!-- Header -->
     <header class="detail-header">
       <button class="back-btn" @click="$emit('back')" aria-label="Retour à la liste">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
         Retour
       </button>
       <h1>{{ patient.prenom }} {{ patient.nom }}</h1>
@@ -19,7 +32,9 @@
         role="tab"
         :aria-selected="activeTab === tab.id"
         @click="activeTab = tab.id"
-      >{{ tab.label }}</button>
+      >
+        {{ tab.label }}
+      </button>
     </nav>
 
     <!-- ── Rendez-vous ──────────────────────────────────────── -->
@@ -31,7 +46,8 @@
       <form v-if="showRdvForm" class="inline-form" @submit.prevent="createRdv">
         <h3>Nouveau rendez-vous</h3>
         <div class="form-grid">
-          <label class="full-width">Médecin
+          <label class="full-width"
+            >Médecin
             <select v-model="selectedRdvDoctorId" required @change="onRdvDoctorChange">
               <option value="" disabled>Sélectionner un médecin…</option>
               <option v-for="d in doctors" :key="d.id" :value="d.id">
@@ -39,14 +55,30 @@
               </option>
             </select>
           </label>
-          <label>Spécialité / Profession<input v-model="rdvForm.profession" required placeholder="Ex: Cardiologue" /></label>
+          <label
+            >Spécialité / Profession<input
+              v-model="rdvForm.profession"
+              required
+              placeholder="Ex: Cardiologue"
+          /></label>
           <label>Motif<input v-model="rdvForm.operation" required /></label>
           <label>Adresse<input v-model="rdvForm.address" required /></label>
-          <label>Date & heure<input type="datetime-local" v-model="rdvForm.starts_at" required /></label>
+          <label
+            >Date & heure<input type="datetime-local" v-model="rdvForm.starts_at" required
+          /></label>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn-primary" :disabled="submitting">Créer</button>
-          <button type="button" class="btn-secondary" @click="showRdvForm = false; selectedRdvDoctorId = ''">Annuler</button>
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="
+              showRdvForm = false;
+              selectedRdvDoctorId = '';
+            "
+          >
+            Annuler
+          </button>
         </div>
       </form>
 
@@ -57,7 +89,13 @@
             <div class="item-title">Dr. {{ r.doctor_first_name }} {{ r.doctor_last_name }}</div>
             <div class="item-meta">{{ formatDateTime(r.starts_at) }} · {{ r.operation }}</div>
           </div>
-          <button class="btn-delete" aria-label="Supprimer le rendez-vous" @click="deleteRdv(r.id_rendezvous)">✕</button>
+          <button
+            class="btn-delete"
+            aria-label="Supprimer le rendez-vous"
+            @click="deleteRdv(r.id_rendezvous)"
+          >
+            ✕
+          </button>
         </li>
       </ul>
     </section>
@@ -77,17 +115,25 @@
           v-if="tacheDate"
           class="btn-secondary"
           type="button"
-          @click="tacheDate = ''; loadTaches()"
-        >Toutes les dates</button>
+          @click="
+            tacheDate = '';
+            loadTaches();
+          "
+        >
+          Toutes les dates
+        </button>
         <button class="btn-primary" @click="showTacheForm = true">+ Nouvelle tâche</button>
       </div>
 
       <form v-if="showTacheForm" class="inline-form" @submit.prevent="createTache">
         <h3>Nouvelle tâche</h3>
         <div class="form-grid">
-          <label>Type de tâche
+          <label
+            >Type de tâche
             <select v-model="tacheForm.nom_tache" required>
-              <option v-for="(label, val) in TASK_LABELS" :key="val" :value="val">{{ label }}</option>
+              <option v-for="(label, val) in TASK_LABELS" :key="val" :value="val">
+                {{ label }}
+              </option>
             </select>
           </label>
           <label>Date<input type="date" v-model="tacheForm.date_tache" required /></label>
@@ -96,12 +142,16 @@
         </div>
         <div class="form-actions">
           <button type="submit" class="btn-primary" :disabled="submitting">Créer</button>
-          <button type="button" class="btn-secondary" @click="showTacheForm = false">Annuler</button>
+          <button type="button" class="btn-secondary" @click="showTacheForm = false">
+            Annuler
+          </button>
         </div>
       </form>
 
       <ul class="item-list" role="list">
-        <li v-if="tacheList.length === 0" class="item-empty">Aucune tâche{{ tacheDate ? ' pour cette date' : '' }}.</li>
+        <li v-if="tacheList.length === 0" class="item-empty">
+          Aucune tâche{{ tacheDate ? ' pour cette date' : '' }}.
+        </li>
         <li v-for="t in tacheList" :key="t.id_tache" class="item-row">
           <div class="item-info">
             <div class="item-title">{{ TASK_LABELS[t.nom_tache] ?? t.nom_tache }}</div>
@@ -111,7 +161,13 @@
             </div>
             <div v-if="t.commentaire" class="item-comment">{{ t.commentaire }}</div>
           </div>
-          <button class="btn-delete" aria-label="Supprimer la tâche" @click="deleteTache(t.id_tache)">✕</button>
+          <button
+            class="btn-delete"
+            aria-label="Supprimer la tâche"
+            @click="deleteTache(t.id_tache)"
+          >
+            ✕
+          </button>
         </li>
       </ul>
     </section>
@@ -135,23 +191,30 @@
         <div class="checklist-builder">
           <p class="checklist-label">Éléments de checklist</p>
           <div v-for="(item, i) in etapeForm.checklist" :key="i" class="checklist-row">
-            <input
-              v-model="item.label"
-              :placeholder="`Élément ${i + 1}`"
-              class="checklist-input"
-            />
-            <button type="button" class="btn-delete" :aria-label="`Supprimer l'élément ${i + 1}`" @click="etapeForm.checklist.splice(i, 1)">✕</button>
+            <input v-model="item.label" :placeholder="`Élément ${i + 1}`" class="checklist-input" />
+            <button
+              type="button"
+              class="btn-delete"
+              :aria-label="`Supprimer l'élément ${i + 1}`"
+              @click="etapeForm.checklist.splice(i, 1)"
+            >
+              ✕
+            </button>
           </div>
           <button
             type="button"
             class="btn-add-item"
             @click="etapeForm.checklist.push({ label: '', fait: false })"
-          >+ Ajouter un élément</button>
+          >
+            + Ajouter un élément
+          </button>
         </div>
 
         <div class="form-actions">
           <button type="submit" class="btn-primary" :disabled="submitting">Créer</button>
-          <button type="button" class="btn-secondary" @click="showEtapeForm = false">Annuler</button>
+          <button type="button" class="btn-secondary" @click="showEtapeForm = false">
+            Annuler
+          </button>
         </div>
       </form>
 
@@ -162,10 +225,21 @@
             <div class="item-title">{{ e.titre }}</div>
             <div class="item-meta">
               {{ e.date_debut }}{{ e.date_fin ? ' → ' + e.date_fin : '' }}
-              <span v-if="e.checklist?.length" class="checklist-count"> · {{ e.checklist.filter(c => c.fait).length }}/{{ e.checklist.length }} éléments</span>
+              <span v-if="e.checklist?.length" class="checklist-count">
+                · {{ e.checklist.filter((c) => c.fait).length }}/{{
+                  e.checklist.length
+                }}
+                éléments</span
+              >
             </div>
           </div>
-          <button class="btn-delete" aria-label="Supprimer l'étape" @click="deleteEtape(e.id_etape)">✕</button>
+          <button
+            class="btn-delete"
+            aria-label="Supprimer l'étape"
+            @click="deleteEtape(e.id_etape)"
+          >
+            ✕
+          </button>
         </li>
       </ul>
     </section>
@@ -181,7 +255,8 @@
         <h3>Nouveau document</h3>
         <div class="form-grid">
           <label>Titre<input v-model="docForm.titre" required /></label>
-          <label>Type
+          <label
+            >Type
             <select v-model="docForm.type" required>
               <option value="Chirurgie">Chirurgie</option>
               <option value="Ordonnances">Ordonnances</option>
@@ -213,7 +288,10 @@
         <li v-for="d in docList" :key="d.id_document" class="item-row">
           <div class="item-info">
             <div class="item-title">{{ d.titre }}</div>
-            <div class="item-meta">{{ d.type }}{{ d.publication_date ? ' · ' + d.publication_date : '' }}{{ d.size_kb ? ' · ' + d.size_kb + ' Ko' : '' }}</div>
+            <div class="item-meta">
+              {{ d.type }}{{ d.publication_date ? ' · ' + d.publication_date : ''
+              }}{{ d.size_kb ? ' · ' + d.size_kb + ' Ko' : '' }}
+            </div>
           </div>
           <div class="item-actions">
             <button class="btn-sm" @click="openDoc(d)">Voir</button>
@@ -285,7 +363,14 @@ function onRdvDoctorChange() {
   }
 }
 
-const rdvForm = ref({ doctor_first_name: '', doctor_last_name: '', profession: '', operation: '', address: '', starts_at: '' });
+const rdvForm = ref({
+  doctor_first_name: '',
+  doctor_last_name: '',
+  profession: '',
+  operation: '',
+  address: '',
+  starts_at: '',
+});
 const tacheForm = ref({ nom_tache: 'consultation', date_tache: today, heure: '', commentaire: '' });
 // FIX Bug 3: checklist dans le formulaire étape
 const etapeForm = ref({ titre: '', detail: '', date_debut: '', date_fin: '', checklist: [] });
@@ -295,12 +380,17 @@ const selectedDocFile = ref(null);
 
 const formatDateTime = (iso) => {
   const d = new Date(iso);
-  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) +
-    ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  return (
+    d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) +
+    ' à ' +
+    d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  );
 };
 
 // ── Loaders ─────────────────────────────────────────────────────────────────
-const loadRdv = async () => { rdvList.value = await api.get(`/api/doctor/patients/${pid}/rendezvous`); };
+const loadRdv = async () => {
+  rdvList.value = await api.get(`/api/doctor/patients/${pid}/rendezvous`);
+};
 
 // FIX Bug 1: n'envoie ?date= que si une date est sélectionnée
 const loadTaches = async () => {
@@ -308,8 +398,12 @@ const loadTaches = async () => {
   tacheList.value = await api.get(`/api/doctor/patients/${pid}/taches${qs}`);
 };
 
-const loadEtapes = async () => { etapeList.value = await api.get(`/api/doctor/patients/${pid}/etapes`); };
-const loadDocs = async () => { docList.value = await api.get(`/api/doctor/patients/${pid}/documents`); };
+const loadEtapes = async () => {
+  etapeList.value = await api.get(`/api/doctor/patients/${pid}/etapes`);
+};
+const loadDocs = async () => {
+  docList.value = await api.get(`/api/doctor/patients/${pid}/documents`);
+};
 
 // ── Actions RDV ──────────────────────────────────────────────────────────────
 const createRdv = async () => {
@@ -317,11 +411,21 @@ const createRdv = async () => {
   try {
     await api.post(`/api/doctor/patients/${pid}/rendezvous`, rdvForm.value);
     showRdvForm.value = false;
-    rdvForm.value = { doctor_first_name: '', doctor_last_name: '', profession: '', operation: '', address: '', starts_at: '' };
+    rdvForm.value = {
+      doctor_first_name: '',
+      doctor_last_name: '',
+      profession: '',
+      operation: '',
+      address: '',
+      starts_at: '',
+    };
     selectedRdvDoctorId.value = '';
     await loadRdv();
-  } catch (e) { alert(e.message); }
-  finally { submitting.value = false; }
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    submitting.value = false;
+  }
 };
 
 const deleteRdv = async (id) => {
@@ -334,12 +438,19 @@ const deleteRdv = async (id) => {
 const createTache = async () => {
   submitting.value = true;
   try {
-    const body = { ...tacheForm.value, heure: tacheForm.value.heure || null, commentaire: tacheForm.value.commentaire || null };
+    const body = {
+      ...tacheForm.value,
+      heure: tacheForm.value.heure || null,
+      commentaire: tacheForm.value.commentaire || null,
+    };
     await api.post(`/api/doctor/patients/${pid}/taches`, body);
     showTacheForm.value = false;
     await loadTaches();
-  } catch (e) { alert(e.message); }
-  finally { submitting.value = false; }
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    submitting.value = false;
+  }
 };
 
 const deleteTache = async (id) => {
@@ -357,14 +468,19 @@ const createEtape = async () => {
       date_fin: etapeForm.value.date_fin || null,
       detail: etapeForm.value.detail || null,
       // FIX Bug 3: filtrer les items vides
-      checklist: etapeForm.value.checklist.filter(i => i.label.trim()).map(i => ({ label: i.label.trim(), fait: false })),
+      checklist: etapeForm.value.checklist
+        .filter((i) => i.label.trim())
+        .map((i) => ({ label: i.label.trim(), fait: false })),
     };
     await api.post(`/api/doctor/patients/${pid}/etapes`, body);
     showEtapeForm.value = false;
     etapeForm.value = { titre: '', detail: '', date_debut: '', date_fin: '', checklist: [] };
     await loadEtapes();
-  } catch (e) { alert(e.message); }
-  finally { submitting.value = false; }
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    submitting.value = false;
+  }
 };
 
 const deleteEtape = async (id) => {
@@ -376,20 +492,27 @@ const deleteEtape = async (id) => {
 // ── Actions Documents ────────────────────────────────────────────────────────
 // FIX Bug 2: upload multipart/form-data
 const createDoc = async () => {
-  if (!selectedDocFile.value) { alert('Veuillez sélectionner un fichier.'); return; }
+  if (!selectedDocFile.value) {
+    alert('Veuillez sélectionner un fichier.');
+    return;
+  }
   submitting.value = true;
   try {
     const fd = new FormData();
     fd.append('titre', docForm.value.titre);
     fd.append('type', docForm.value.type);
-    if (docForm.value.publication_date) fd.append('publication_date', docForm.value.publication_date);
+    if (docForm.value.publication_date)
+      fd.append('publication_date', docForm.value.publication_date);
     fd.append('file', selectedDocFile.value);
 
     await api.postForm(`/api/doctor/patients/${pid}/documents/upload`, fd);
     cancelDocForm();
     await loadDocs();
-  } catch (e) { alert(e.message); }
-  finally { submitting.value = false; }
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    submitting.value = false;
+  }
 };
 
 const cancelDocForm = () => {
@@ -433,7 +556,14 @@ const downloadDoc = async (d) => {
 };
 
 onMounted(async () => {
-  loadRdv(); loadTaches(); loadEtapes(); loadDocs();
-  try { doctors.value = await api.get('/api/profile/doctors'); } catch { /* non-bloquant */ }
+  loadRdv();
+  loadTaches();
+  loadEtapes();
+  loadDocs();
+  try {
+    doctors.value = await api.get('/api/profile/doctors');
+  } catch {
+    /* non-bloquant */
+  }
 });
 </script>

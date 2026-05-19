@@ -1,5 +1,5 @@
 <script setup>
-import Steps from "@/components/etapes/etapes-component.vue";
+import Steps from '@/components/etapes/etapes-component.vue';
 </script>
 <template>
   <Steps />

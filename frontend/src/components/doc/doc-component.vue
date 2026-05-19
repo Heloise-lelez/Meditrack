@@ -17,7 +17,13 @@
             :disabled="uploading"
             @click="triggerFilePicker"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
             </svg>
           </button>
@@ -33,7 +39,7 @@
       />
 
       <nav class="category-filters" role="tablist" aria-label="Filtrer les documents par catégorie">
-        <button 
+        <button
           v-for="category in categories"
           :key="category.id"
           :class="['filter-btn', { active: activeCategory === category.id }]"
@@ -47,19 +53,15 @@
       </nav>
 
       <section class="documents-list" aria-label="Liste des documents">
-        <p v-if="loading" style="color:#6b7280;font-size:12px;margin:6px 0;">Chargement…</p>
-        <p v-else-if="errorMessage" style="color:#b91c1c;font-size:12px;margin:6px 0;">
+        <p v-if="loading" style="color: #6b7280; font-size: 12px; margin: 6px 0">Chargement…</p>
+        <p v-else-if="errorMessage" style="color: #b91c1c; font-size: 12px; margin: 6px 0">
           {{ errorMessage }}
         </p>
 
-        <article 
-          v-for="doc in filteredDocuments" 
-          :key="doc.id"
-          class="document-card"
-        >
+        <article v-for="doc in filteredDocuments" :key="doc.id" class="document-card">
           <div class="doc-header">
             <div class="doc-icon" aria-hidden="true">📋</div>
-            
+
             <div class="doc-content">
               <h3 class="doc-title" tabindex="0">{{ doc.title }}</h3>
               <span class="doc-category" :class="`category-${doc.category.toLowerCase()}`">
@@ -74,8 +76,19 @@
           </div>
 
           <div class="doc-actions">
-            <button class="action-btn view-btn" :aria-label="`Voir le document ${doc.title}`" title="Voir" @click="openDoc(doc)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <button
+              class="action-btn view-btn"
+              :aria-label="`Voir le document ${doc.title}`"
+              title="Voir"
+              @click="openDoc(doc)"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
@@ -87,7 +100,13 @@
               title="Télécharger"
               @click="downloadDoc(doc)"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
               </svg>
               <span>Télécharger</span>
@@ -98,7 +117,13 @@
               title="Supprimer"
               @click="deleteDoc(doc)"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
                 <polyline points="3 6 5 6 21 6" />
                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
                 <path d="M10 11v6M14 11v6" />
@@ -116,20 +141,42 @@
       role="dialog"
       aria-modal="true"
       aria-label="Ajouter un document"
-      style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:14px;z-index:50;"
+      style="
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px;
+        z-index: 50;
+      "
       @click.self="closeUploadModal"
     >
-      <div style="background:#fff;border-radius:14px;max-width:560px;width:100%;padding:20px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 25px rgba(0,0,0,0.2);">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+      <div
+        style="
+          background: #fff;
+          border-radius: 14px;
+          max-width: 560px;
+          width: 100%;
+          padding: 20px;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        "
+      >
+        <div
+          style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px"
+        >
           <div>
-            <h3 style="margin:0;font-size:16px;" tabindex="0">Ajouter un document</h3>
-            <p style="margin:4px 0 0;color:#6b7280;font-size:12px;">
+            <h3 style="margin: 0; font-size: 16px" tabindex="0">Ajouter un document</h3>
+            <p style="margin: 4px 0 0; color: #6b7280; font-size: 12px">
               {{ selectedFile?.name }} • {{ selectedFileHumanSize }}
             </p>
           </div>
           <button
             class="action-btn"
-            style="flex:0 0 auto;background:#f3f4f6;color:#111827;"
+            style="flex: 0 0 auto; background: #f3f4f6; color: #111827"
             type="button"
             aria-label="Fermer la fenêtre d'ajout de document"
             @click="closeUploadModal"
@@ -139,8 +186,14 @@
           </button>
         </div>
 
-        <form aria-label="Formulaire d'ajout de document" style="margin-top:12px;display:flex;flex-direction:column;gap:10px;" @submit.prevent="submitUpload">
-          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+        <form
+          aria-label="Formulaire d'ajout de document"
+          style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px"
+          @submit.prevent="submitUpload"
+        >
+          <label
+            style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #374151"
+          >
             Titre
             <input
               v-model.trim="uploadForm.title"
@@ -148,18 +201,26 @@
               type="text"
               aria-label="Titre du document"
               placeholder="Ex: Compte rendu opératoire"
-              style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;"
+              style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; font-size: 14px"
               :disabled="uploading"
             />
           </label>
 
-          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+          <label
+            style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #374151"
+          >
             Catégorie
             <select
               v-model="uploadForm.type"
               required
               aria-label="Catégorie du document"
-              style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;background:#fff;"
+              style="
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 14px;
+                background: #fff;
+              "
               :disabled="uploading"
             >
               <option value="" disabled>Choisir…</option>
@@ -170,17 +231,19 @@
             </select>
           </label>
 
-          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+          <label
+            style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #374151"
+          >
             Date de publication
             <input
               v-model="uploadForm.publicationDate"
               type="date"
-              style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;"
+              style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; font-size: 14px"
               :disabled="uploading"
             />
           </label>
 
-          <p v-if="uploadErrorMessage" style="margin:0;color:#b91c1c;font-size:12px;">
+          <p v-if="uploadErrorMessage" style="margin: 0; color: #b91c1c; font-size: 12px">
             {{ uploadErrorMessage }}
           </p>
 
@@ -188,7 +251,7 @@
             class="action-btn view-btn"
             type="submit"
             :disabled="uploading || !selectedFile"
-            style="width:100%;"
+            style="width: 100%"
           >
             {{ uploading ? 'Envoi…' : 'Ajouter' }}
           </button>
