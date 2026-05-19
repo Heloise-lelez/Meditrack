@@ -133,6 +133,7 @@ export async function createAideAccount(req, res, next) {
       return res.status(400).json({ error: 'email, password, nom et prenom sont requis' });
     }
 
+    // Créer le user dans Supabase Auth avec le rôle AIDE dans les metadata
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
