@@ -16,105 +16,69 @@ export default {
     },
     getMenu() {
       const { userRole } = useAuth();
-      switch (userRole.value) {
-        case ROLES.PATIENT:
-          return [
-            {
-              link: "/",
-              title: "Accueil",
-              label: "home",
-              icon: "fa-house-chimney",
-            },
-            {
-              link: "/steps",
-              title: "Étapes",
-              label: "steps",
-              icon: "fa-list-ul",
-            },
-            {
-              link: "/appointments",
-              title: "RDV",
-              label: "rdv",
-              icon: "fa-calendar",
-            },
-            {
-              link: "/documents",
-              title: "Documents",
-              label: "docs",
-              icon: "fa-file",
-            },
-            {
-              link: "/profile",
-              title: "Profil",
-              label: "profile",
-              icon: "fa-circle-user",
-            },
-          ];
-        case ROLES.DOCTOR:
-          return [
-            {
-              link: "/",
-              title: "Accueil",
-              label: "home",
-              icon: "fa-house-chimney",
-            },
+      const isPatient = userRole.value === ROLES.PATIENT;
+      const isDoctor = userRole.value === ROLES.DOCTOR;
+      const isAssistant = userRole.value === ROLES.ASSISTANT;
+      const isSuperAdmin = userRole.value === ROLES.SUPERADMIN;
 
-            {
-              link: "/patients",
-              title: "Patients",
-              label: "patients",
-              icon: "fa-users",
-            },
-            {
-              link: "/profile",
-              title: "Profil",
-              label: "profile",
-              icon: "fa-circle-user",
-            },
-          ];
-        case ROLES.ASSISTANT:
-          return [
-            {
-              link: "/",
-              title: "Accueil",
-              label: "home",
-              icon: "fa-house-chimney",
-            },
-            {
-              link: "/assistant",
-              title: "Patients",
-              label: "patients",
-              icon: "fa-users",
-            },
-            {
-              link: "/profile",
-              title: "Profil",
-              label: "profile",
-              icon: "fa-circle-user",
-            },
-          ];
-        case ROLES.SUPERADMIN:
-          return [
-            {
-              link: "/",
-              title: "Accueil",
-              label: "home",
-              icon: "fa-house-chimney",
-            },
-            {
-              link: "/admin",
-              title: "Admin",
-              label: "admin",
-              icon: "fa-user-gear",
-            },
-            {
-              link: "/profile",
-              title: "Profil",
-              label: "profile",
-              icon: "fa-circle-user",
-            },
-          ];
-      }
+      return [
+        {
+          link: "/",
+          title: "Accueil",
+          label: "home",
+          icon: "fa-house-chimney",
+          isDisplayed: true,
+        },
+        {
+          link: "/patients",
+          title: "Patients",
+          label: "patients",
+          icon: "fa-users",
+          isDisplayed: isDoctor
+        },
+        {
+          link: "/assistant",
+          title: "Patients",
+          label: "patients",
+          icon: "fa-users",
+          isDisplayed: isAssistant,
+        },
+        {
+          link: "/steps",
+          title: "Étapes",
+          label: "steps",
+          icon: "fa-list-ul",
+          isDisplayed: isPatient,
+        },
+        {
+          link: "/appointments",
+          title: "RDV",
+          label: "rdv",
+          icon: "fa-calendar",
+          isDisplayed: isPatient,
+        },
+        {
+          link: "/documents",
+          title: "Documents",
+          label: "docs",
+          icon: "fa-file",
+          isDisplayed: isPatient,
+        },
+        {
+          link: "/admin",
+          title: "Admin",
+          label: "admin",
+          icon: "fa-user-gear",
+          isDisplayed: isSuperAdmin,
+        },
+        {
+          link: "/profile",
+          title: "Profil",
+          label: "profile",
+          icon: "fa-circle-user",
+          isDisplayed: true,
+        },
+      ];
     },
   },
 };
@@ -128,7 +92,7 @@ export default {
         ><img src="@/assets/meditrack-logo-text.svg" alt="Logo Meditrack"
       /></router-link>
       <ul class="navbar-menu">
-        <li v-for="menu in getMenu()" :key="menu.label">
+        <li v-for="menu in getMenu()" :key="menu.label" v-show="menu.isDisplayed">
           <router-link
             :to="menu.link"
             class="nav-link"
@@ -152,6 +116,7 @@ export default {
         class="nav-link-mobile"
         :class="{ active: isActive(menu.link) }"
         :aria-label="menu.label"
+        v-show="menu.isDisplayed"
       >
         <i :class="`fa-solid fa-lg ${menu.icon}`"></i>
         <span>{{ menu.title }}</span>
