@@ -17,10 +17,20 @@ export async function listPatients(req, res, next) {
 
 export async function listDoctors(req, res, next) {
   try {
+    const { data: assistant, error: aErr } = await supabaseAdmin
+      .from('profiles')
+      .select('etablissement_id')
+      .eq('id', req.user.id)
+      .single();
+
+    if (aErr) throw aErr;
+    if (!assistant.etablissement_id) return res.json([]);
+
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .select('id, nom, prenom, created_at')
+      .select('id, nom, prenom, specialite, etablissement_id')
       .eq('role', 'DOCTOR')
+      .eq('etablissement_id', assistant.etablissement_id)
       .order('nom', { ascending: true });
 
     if (error) throw error;
@@ -48,6 +58,18 @@ export async function createAssignment(req, res, next) {
     const { doctor_id, patient_id } = req.body;
     if (!doctor_id || !patient_id) {
       return res.status(400).json({ error: 'doctor_id et patient_id sont requis' });
+    }
+
+    const [{ data: assistant, error: aErr }, { data: doctor, error: dErr }] = await Promise.all([
+      supabaseAdmin.from('profiles').select('etablissement_id').eq('id', req.user.id).single(),
+      supabaseAdmin.from('profiles').select('etablissement_id').eq('id', doctor_id).single(),
+    ]);
+
+    if (aErr) throw aErr;
+    if (dErr) throw dErr;
+
+    if (!assistant.etablissement_id || assistant.etablissement_id !== doctor?.etablissement_id) {
+      return res.status(403).json({ error: "Ce médecin n'appartient pas à votre établissement" });
     }
 
     const { data, error } = await supabaseAdmin

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { watch } from "vue";
 import HomeView from "@/views/HomeView.vue";
 import { useAuth } from "@/composables/useAuth";
 
@@ -62,8 +63,16 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const { userRole } = useAuth();
+router.beforeEach(async (to, from, next) => {
+  const { userRole, loading } = useAuth();
+
+  if (loading.value) {
+    await new Promise((resolve) => {
+      const unwatch = watch(loading, (val) => {
+        if (!val) { unwatch(); resolve(); }
+      });
+    });
+  }
 
   if (to.meta.requiresRole && userRole.value !== to.meta.requiresRole) {
     next({ name: "home" });
