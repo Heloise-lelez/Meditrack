@@ -28,14 +28,52 @@
         <div class="mini-spinner" aria-hidden="true"></div>
       </div>
       <p v-else-if="myDoctors.length === 0" class="doctors-empty">Aucun médecin assigné.</p>
-      <div
-        v-else
-        v-for="d in myDoctors"
-        :key="d.id"
-        class="info-row"
-      >
-        <span class="info-label">Dr.</span>
-        <span class="info-value">{{ d.prenom }} {{ d.nom }}</span>
+      <div v-else v-for="d in myDoctors" :key="d.id" class="doctor-card">
+        <p class="doctor-fullname">Dr. {{ d.prenom }} {{ d.nom }}</p>
+        <div v-if="d.specialite" class="info-row">
+          <span class="info-label">Spécialité</span>
+          <span class="info-value">{{ d.specialite }}</span>
+        </div>
+        <div v-if="d.tel" class="info-row">
+          <span class="info-label">Téléphone</span>
+          <span class="info-value">{{ d.tel }}</span>
+        </div>
+        <div v-if="d.num_service" class="info-row">
+          <span class="info-label">N° de service</span>
+          <span class="info-value">{{ d.num_service }}</span>
+        </div>
+        <div v-if="d.horaire_service" class="info-row">
+          <span class="info-label">Horaires</span>
+          <span class="info-value">{{ d.horaire_service }}</span>
+        </div>
+        <div v-if="d.email" class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ d.email }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Informations professionnelles (DOCTOR uniquement) -->
+    <section v-if="userRole === 'DOCTOR'" class="info-section" aria-label="Informations professionnelles">
+      <h3 class="section-title">Informations professionnelles</h3>
+      <div class="doctor-edit-form">
+        <div class="field-group">
+          <label class="field-label" for="specialite">Spécialité</label>
+          <input id="specialite" v-model="doctorProfile.specialite" class="field-input" type="text" placeholder="Ex: Chirurgie orthopédique" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="num_service">N° du service (tél)</label>
+          <input id="num_service" v-model="doctorProfile.num_service" class="field-input" type="text" placeholder="+0300000000" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="horaire_service">Horaires du service</label>
+          <input id="horaire_service" v-model="doctorProfile.horaire_service" class="field-input" type="text" placeholder="Ex: Lun-Ven 8h-18h" />
+        </div>
+        <p v-if="saveError" class="save-error" role="alert">{{ saveError }}</p>
+        <p v-if="saveSuccess" class="save-success" role="status">Informations enregistrées.</p>
+        <button class="save-btn" :disabled="saving" @click="saveDoctorProfile">
+          {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
       </div>
     </section>
 
@@ -76,6 +114,11 @@ const logoutError = ref(null);
 const myDoctors = ref([]);
 const loadingDoctors = ref(false);
 
+const doctorProfile = ref({ specialite: '', num_service: '', horaire_service: '' });
+const saving = ref(false);
+const saveError = ref(null);
+const saveSuccess = ref(false);
+
 async function handleSignOut() {
   loggingOut.value = true;
   logoutError.value = null;
@@ -89,6 +132,31 @@ async function handleSignOut() {
   }
 }
 
+async function saveDoctorProfile() {
+  saving.value = true;
+  saveError.value = null;
+  saveSuccess.value = false;
+  try {
+    const updated = await api.put('/api/doctor/profile', {
+      specialite: doctorProfile.value.specialite || null,
+      num_service: doctorProfile.value.num_service || null,
+      horaire_service: doctorProfile.value.horaire_service || null,
+    });
+    doctorProfile.value = {
+      specialite: updated.specialite ?? '',
+      num_service: updated.num_service ?? '',
+      horaire_service: updated.horaire_service ?? '',
+    };
+    saveSuccess.value = true;
+    setTimeout(() => { saveSuccess.value = false; }, 3000);
+  } catch (err) {
+    saveError.value = 'Erreur lors de la sauvegarde.';
+    console.error(err);
+  } finally {
+    saving.value = false;
+  }
+}
+
 onMounted(async () => {
   if (userRole.value === 'PATIENT') {
     loadingDoctors.value = true;
@@ -97,6 +165,16 @@ onMounted(async () => {
     } finally {
       loadingDoctors.value = false;
     }
+  }
+  if (userRole.value === 'DOCTOR') {
+    try {
+      const p = await api.get('/api/doctor/profile');
+      doctorProfile.value = {
+        specialite: p.specialite ?? '',
+        num_service: p.num_service ?? '',
+        horaire_service: p.horaire_service ?? '',
+      };
+    } catch { /* non-bloquant */ }
   }
 });
 </script>
@@ -227,6 +305,90 @@ onMounted(async () => {
   padding: 14px 18px;
   font-size: 14px;
   color: #aaa;
+  margin: 0;
+}
+
+.doctor-card {
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 4px;
+}
+
+.doctor-card:last-child {
+  border-bottom: none;
+}
+
+.doctor-fullname {
+  margin: 12px 18px 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3a8d7a;
+}
+
+.doctor-edit-form {
+  padding: 14px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.field-input {
+  padding: 10px 14px;
+  border: 1.5px solid #d1faf5;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #0f2722;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.field-input:focus {
+  border-color: #3a8d7a;
+}
+
+.save-btn {
+  padding: 11px;
+  border: none;
+  border-radius: 10px;
+  background: #3a8d7a;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #2f7364;
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-error {
+  font-size: 13px;
+  color: #b91c1c;
+  margin: 0;
+}
+
+.save-success {
+  font-size: 13px;
+  color: #3a8d7a;
   margin: 0;
 }
 

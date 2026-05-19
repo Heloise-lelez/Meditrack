@@ -227,6 +227,10 @@
   color: #555;
 }
 
+.form-grid label.full-width {
+  grid-column: 1 / -1;
+}
+
 .form-grid input,
 .form-grid select {
   border: 1px solid #d1d5db;

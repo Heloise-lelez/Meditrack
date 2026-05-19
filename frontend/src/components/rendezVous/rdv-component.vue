@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from 'vue';
 import './rdv.css';
 import Header from '../Chirurgie_Suivi/Header.vue';
 import RdvCardsComponent from './rdvCards/rdv-cards-component.vue';
-import addRdvComponent from './addRdv/add-rdv-component.vue';
 import { api } from '../../lib/api';
 
 const rdvs = ref([]);
@@ -87,7 +86,12 @@ const deleteRdv = async (id) => {
 
 <template>
     <Header />
-  <addRdvComponent :upcomingCount="upcoming.length" @created="loadRdvs" />
+  <div class="rdv-page-header">
+    <div>
+      <h2 style="margin:0;font-size:24px;color:#0f2722;">Rendez-vous</h2>
+      <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">{{ upcoming.length }} à venir</p>
+    </div>
+  </div>
 
   <p v-if="loading" style="color:#6b7280;font-size:12px;margin:8px 0;">Chargement…</p>
   <p v-else-if="errorMessage" style="color:#b91c1c;font-size:12px;margin:8px 0;">
@@ -211,6 +215,13 @@ const deleteRdv = async (id) => {
     flex-direction: column;
     align-items: center;
     gap: 20px;
+}
+
+.rdv-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
 }
 
 h2 {

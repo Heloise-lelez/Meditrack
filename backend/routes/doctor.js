@@ -7,10 +7,20 @@ import {
   listPatientTaches, createPatientTache, deletePatientTache,
   listPatientEtapes, createPatientEtape, deletePatientEtape,
   listPatientDocuments, uploadDocumentForPatient,
+  getMyProfile, updateMyProfile,
+  searchPatients, selfAssign, selfUnassign,
 } from '../controllers/doctorController.js';
 
 const router = Router();
 const isDoctor = [requireAuth, requireRole('DOCTOR')];
+
+// Profile routes must come before /patients/:pid to avoid param capture
+router.get('/profile', ...isDoctor, getMyProfile);
+router.put('/profile', ...isDoctor, updateMyProfile);
+
+router.get('/patients/search', ...isDoctor, searchPatients);
+router.post('/patients/self-assign', ...isDoctor, selfAssign);
+router.delete('/patients/self-unassign', ...isDoctor, selfUnassign);
 
 router.get('/patients', ...isDoctor, listMyPatients);
 

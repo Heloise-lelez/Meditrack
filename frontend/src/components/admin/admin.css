@@ -90,3 +90,43 @@
   color: #dc2626;
   text-align: center;
 }
+
+.etab-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.etab-form input {
+  flex: 1;
+  min-width: 160px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 0.875rem;
+  color: #333;
+}
+
+.etab-form input:focus {
+  outline: none;
+  border-color: #3a8d7a;
+}
+
+.etab-btn {
+  background: #3a8d7a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 18px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.etab-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

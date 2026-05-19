@@ -31,16 +31,22 @@
       <form v-if="showRdvForm" class="inline-form" @submit.prevent="createRdv">
         <h3>Nouveau rendez-vous</h3>
         <div class="form-grid">
-          <label>Prénom médecin<input v-model="rdvForm.doctor_first_name" required /></label>
-          <label>Nom médecin<input v-model="rdvForm.doctor_last_name" required /></label>
-          <label>Spécialité<input v-model="rdvForm.profession" required /></label>
+          <label class="full-width">Médecin
+            <select v-model="selectedRdvDoctorId" required @change="onRdvDoctorChange">
+              <option value="" disabled>Sélectionner un médecin…</option>
+              <option v-for="d in doctors" :key="d.id" :value="d.id">
+                Dr. {{ d.prenom }} {{ d.nom }}{{ d.specialite ? ' — ' + d.specialite : '' }}
+              </option>
+            </select>
+          </label>
+          <label>Spécialité / Profession<input v-model="rdvForm.profession" required placeholder="Ex: Cardiologue" /></label>
           <label>Motif<input v-model="rdvForm.operation" required /></label>
           <label>Adresse<input v-model="rdvForm.address" required /></label>
           <label>Date & heure<input type="datetime-local" v-model="rdvForm.starts_at" required /></label>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn-primary" :disabled="submitting">Créer</button>
-          <button type="button" class="btn-secondary" @click="showRdvForm = false">Annuler</button>
+          <button type="button" class="btn-secondary" @click="showRdvForm = false; selectedRdvDoctorId = ''">Annuler</button>
         </div>
       </form>
 
@@ -262,6 +268,18 @@ const showDocForm = ref(false);
 
 const today = new Date().toISOString().slice(0, 10);
 
+const doctors = ref([]);
+const selectedRdvDoctorId = ref('');
+
+function onRdvDoctorChange() {
+  const doc = doctors.value.find((d) => d.id === selectedRdvDoctorId.value);
+  if (doc) {
+    rdvForm.value.doctor_first_name = doc.prenom;
+    rdvForm.value.doctor_last_name = doc.nom;
+    rdvForm.value.profession = doc.specialite ?? '';
+  }
+}
+
 const rdvForm = ref({ doctor_first_name: '', doctor_last_name: '', profession: '', operation: '', address: '', starts_at: '' });
 const tacheForm = ref({ nom_tache: 'consultation', date_tache: today, heure: '', commentaire: '' });
 // FIX Bug 3: checklist dans le formulaire étape
@@ -295,6 +313,7 @@ const createRdv = async () => {
     await api.post(`/api/doctor/patients/${pid}/rendezvous`, rdvForm.value);
     showRdvForm.value = false;
     rdvForm.value = { doctor_first_name: '', doctor_last_name: '', profession: '', operation: '', address: '', starts_at: '' };
+    selectedRdvDoctorId.value = '';
     await loadRdv();
   } catch (e) { alert(e.message); }
   finally { submitting.value = false; }
@@ -374,5 +393,8 @@ const cancelDocForm = () => {
   selectedDocFile.value = null;
 };
 
-onMounted(() => { loadRdv(); loadTaches(); loadEtapes(); loadDocs(); });
+onMounted(async () => {
+  loadRdv(); loadTaches(); loadEtapes(); loadDocs();
+  try { doctors.value = await api.get('/api/profile/doctors'); } catch { /* non-bloquant */ }
+});
 </script>

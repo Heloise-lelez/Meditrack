@@ -1,25 +1,20 @@
 <script>
+import { computed } from "vue";
 import { useAuth } from "@/composables/useAuth.js";
 import { ROLES } from "@/constants/roles.js";
 
 export default {
   name: "NavBar",
-  data() {
-    return {
-      isMobileMenuOpen: false,
-      currentPath: "/",
-    };
+  setup() {
+    const { userRole } = useAuth();
+    return { userRole };
   },
-  methods: {
-    isActive(path) {
-      return this.$route.path === path;
-    },
-    getMenu() {
-      const { userRole } = useAuth();
-      const isPatient = userRole.value === ROLES.PATIENT;
-      const isDoctor = userRole.value === ROLES.DOCTOR;
-      const isAssistant = userRole.value === ROLES.ASSISTANT;
-      const isSuperAdmin = userRole.value === ROLES.SUPERADMIN;
+  computed: {
+    menu() {
+      const isPatient = this.userRole === ROLES.PATIENT;
+      const isDoctor = this.userRole === ROLES.DOCTOR;
+      const isAssistant = this.userRole === ROLES.ASSISTANT;
+      const isSuperAdmin = this.userRole === ROLES.SUPER_ADMIN;
 
       return [
         {
@@ -34,7 +29,14 @@ export default {
           title: "Patients",
           label: "patients",
           icon: "fa-users",
-          isDisplayed: isDoctor
+          isDisplayed: isDoctor,
+        },
+        {
+          link: "/search-patients",
+          title: "Rechercher",
+          label: "search",
+          icon: "fa-magnifying-glass",
+          isDisplayed: isDoctor,
         },
         {
           link: "/assistant",
@@ -81,6 +83,11 @@ export default {
       ];
     },
   },
+  methods: {
+    isActive(path) {
+      return this.$route.path === path;
+    },
+  },
 };
 </script>
 
@@ -92,14 +99,14 @@ export default {
         ><img src="@/assets/meditrack-logo-text.svg" alt="Logo Meditrack"
       /></router-link>
       <ul class="navbar-menu">
-        <li v-for="menu in getMenu()" :key="menu.label" v-show="menu.isDisplayed">
+        <li v-for="item in menu" :key="item.label" v-show="item.isDisplayed">
           <router-link
-            :to="menu.link"
+            :to="item.link"
             class="nav-link"
-            :class="{ active: isActive(menu.link) }"
-            :aria-current="menu.label"
+            :class="{ active: isActive(item.link) }"
+            :aria-current="item.label"
           >
-            {{ menu.title }}
+            {{ item.title }}
           </router-link>
         </li>
       </ul>
@@ -110,16 +117,16 @@ export default {
   <nav class="navbar navbar-mobile" aria-label="Navigation mobile">
     <div class="navbar-mobile-content">
       <router-link
-        v-for="menu in getMenu()"
-        :key="menu.label"
-        :to="menu.link"
+        v-for="item in menu"
+        :key="item.label"
+        :to="item.link"
         class="nav-link-mobile"
-        :class="{ active: isActive(menu.link) }"
-        :aria-label="menu.label"
-        v-show="menu.isDisplayed"
+        :class="{ active: isActive(item.link) }"
+        :aria-label="item.label"
+        v-show="item.isDisplayed"
       >
-        <i :class="`fa-solid fa-lg ${menu.icon}`"></i>
-        <span>{{ menu.title }}</span>
+        <i :class="`fa-solid fa-lg ${item.icon}`"></i>
+        <span>{{ item.title }}</span>
       </router-link>
     </div>
   </nav>
@@ -278,7 +285,6 @@ export default {
   }
 }
 
-/* Focus visible for keyboard navigation */
 .nav-link:focus-visible,
 .nav-link-mobile:focus-visible,
 .brand-link:focus-visible {

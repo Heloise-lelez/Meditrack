@@ -1,4 +1,5 @@
-import { createUserClient } from '../lib/supabase.js';
+import { createUserClient, supabaseAdmin } from '../lib/supabase.js';
+import { encryptBuffer, decryptBuffer } from '../lib/encrypt.js';
 
 export async function listDocuments(req, res, next) {
   try {
@@ -72,10 +73,12 @@ export async function uploadDocument(req, res, next) {
 
     const db = createUserClient(req.userToken);
 
+    const encrypted = encryptBuffer(req.file.buffer);
+
     const { error: storageErr } = await db.storage
       .from('documents')
-      .upload(storagePath, req.file.buffer, {
-        contentType: req.file.mimetype || 'application/octet-stream',
+      .upload(storagePath, encrypted, {
+        contentType: 'application/octet-stream',
         upsert: false,
       });
 
@@ -94,6 +97,7 @@ export async function uploadDocument(req, res, next) {
           download_link: storagePath,
           size_kb: sizeKb,
           user_id: req.user.id,
+          mime_type: req.file.mimetype || 'application/octet-stream',
         })
         .select()
         .single();
@@ -111,14 +115,14 @@ export async function uploadDocument(req, res, next) {
   }
 }
 
-export async function getDocumentUrl(req, res, next) {
+export async function downloadDocument(req, res, next) {
   try {
     const { id } = req.params;
     const db = createUserClient(req.userToken);
 
     const { data: doc, error: fetchErr } = await db
       .from('document')
-      .select('download_link')
+      .select('download_link, titre, mime_type')
       .eq('id_document', id)
       .eq('user_id', req.user.id)
       .single();
@@ -126,13 +130,19 @@ export async function getDocumentUrl(req, res, next) {
     if (fetchErr || !doc) return res.status(404).json({ error: 'Document introuvable' });
     if (!doc.download_link) return res.status(404).json({ error: 'Aucun fichier associé à ce document' });
 
-    const { data: signed, error: signErr } = await db.storage
+    const { data: blob, error: dlErr } = await supabaseAdmin.storage
       .from('documents')
-      .createSignedUrl(doc.download_link, 3600);
+      .download(doc.download_link);
 
-    if (signErr) throw signErr;
+    if (dlErr) throw dlErr;
 
-    res.json({ url: signed.signedUrl });
+    const arrayBuffer = await blob.arrayBuffer();
+    const decrypted = decryptBuffer(Buffer.from(arrayBuffer));
+
+    const contentType = doc.mime_type || 'application/octet-stream';
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(doc.titre)}"`);
+    res.send(decrypted);
   } catch (err) {
     next(err);
   }

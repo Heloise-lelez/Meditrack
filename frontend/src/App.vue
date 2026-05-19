@@ -1,39 +1,10 @@
 <script>
-import { createMemoryHistory, createRouter } from "vue-router";
 import NavBar from "./components/shared/NavBar.vue";
 import AuthComponent from "./components/auth/auth-component.vue";
 import { useAuth } from "./composables/useAuth";
 
-import HomeView from "./views/HomeView.vue";
-import StepsView from "./views/StepsView.vue";
-import AppointmentsView from "./views/AppointmentsView.vue";
-import DocumentsView from "./views/DocumentsView.vue";
-import ProfileView from "./views/ProfileView.vue";
-import PatientsListView from "./views/PatientsListView.vue";
-import AssistantView from "./views/AssistantView.vue";
-import AdminView from "./views/AdminView.vue";
-
-const routes = [
-  { path: "/", component: HomeView },
-  { path: "/steps", component: StepsView },
-  { path: "/appointments", component: AppointmentsView },
-  { path: "/documents", component: DocumentsView },
-  { path: "/profile", component: ProfileView },
-  { path: "/patients", component: PatientsListView },
-  { path: "/admin", component: AdminView },
-  { path: "/assistant", component: AssistantView },
-];
-
-export const router = createRouter({
-  history: createMemoryHistory(),
-  routes,
-});
-
 export default {
-  components: {
-    NavBar,
-    AuthComponent,
-  },
+  components: { NavBar, AuthComponent },
   setup() {
     const { user, loading } = useAuth();
     return { user, loading };
@@ -105,8 +76,5 @@ body {
   .main-content {
     padding-bottom: 70px;
   }
-}
-
-@media (min-width: 769px) {
 }
 </style>
