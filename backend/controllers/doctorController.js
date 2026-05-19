@@ -232,6 +232,101 @@ export async function deletePatientEtape(req, res, next) {
   }
 }
 
+// ── Profil médecin ────────────────────────────────────────────────────────────
+
+export async function getMyProfile(req, res, next) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, nom, prenom, tel, specialite, num_service, horaire_service')
+      .eq('id', req.user.id)
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateMyProfile(req, res, next) {
+  try {
+    const { specialite, num_service, horaire_service } = req.body;
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .update({ specialite: specialite ?? null, num_service: num_service ?? null, horaire_service: horaire_service ?? null })
+      .eq('id', req.user.id)
+      .select('id, nom, prenom, tel, specialite, num_service, horaire_service')
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ── Recherche + auto-assignation ──────────────────────────────────────────────
+
+export async function searchPatients(req, res, next) {
+  try {
+    const q = (req.query.q ?? '').trim();
+    if (!q) return res.json([]);
+
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, nom, prenom')
+      .eq('role', 'PATIENT')
+      .or(`nom.ilike.%${q}%,prenom.ilike.%${q}%`)
+      .order('nom', { ascending: true })
+      .limit(20);
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function selfAssign(req, res, next) {
+  try {
+    const { patient_id } = req.body;
+    if (!patient_id) return res.status(400).json({ error: 'patient_id est requis' });
+
+    const { data, error } = await supabaseAdmin
+      .from('doctor_patient')
+      .insert({ doctor_id: req.user.id, patient_id })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === '23505') return res.status(409).json({ error: 'Assignation déjà existante' });
+      throw error;
+    }
+    res.status(201).json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function selfUnassign(req, res, next) {
+  try {
+    const { patient_id } = req.body;
+    if (!patient_id) return res.status(400).json({ error: 'patient_id est requis' });
+
+    const { error } = await supabaseAdmin
+      .from('doctor_patient')
+      .delete()
+      .eq('doctor_id', req.user.id)
+      .eq('patient_id', patient_id);
+
+    if (error) throw error;
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+
 // ── Documents ─────────────────────────────────────────────────────────────────
 
 export async function listPatientDocuments(req, res, next) {

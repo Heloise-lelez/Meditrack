@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { api } from '../../../lib/api';
 
 const props = defineProps({
@@ -11,6 +11,8 @@ const emit = defineEmits(['created']);
 const isModalOpen = ref(false);
 const saving = ref(false);
 const errorMessage = ref(null);
+const doctors = ref([]);
+const selectedDoctorId = ref('');
 
 const form = ref({
   prenom: '',
@@ -20,10 +22,23 @@ const form = ref({
   date: '',
   heure: '',
   adresse: '',
-  profilePicture: '',
 });
 
+function onDoctorChange() {
+  const doc = doctors.value.find((d) => d.id === selectedDoctorId.value);
+  if (doc) {
+    form.value.prenom = doc.prenom;
+    form.value.nom = doc.nom;
+    form.value.profession = doc.specialite ?? '';
+  } else {
+    form.value.prenom = '';
+    form.value.nom = '';
+    form.value.profession = '';
+  }
+}
+
 const resetForm = () => {
+  selectedDoctorId.value = '';
   form.value = {
     prenom: '',
     nom: '',
@@ -32,7 +47,6 @@ const resetForm = () => {
     date: new Date().toISOString().slice(0, 10),
     heure: '09:00',
     adresse: '',
-    profilePicture: '',
   };
 };
 
@@ -55,6 +69,10 @@ const upcomingLabel = computed(() => {
 
 const submit = async () => {
   errorMessage.value = null;
+  if (!selectedDoctorId.value) {
+    errorMessage.value = 'Veuillez sélectionner un médecin.';
+    return;
+  }
   if (!form.value.date || !form.value.heure) {
     errorMessage.value = 'Veuillez renseigner une date et une heure.';
     return;
@@ -70,7 +88,6 @@ const submit = async () => {
       profession: form.value.profession,
       operation: form.value.operation,
       address: form.value.adresse,
-      profile_picture: form.value.profilePicture || null,
       starts_at: startsAt,
     });
 
@@ -83,6 +100,12 @@ const submit = async () => {
     saving.value = false;
   }
 };
+
+onMounted(async () => {
+  try {
+    doctors.value = await api.get('/api/profile/doctors');
+  } catch { /* non-bloquant */ }
+});
 </script>
 
 <template>
@@ -121,20 +144,26 @@ const submit = async () => {
       </div>
 
       <form aria-label="Formulaire d'ajout de rendez-vous" style="margin-top:12px;display:flex;flex-direction:column;gap:10px;" @submit.prevent="submit">
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <label style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
-            Prénom du médecin
-            <input v-model.trim="form.prenom" required type="text" aria-label="Prénom du médecin" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;" :disabled="saving" />
-          </label>
-          <label style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
-            Nom du médecin
-            <input v-model.trim="form.nom" required type="text" aria-label="Nom du médecin" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;" :disabled="saving" />
-          </label>
-        </div>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
+          Médecin
+          <select
+            v-model="selectedDoctorId"
+            required
+            aria-label="Choisir un médecin"
+            style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;background:#fff;"
+            :disabled="saving"
+            @change="onDoctorChange"
+          >
+            <option value="" disabled>Sélectionner un médecin…</option>
+            <option v-for="d in doctors" :key="d.id" :value="d.id">
+              Dr. {{ d.prenom }} {{ d.nom }}{{ d.specialite ? ' — ' + d.specialite : '' }}
+            </option>
+          </select>
+        </label>
 
         <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">
-          Profession
-          <input v-model.trim="form.profession" required type="text" aria-label="Profession du médecin" placeholder="Ex: Cardiologue" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;" :disabled="saving" />
+          Spécialité / Profession
+          <input v-model.trim="form.profession" required type="text" aria-label="Spécialité ou profession du médecin" placeholder="Ex: Cardiologue" style="border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-size:14px;" :disabled="saving" />
         </label>
 
         <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#374151;">

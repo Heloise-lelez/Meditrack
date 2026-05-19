@@ -10,6 +10,7 @@
   import ProfileComponent from './components/profile/profile-component.vue';
   import AdminComponent from './components/admin/admin-component.vue';
   import DoctorPatientsComponent from './components/doctor/doctor-patients-component.vue';
+  import DoctorSearchPatientsComponent from './components/doctor/doctor-search-patients-component.vue';
   import AssistantComponent from './components/assistant/assistant-component.vue';
   import { useAuth } from './composables/useAuth';
 
@@ -26,6 +27,7 @@
 
   const DOCTOR_TABS = [
     { id: 'patients', label: 'Mes patients', icon: 'patients' },
+    { id: 'search-patients', label: 'Rechercher', icon: 'search' },
     { id: 'profile', label: 'Profil', icon: 'profile' },
   ];
 
@@ -87,6 +89,9 @@
     <!-- ── DOCTOR tabs ─────────────────────────────────────── -->
     <section v-else-if="activeTab === 'patients'" aria-label="Mes patients">
       <DoctorPatientsComponent />
+    </section>
+    <section v-else-if="activeTab === 'search-patients'" aria-label="Rechercher un patient">
+      <DoctorSearchPatientsComponent />
     </section>
 
     <!-- ── ASSISTANT tabs ──────────────────────────────────── -->
