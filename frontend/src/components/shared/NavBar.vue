@@ -60,13 +60,6 @@ export default {
           isDisplayed: isPatient,
         },
         {
-          link: "/documents",
-          title: "Documents",
-          label: "docs",
-          icon: "fa-file",
-          isDisplayed: isPatient,
-        },
-        {
           link: "/admin",
           title: "Admin",
           label: "admin",

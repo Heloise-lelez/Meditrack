@@ -77,6 +77,17 @@
       </div>
     </section>
 
+    <!-- Accès documents (PATIENT uniquement) -->
+    <router-link
+      v-if="userRole === 'PATIENT'"
+      to="/documents"
+      class="documents-btn"
+      aria-label="Accéder à mes documents"
+    >
+      <i class="fa-solid fa-file" aria-hidden="true"></i>
+      Mes documents
+    </router-link>
+
     <p v-if="logoutError" class="logout-error" role="alert">{{ logoutError }}</p>
 
     <button class="logout-btn" aria-label="Se déconnecter" :disabled="loggingOut" @click="handleSignOut">
@@ -390,6 +401,28 @@ onMounted(async () => {
   font-size: 13px;
   color: #3a8d7a;
   margin: 0;
+}
+
+.documents-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+  padding: 13px;
+  border-radius: 12px;
+  background: #f0fdf9;
+  color: #3a8d7a;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+  border: 1.5px solid #d1faf5;
+}
+
+.documents-btn:hover {
+  background: #d1faf5;
 }
 
 .logout-btn {
