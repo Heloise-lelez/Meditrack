@@ -386,7 +386,9 @@ const submitUpload = async () => {
       formData.append('publication_date', uploadForm.value.publicationDate);
     }
 
-    const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+    const BASE = (
+      import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:3000')
+    ).replace(/\/$/, '');
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
     const res = await fetch(`${BASE}/api/documents/upload`, {
@@ -413,7 +415,9 @@ const submitUpload = async () => {
 async function fetchDocBlob(doc) {
   if (!doc?.id) return null;
   try {
-    const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+    const BASE = (
+      import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:3000')
+    ).replace(/\/$/, '');
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
     const res = await fetch(`${BASE}/api/documents/${doc.id}/download`, {

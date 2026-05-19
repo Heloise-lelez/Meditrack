@@ -522,12 +522,17 @@ const cancelDocForm = () => {
 };
 
 const fetchDocBlob = async (d) => {
-  const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+  const BASE = (
+    import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:3000')
+  ).replace(/\/$/, '');
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token;
-  const res = await fetch(`${BASE}/api/doctor/patients/${pid}/documents/${d.id_document}/download`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
+  const res = await fetch(
+    `${BASE}/api/doctor/patients/${pid}/documents/${d.id_document}/download`,
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }
+  );
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.blob();
 };
@@ -538,7 +543,9 @@ const openDoc = async (d) => {
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank', 'noopener,noreferrer');
     setTimeout(() => URL.revokeObjectURL(url), 60000);
-  } catch (e) { alert(`Impossible d'ouvrir le document : ${e.message}`); }
+  } catch (e) {
+    alert(`Impossible d'ouvrir le document : ${e.message}`);
+  }
 };
 
 const downloadDoc = async (d) => {
@@ -552,7 +559,9 @@ const downloadDoc = async (d) => {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
-  } catch (e) { alert(`Impossible de télécharger le document : ${e.message}`); }
+  } catch (e) {
+    alert(`Impossible de télécharger le document : ${e.message}`);
+  }
 };
 
 onMounted(async () => {

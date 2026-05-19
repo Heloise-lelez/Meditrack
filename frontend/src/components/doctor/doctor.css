@@ -312,7 +312,11 @@
   margin-top: 2px;
 }
 
-.item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.item-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
 
 .btn-sm {
   border: 1px solid #3a8d7a;
@@ -325,7 +329,9 @@
   white-space: nowrap;
 }
 
-.btn-sm:hover { background: #f0faf8; }
+.btn-sm:hover {
+  background: #f0faf8;
+}
 
 .item-empty {
   padding: 20px;

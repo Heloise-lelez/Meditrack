@@ -3,7 +3,7 @@ SHELL := /bin/sh
 BACKEND_PORT ?= 3000
 FRONTEND_PORT ?= 5173
 
-.PHONY: install quality precommit start stop restart
+.PHONY: install quality precommit test start stop restart
 
 install:
 	npm install
@@ -15,7 +15,10 @@ quality:
 	npm run lint
 	npm run check-format
 
-precommit: quality
+test:
+	npm test
+
+precommit: quality test
 
 start: install
 	@set -eu; \
