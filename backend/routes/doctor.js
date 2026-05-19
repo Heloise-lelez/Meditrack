@@ -6,7 +6,7 @@ import {
   listPatientRendezvous, createPatientRendezvous, deletePatientRendezvous,
   listPatientTaches, createPatientTache, deletePatientTache,
   listPatientEtapes, createPatientEtape, deletePatientEtape,
-  listPatientDocuments, uploadDocumentForPatient,
+  listPatientDocuments, uploadDocumentForPatient, downloadPatientDocument,
   getMyProfile, updateMyProfile,
   searchPatients, selfAssign, selfUnassign,
 } from '../controllers/doctorController.js';
@@ -37,6 +37,7 @@ router.post('/patients/:pid/etapes', ...isDoctor, createPatientEtape);
 router.delete('/patients/:pid/etapes/:id', ...isDoctor, deletePatientEtape);
 
 router.get('/patients/:pid/documents', ...isDoctor, listPatientDocuments);
+router.get('/patients/:pid/documents/:id/download', ...isDoctor, downloadPatientDocument);
 router.post('/patients/:pid/documents/upload', ...isDoctor, (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     if (!err) return next();

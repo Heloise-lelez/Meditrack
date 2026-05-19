@@ -215,6 +215,10 @@
             <div class="item-title">{{ d.titre }}</div>
             <div class="item-meta">{{ d.type }}{{ d.publication_date ? ' · ' + d.publication_date : '' }}{{ d.size_kb ? ' · ' + d.size_kb + ' Ko' : '' }}</div>
           </div>
+          <div class="item-actions">
+            <button class="btn-sm" @click="openDoc(d)">Voir</button>
+            <button class="btn-sm" @click="downloadDoc(d)">Télécharger</button>
+          </div>
         </li>
       </ul>
     </section>
@@ -224,6 +228,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { api } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 import './doctor.css';
 
 const props = defineProps({ patient: { type: Object, required: true } });
@@ -391,6 +396,40 @@ const cancelDocForm = () => {
   showDocForm.value = false;
   docForm.value = { titre: '', type: 'Chirurgie', publication_date: '' };
   selectedDocFile.value = null;
+};
+
+const fetchDocBlob = async (d) => {
+  const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+  const res = await fetch(`${BASE}/api/doctor/patients/${pid}/documents/${d.id_document}/download`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.blob();
+};
+
+const openDoc = async (d) => {
+  try {
+    const blob = await fetchDocBlob(d);
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e) { alert(`Impossible d'ouvrir le document : ${e.message}`); }
+};
+
+const downloadDoc = async (d) => {
+  try {
+    const blob = await fetchDocBlob(d);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = d.titre || 'document';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } catch (e) { alert(`Impossible de télécharger le document : ${e.message}`); }
 };
 
 onMounted(async () => {

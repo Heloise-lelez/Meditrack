@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../lib/supabase.js';
-import { encryptBuffer } from '../lib/encrypt.js';
+import { encryptBuffer, decryptBuffer } from '../lib/encrypt.js';
 
 // Verify that patientId is assigned to this doctor; returns 403 if not
 async function assertPatientOfDoctor(doctorId, patientId, res) {
@@ -343,6 +343,39 @@ export async function listPatientDocuments(req, res, next) {
 
     if (error) throw error;
     res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function downloadPatientDocument(req, res, next) {
+  try {
+    const { pid, id } = req.params;
+    if (!(await assertPatientOfDoctor(req.user.id, pid, res))) return;
+
+    const { data: doc, error: fetchErr } = await supabaseAdmin
+      .from('document')
+      .select('download_link, titre, mime_type')
+      .eq('id_document', id)
+      .eq('user_id', pid)
+      .single();
+
+    if (fetchErr || !doc) return res.status(404).json({ error: 'Document introuvable' });
+    if (!doc.download_link) return res.status(404).json({ error: 'Aucun fichier associé à ce document' });
+
+    const { data: blob, error: dlErr } = await supabaseAdmin.storage
+      .from('documents')
+      .download(doc.download_link);
+
+    if (dlErr) throw dlErr;
+
+    const arrayBuffer = await blob.arrayBuffer();
+    const decrypted = decryptBuffer(Buffer.from(arrayBuffer));
+
+    const contentType = doc.mime_type || 'application/octet-stream';
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(doc.titre)}"`);
+    res.send(decrypted);
   } catch (err) {
     next(err);
   }
