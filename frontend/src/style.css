@@ -1,0 +1,60 @@
+:root {
+    /* Primaire — Teal */
+    --color-primary-light:    #4a9b8e;
+    --color-primary:          #3d8078;
+    --color-primary-dark:     #2f7464;
+    --color-primary-hover:    #5aada0;
+    --color-primary-active:   #347068;
+    --color-primary-disabled: #a8cdc9;
+    --color-primary-focus-ring: rgba(74, 155, 142, 0.35);
+
+    /* Secondaire — Slate */
+    --color-secondary:          #6b7280;
+    --color-secondary-hover:    #9ca3af;
+    --color-secondary-active:   #4b5563;
+    --color-secondary-disabled: #d1d5db;
+    --color-secondary-focus-ring: rgba(107, 114, 128, 0.30);
+
+    /* Active — Blue */
+    --color-active:          #3b82f6;
+    --color-active-hover:    #60a5fa;
+    --color-active-pressed:  #2563eb;
+    --color-active-disabled: #93c5fd;
+    --color-active-focus-ring: rgba(59, 130, 246, 0.35);
+
+    /* Success */
+    --color-success:      #10b981;
+    --color-success-bg:   #f0fdf4;
+    --color-success-text: #166534;
+
+    /* Warning */
+    --color-warning:      #f59e0b;
+    --color-warning-bg:   #fffbeb;
+    --color-warning-text: #92400e;
+
+    /* Error */
+    --color-error:      #ef4444;
+    --color-error-bg:   #fef2f2;
+    --color-error-text: #b91c1c;
+
+    /* Neutres */
+    --color-white:      #ffffff;
+    --color-off-white:  #f9f9f9;
+    --color-gray-light: #e0e0e0;
+    --color-gray:       #888888;
+    --color-gray-dark:  #333333;
+    --color-black:      #1a1a1a;
+
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}

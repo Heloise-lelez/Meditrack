@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '../lib/supabase.js';
 
-const VALID_ROLES = ['PATIENT', 'ASSISTANT', 'DOCTOR', 'SUPER_ADMIN'];
+const VALID_ROLES = ['PATIENT', 'ASSISTANT', 'DOCTOR', 'SUPER_ADMIN', 'AIDE'];
 
 export async function listUsers(req, res, next) {
   try {
