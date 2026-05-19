@@ -35,6 +35,33 @@ CREATE POLICY "ap_aide_sees_own"
   ON aide_patient FOR SELECT
   USING (auth.uid() = aide_id);
 
+-- Les assistants peuvent gérer (INSERT/DELETE) les assignations aide ↔ patient
+DROP POLICY IF EXISTS "ap_assistant_manage" ON aide_patient;
+CREATE POLICY "ap_assistant_manage"
+  ON aide_patient FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'ASSISTANT'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'ASSISTANT'
+    )
+  );
+
+-- Les docteurs peuvent voir les aides de leurs patients
+DROP POLICY IF EXISTS "ap_doctor_sees_patient_aides" ON aide_patient;
+CREATE POLICY "ap_doctor_sees_patient_aides"
+  ON aide_patient FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM doctor_patient
+      WHERE doctor_patient.doctor_id = auth.uid()
+        AND doctor_patient.patient_id = aide_patient.patient_id
+    )
+  );
+
 -- ── 4. Seed : aides + assignations ────────────────────────
 -- Dépend de : supabase-seed-full.sql (patients déjà créés)
 -- Mot de passe commun : Test1234!
