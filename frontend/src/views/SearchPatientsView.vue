@@ -1,5 +1,5 @@
 <script setup>
-import DoctorSearchPatientsComponent from "@/components/doctor/doctor-search-patients-component.vue";
+import DoctorSearchPatientsComponent from '@/components/doctor/doctor-search-patients-component.vue';
 </script>
 <template>
   <DoctorSearchPatientsComponent />

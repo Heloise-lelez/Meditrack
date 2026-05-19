@@ -18,7 +18,9 @@ async function fetchRole() {
 supabase.auth.getSession().then(({ data }) => {
   user.value = data.session?.user ?? null;
   if (user.value) {
-    fetchRole().finally(() => { loading.value = false; });
+    fetchRole().finally(() => {
+      loading.value = false;
+    });
   } else {
     loading.value = false;
   }

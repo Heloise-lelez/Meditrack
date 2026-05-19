@@ -1,7 +1,7 @@
 <script>
-import NavBar from "./components/shared/NavBar.vue";
-import AuthComponent from "./components/auth/auth-component.vue";
-import { useAuth } from "./composables/useAuth";
+import NavBar from './components/shared/NavBar.vue';
+import AuthComponent from './components/auth/auth-component.vue';
+import { useAuth } from './composables/useAuth';
 
 export default {
   components: { NavBar, AuthComponent },
