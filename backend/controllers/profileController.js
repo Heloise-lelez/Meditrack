@@ -60,3 +60,34 @@ export async function getMyRole(req, res, next) {
     next(err);
   }
 }
+
+export async function getMyAides(req, res, next) {
+  try {
+    const { data: assignments, error: assignError } = await supabaseAdmin
+      .from('aide_patient')
+      .select('aide_id, assigned_at')
+      .eq('patient_id', req.user.id);
+
+    if (assignError) throw assignError;
+    if (!assignments.length) return res.json([]);
+
+    const aideIds = assignments.map((a) => a.aide_id);
+    const { data: aides, error: aideError } = await supabaseAdmin
+      .from('profiles')
+      .select('id, nom, prenom')
+      .in('id', aideIds);
+
+    if (aideError) throw aideError;
+
+    const aideMap = Object.fromEntries(aides.map((a) => [a.id, a]));
+    res.json(
+      assignments.map((a) => ({
+        aide_id: a.aide_id,
+        assigned_at: a.assigned_at,
+        profiles: aideMap[a.aide_id] ?? null,
+      }))
+    );
+  } catch (err) {
+    next(err);
+  }
+}

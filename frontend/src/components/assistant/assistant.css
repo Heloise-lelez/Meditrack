@@ -184,3 +184,151 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Main section tabs (Médecins / Aides) */
+.main-tabs {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 20px;
+  gap: 0;
+}
+
+.main-tab {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.main-tab.active {
+  color: #3a8d7a;
+  border-bottom-color: #3a8d7a;
+  font-weight: 600;
+}
+
+/* Inline form for creating an aide account */
+.inline-form {
+  margin: 0 0 0;
+  padding: 14px 16px;
+  background: #f9fffe;
+  border-bottom: 1px solid #e0f2ee;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inline-form h3 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  color: #1a1a2e;
+}
+
+.field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.field-row label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.field-row input {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.field-row input:focus {
+  border-color: #3a8d7a;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn-create {
+  background: #3a8d7a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-create:hover:not(:disabled) {
+  background: #2d7060;
+}
+
+.btn-create:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-add-aide {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 12px 14px;
+  padding: 8px;
+  background: none;
+  border: 1px dashed #3a8d7a;
+  color: #3a8d7a;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+}
+
+.btn-add-aide:hover {
+  background: #f0faf8;
+}
+
+.form-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin: 0;
+}
+
+.aide-avatar {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.person-aides {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

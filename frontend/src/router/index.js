@@ -57,6 +57,12 @@ const routes = [
     component: () => import('@/views/ProfileView.vue'),
   },
   {
+    path: '/aide',
+    name: 'aide',
+    component: () => import('@/views/AideView.vue'),
+    meta: { requiresRole: 'AIDE' },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/NotFoundView.vue'),

@@ -57,6 +57,18 @@
       </div>
     </section>
 
+    <!-- Mes aides (PATIENT uniquement) -->
+    <section v-if="userRole === 'PATIENT'" class="info-section" aria-label="Mes aides">
+      <h3 class="section-title">Mes aides</h3>
+      <div v-if="loadingAides" class="doctors-loading" role="status">
+        <div class="mini-spinner" aria-hidden="true"></div>
+      </div>
+      <p v-else-if="myAides.length === 0" class="doctors-empty">Aucun aide assigné.</p>
+      <div v-else v-for="a in myAides" :key="a.aide_id" class="doctor-card">
+        <p class="doctor-fullname">{{ a.profiles.prenom }} {{ a.profiles.nom }}</p>
+      </div>
+    </section>
+
     <!-- Informations professionnelles (DOCTOR uniquement) -->
     <section
       v-if="userRole === 'DOCTOR'"
@@ -155,6 +167,8 @@ const loggingOut = ref(false);
 const logoutError = ref(null);
 const myDoctors = ref([]);
 const loadingDoctors = ref(false);
+const myAides = ref([]);
+const loadingAides = ref(false);
 
 const doctorProfile = ref({ specialite: '', num_service: '', horaire_service: '' });
 const saving = ref(false);
@@ -204,10 +218,15 @@ async function saveDoctorProfile() {
 onMounted(async () => {
   if (userRole.value === 'PATIENT') {
     loadingDoctors.value = true;
+    loadingAides.value = true;
     try {
-      myDoctors.value = await api.get('/api/profile/my-doctors');
+      [myDoctors.value, myAides.value] = await Promise.all([
+        api.get('/api/profile/my-doctors').catch(() => []),
+        api.get('/api/profile/my-aides').catch(() => []),
+      ]);
     } finally {
       loadingDoctors.value = false;
+      loadingAides.value = false;
     }
   }
   if (userRole.value === 'DOCTOR') {

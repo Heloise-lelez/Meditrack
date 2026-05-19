@@ -14,6 +14,7 @@ export default {
       const isDoctor = this.userRole === ROLES.DOCTOR;
       const isAssistant = this.userRole === ROLES.ASSISTANT;
       const isSuperAdmin = this.userRole === ROLES.SUPER_ADMIN;
+      const isAide = this.userRole === ROLES.AIDE;
 
       return [
         {
@@ -44,12 +45,21 @@ export default {
           isPageTitleDisplayedMobile: true,
         },
         {
-          true: '/assistant',
+          link: '/assistant',
           title: 'Patients',
           pageTitle: 'Patients',
           label: 'patients',
           icon: 'fa-users',
           isDisplayed: isAssistant,
+          isPageTitleDisplayedMobile: true,
+        },
+        {
+          link: '/aide',
+          title: 'Mes patients',
+          pageTitle: 'Mes patients',
+          label: 'aide',
+          icon: 'fa-hand-holding-heart',
+          isDisplayed: isAide,
           isPageTitleDisplayedMobile: true,
         },
         {
@@ -126,11 +136,11 @@ export default {
 
   <!-- Mobile Navigation -->
   <header
-    v-show="currentPage.isPageTitleDisplayedMobile"
+    v-show="currentPage?.isPageTitleDisplayedMobile"
     class="header-mobile"
     aria-label="En-tête mobile"
   >
-    {{ currentPage.pageTitle }}
+    {{ currentPage?.pageTitle ?? '' }}
   </header>
 
   <nav class="navbar navbar-mobile" aria-label="Navigation mobile">
