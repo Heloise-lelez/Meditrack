@@ -49,7 +49,7 @@ import { api } from '../../lib/api';
 import { useAuth } from '../../composables/useAuth';
 import './admin.css';
 
-const ROLES = ['PATIENT', 'ASSISTANT', 'DOCTOR', 'SUPER_ADMIN'];
+const ROLES = ['PATIENT', 'ASSISTANT', 'DOCTOR', 'SUPER_ADMIN', 'AIDE'];
 
 const { user } = useAuth();
 const currentUserId = user.value?.id;
