@@ -1,26 +1,27 @@
 :root {
   /* Primaire — Teal */
-  --color-primary-light: #4a9b8e;
-  --color-primary: #3d8078;
-  --color-primary-dark: #2f7464;
-  --color-primary-hover: #5aada0;
-  --color-primary-active: #347068;
-  --color-primary-disabled: #a8cdc9;
-  --color-primary-focus-ring: rgba(74, 155, 142, 0.35);
+  --color-primary-light: #be5ba6;
+  --color-primary: #8c3a78;
+  --color-primary-dark: #4f2043;
+  --color-primary-hover: #b2509a;
+  --color-primary-active: #842d6e;
+  --color-primary-disabled: #704c67;
+  --color-primary-background: #faf0f8;
+  --color-primary-focus-ring: rgba(140, 58, 120, 0.35);
 
   /* Secondaire — Slate */
-  --color-secondary: #6b7280;
-  --color-secondary-hover: #9ca3af;
-  --color-secondary-active: #4b5563;
-  --color-secondary-disabled: #d1d5db;
-  --color-secondary-focus-ring: rgba(107, 114, 128, 0.3);
+  --color-secondary: #30287f;
+  --color-secondary-hover: #241e57;
+  --color-secondary-active: #433999;
+  --color-secondary-disabled: #2f2c4e;
+  --color-secondary-focus-ring: rgba(48, 40, 127, 0.3);
 
   /* Active — Blue */
-  --color-active: #3b82f6;
-  --color-active-hover: #60a5fa;
-  --color-active-pressed: #2563eb;
-  --color-active-disabled: #93c5fd;
-  --color-active-focus-ring: rgba(59, 130, 246, 0.35);
+  --color-active: #609ebf;
+  --color-active-hover: #4a82a0;
+  --color-active-pressed: #7db9da;
+  --color-active-disabled: #45606f;
+  --color-active-focus-ring: rgba(96, 158, 191, 0.35);
 
   /* Success */
   --color-success: #10b981;
