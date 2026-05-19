@@ -50,8 +50,12 @@ export function useAuth() {
     await auditClientEvent('auth.sign_in.success', { email }, { authenticated: true });
   }
 
+<<<<<<< HEAD
   async function signUp(email, password, { nom, prenom, tel }) {
     await auditClientEvent('auth.sign_up.attempt', { email });
+=======
+  async function signUp(email, password, { nom, prenom, tel, role }) {
+>>>>>>> a793900 (feat: auth role aide - RLS read-only policies, assistant aide management endpoints)
     const { error } = await supabase.auth.signUp({
       email,
       password,
