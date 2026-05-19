@@ -1,6 +1,5 @@
 <script setup>
   import { ref } from 'vue';
-  import TabBar from './layout/tabbar/tabbar-component.vue';
   import Home from './components/home/home-component.vue';
   import Etapes from './components/etapes/etapes-component.vue';
   import rdvComponent from './components/rendezVous/rdv-component.vue';
