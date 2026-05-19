@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
+import { useAuth } from "@/composables/useAuth";
 
 const routes = [
   {
@@ -10,18 +11,38 @@ const routes = [
   {
     path: "/steps",
     name: "steps",
-
     component: () => import("@/views/StepsView.vue"),
+    meta: { requiresRole: "PATIENT" },
   },
   {
     path: "/appointments",
     name: "appointments",
     component: () => import("@/views/AppointmentsView.vue"),
+    meta: { requiresRole: "PATIENT" },
   },
   {
     path: "/documents",
     name: "documents",
     component: () => import("@/views/DocumentsView.vue"),
+    meta: { requiresRole: "PATIENT" },
+  },
+  {
+    path: "/patients",
+    name: "patients",
+    component: () => import("@/views/PatientsListView.vue"),
+    meta: { requiresRole: "DOCTOR" },
+  },
+  {
+    path: "/assistant",
+    name: "assistant",
+    component: () => import("@/views/AssistantView.vue"),
+    meta: { requiresRole: "ASSISTANT" },
+  },
+  {
+    path: "/admin",
+    name: "admin",
+    component: () => import("@/views/AdminView.vue"),
+    meta: { requiresRole: "SUPERADMIN" },
   },
   {
     path: "/profile",
@@ -30,7 +51,19 @@ const routes = [
   },
 ];
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+router.beforeEach((to, from, next) => {
+  const { userRole } = useAuth();
+
+  if (to.meta.requiresRole && userRole.value !== to.meta.requiresRole) {
+    next({ name: "home" });
+  } else {
+    next();
+  }
+});
+
+export default router;

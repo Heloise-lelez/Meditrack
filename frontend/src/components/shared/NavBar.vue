@@ -1,6 +1,6 @@
 <script>
-import {useAuth} from "@/composables/useAuth.js";
-import {ROLES} from "@/constants/roles.js";
+import { useAuth } from "@/composables/useAuth.js";
+import { ROLES } from "@/constants/roles.js";
 
 export default {
   name: "NavBar",
@@ -17,21 +17,102 @@ export default {
     getMenu() {
       const { userRole } = useAuth();
       switch (userRole.value) {
-        case (ROLES.PATIENT):
+        case ROLES.PATIENT:
           return [
-            { link: "/", title: "Accueil", label: "home", icon: "fa-house-chimney" },
-            { link: "/steps", title: "Étapes", label: "steps", icon: "fa-list-ul" },
-            { link: "/appointments", title: "RDV", label: "rdv", icon: "fa-calendar" },
-            { link: "/documents", title: "Documents", label: "docs", icon: "fa-file" },
-            { link: "/profile", title: "Profil", label: "profile", icon: "fa-circle-user" }
+            {
+              link: "/",
+              title: "Accueil",
+              label: "home",
+              icon: "fa-house-chimney",
+            },
+            {
+              link: "/steps",
+              title: "Étapes",
+              label: "steps",
+              icon: "fa-list-ul",
+            },
+            {
+              link: "/appointments",
+              title: "RDV",
+              label: "rdv",
+              icon: "fa-calendar",
+            },
+            {
+              link: "/documents",
+              title: "Documents",
+              label: "docs",
+              icon: "fa-file",
+            },
+            {
+              link: "/profile",
+              title: "Profil",
+              label: "profile",
+              icon: "fa-circle-user",
+            },
           ];
-        case (ROLES.DOCTOR):
+        case ROLES.DOCTOR:
           return [
-            { link: "/", title: "Accueil", label: "home", icon: "fa-house-chimney" },
-            { link: "/steps", title: "Étapes", label: "steps", icon: "fa-list-ul" },
-            { link: "/appointments", title: "RDV", label: "rdv", icon: "fa-calendar" },
-            { link: "/documents", title: "Documents", label: "docs", icon: "fa-file" },
-            { link: "/profile", title: "Profil", label: "profile", icon: "fa-circle-user" }
+            {
+              link: "/",
+              title: "Accueil",
+              label: "home",
+              icon: "fa-house-chimney",
+            },
+
+            {
+              link: "/patients",
+              title: "Patients",
+              label: "patients",
+              icon: "fa-users",
+            },
+            {
+              link: "/profile",
+              title: "Profil",
+              label: "profile",
+              icon: "fa-circle-user",
+            },
+          ];
+        case ROLES.ASSISTANT:
+          return [
+            {
+              link: "/",
+              title: "Accueil",
+              label: "home",
+              icon: "fa-house-chimney",
+            },
+            {
+              link: "/assistant",
+              title: "Patients",
+              label: "patients",
+              icon: "fa-users",
+            },
+            {
+              link: "/profile",
+              title: "Profil",
+              label: "profile",
+              icon: "fa-circle-user",
+            },
+          ];
+        case ROLES.SUPERADMIN:
+          return [
+            {
+              link: "/",
+              title: "Accueil",
+              label: "home",
+              icon: "fa-house-chimney",
+            },
+            {
+              link: "/admin",
+              title: "Admin",
+              label: "admin",
+              icon: "fa-user-gear",
+            },
+            {
+              link: "/profile",
+              title: "Profil",
+              label: "profile",
+              icon: "fa-circle-user",
+            },
           ];
       }
     },
@@ -43,14 +124,16 @@ export default {
   <!-- Desktop Navigation -->
   <nav class="navbar navbar-desktop" aria-label="Navigation principale">
     <div class="navbar-container">
-      <router-link to="/" class="brand-link"><img src="@/assets/meditrack-logo-text.svg" alt="Logo Meditrack"></router-link>
+      <router-link to="/" class="brand-link"
+        ><img src="@/assets/meditrack-logo-text.svg" alt="Logo Meditrack"
+      /></router-link>
       <ul class="navbar-menu">
         <li v-for="menu in getMenu()" :key="menu.label">
           <router-link
-              :to="menu.link"
-              class="nav-link"
-              :class="{ active: isActive(menu.link) }"
-              :aria-current="menu.label"
+            :to="menu.link"
+            class="nav-link"
+            :class="{ active: isActive(menu.link) }"
+            :aria-current="menu.label"
           >
             {{ menu.title }}
           </router-link>
@@ -63,12 +146,12 @@ export default {
   <nav class="navbar navbar-mobile" aria-label="Navigation mobile">
     <div class="navbar-mobile-content">
       <router-link
-          v-for="menu in getMenu()"
-          :key="menu.label"
-          :to="menu.link"
-          class="nav-link-mobile"
-          :class="{ active: isActive(menu.link) }"
-          :aria-label="menu.label"
+        v-for="menu in getMenu()"
+        :key="menu.label"
+        :to="menu.link"
+        class="nav-link-mobile"
+        :class="{ active: isActive(menu.link) }"
+        :aria-label="menu.label"
       >
         <i :class="`fa-solid fa-lg ${menu.icon}`"></i>
         <span>{{ menu.title }}</span>

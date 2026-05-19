@@ -1,12 +1,17 @@
 <script>
 import { createMemoryHistory, createRouter } from "vue-router";
 import NavBar from "./components/shared/NavBar.vue";
+import AuthComponent from "./components/auth/auth-component.vue";
+import { useAuth } from "./composables/useAuth";
 
 import HomeView from "./views/HomeView.vue";
 import StepsView from "./views/StepsView.vue";
 import AppointmentsView from "./views/AppointmentsView.vue";
 import DocumentsView from "./views/DocumentsView.vue";
 import ProfileView from "./views/ProfileView.vue";
+import PatientsListView from "./views/PatientsListView.vue";
+import AssistantView from "./views/AssistantView.vue";
+import AdminView from "./views/AdminView.vue";
 
 const routes = [
   { path: "/", component: HomeView },
@@ -14,6 +19,9 @@ const routes = [
   { path: "/appointments", component: AppointmentsView },
   { path: "/documents", component: DocumentsView },
   { path: "/profile", component: ProfileView },
+  { path: "/patients", component: PatientsListView },
+  { path: "/admin", component: AdminView },
+  { path: "/assistant", component: AssistantView },
 ];
 
 export const router = createRouter({
@@ -24,15 +32,26 @@ export const router = createRouter({
 export default {
   components: {
     NavBar,
+    AuthComponent,
+  },
+  setup() {
+    const { user, loading } = useAuth();
+    return { user, loading };
   },
 };
 </script>
 
 <template>
-  <NavBar />
-  <main class="main-content">
-    <RouterView />
-  </main>
+  <div v-if="loading" class="loading-container">
+    <div class="loader"></div>
+  </div>
+  <AuthComponent v-else-if="!user" />
+  <div v-else id="app-content">
+    <NavBar />
+    <main class="main-content">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
 <style>
@@ -48,9 +67,38 @@ body {
   min-height: 100vh;
 }
 
+#app-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .main-content {
   flex: 1;
   width: 100%;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f0faf8;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #3a8d7a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {
@@ -60,8 +108,5 @@ body {
 }
 
 @media (min-width: 769px) {
-  .main-content {
-    padding-top: 70px;
-  }
 }
 </style>
