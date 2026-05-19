@@ -1,6 +1,6 @@
 <script>
 import { createMemoryHistory, createRouter } from "vue-router";
-import NavBar from "./components/layout/navbar/NavBar.vue";
+import NavBar from "./components/shared/NavBar.vue";
 
 import HomeView from "./views/HomeView.vue";
 import StepsView from "./views/StepsView.vue";
