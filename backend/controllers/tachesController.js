@@ -28,7 +28,9 @@ export async function updateTacheStatut(req, res, next) {
     const VALID_STATUTS = ['a_faire', 'fait', 'ratee'];
 
     if (!statut || !VALID_STATUTS.includes(statut)) {
-      return res.status(400).json({ error: `statut doit être l'un de: ${VALID_STATUTS.join(', ')}` });
+      return res
+        .status(400)
+        .json({ error: `statut doit être l'un de: ${VALID_STATUTS.join(', ')}` });
     }
 
     const db = createUserClient(req.userToken);

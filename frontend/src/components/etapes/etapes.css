@@ -1,19 +1,19 @@
 .etapes-container {
-    width: 100%;
-    margin: 0 auto;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .etapes-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
 }
 
 @media (min-width: 768px) {
-    .etapes-cards {
-        display: grid;
-        gap: 20px;
-        align-items: stretch;
-    }
+  .etapes-cards {
+    display: grid;
+    gap: 20px;
+    align-items: stretch;
+  }
 }

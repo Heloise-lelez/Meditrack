@@ -1,6 +1,12 @@
 import { Router } from 'express';
 import { requireAuth, requireRole } from '../middleware/auth.js';
-import { listUsers, updateUserRole, listEtablissements, createEtablissement, updateUserEtablissement } from '../controllers/adminController.js';
+import {
+  listUsers,
+  updateUserRole,
+  listEtablissements,
+  createEtablissement,
+  updateUserEtablissement,
+} from '../controllers/adminController.js';
 
 const router = Router();
 const isSuperAdmin = [requireAuth, requireRole('SUPER_ADMIN')];

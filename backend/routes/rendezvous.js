@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
-import { listRendezvous, nextRendezvous, createRendezvous, deleteRendezvous } from '../controllers/rendezvousController.js';
+import {
+  listRendezvous,
+  nextRendezvous,
+  createRendezvous,
+  deleteRendezvous,
+} from '../controllers/rendezvousController.js';
 
 const router = Router();
 router.use(requireAuth);

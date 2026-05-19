@@ -32,22 +32,22 @@ L'application est structurée en deux parties:
 
 ## Fonctionnalités
 
-| Module | Description |
-| --- | --- |
-| Accueil | Vue synthétique du prochain rendez-vous, des tâches du jour et des documents récents. |
-| Étapes | Suivi des grandes phases du parcours chirurgical avec progression étape par étape. |
-| Rendez-vous | Consultation, historique et ajout de rendez-vous médicaux. |
-| Documents | Gestion des documents utiles au parcours: comptes rendus, ordonnances, bilans et documents administratifs. |
-| Accessibilité | Navigation par onglets, libellés ARIA, focus clavier et structure pensée pour la lecture assistée. |
+| Module        | Description                                                                                                |
+| ------------- | ---------------------------------------------------------------------------------------------------------- |
+| Accueil       | Vue synthétique du prochain rendez-vous, des tâches du jour et des documents récents.                      |
+| Étapes        | Suivi des grandes phases du parcours chirurgical avec progression étape par étape.                         |
+| Rendez-vous   | Consultation, historique et ajout de rendez-vous médicaux.                                                 |
+| Documents     | Gestion des documents utiles au parcours: comptes rendus, ordonnances, bilans et documents administratifs. |
+| Accessibilité | Navigation par onglets, libellés ARIA, focus clavier et structure pensée pour la lecture assistée.         |
 
 ## Stack Technique
 
-| Couche | Technologie |
-| --- | --- |
-| Frontend | Vue 3, Vite |
-| Backend | Node.js, Express |
-| Données | Supabase |
-| Qualité | ESLint |
+| Couche         | Technologie             |
+| -------------- | ----------------------- |
+| Frontend       | Vue 3, Vite             |
+| Backend        | Node.js, Express        |
+| Données        | Supabase                |
+| Qualité        | ESLint                  |
 | Gestion projet | Scripts npm à la racine |
 
 ## Structure
@@ -65,6 +65,7 @@ Meditrack/
 │   │   └── lib/          # Client Supabase
 │   └── package.json
 ├── docs/assets/          # Illustrations du README
+├── Makefile              # Commandes de dev, qualité et redémarrage
 ├── scripts/dev.sh        # Lancement backend + frontend
 └── package.json          # Scripts globaux
 ```
@@ -108,6 +109,18 @@ Cette commande installe les dépendances du backend et du frontend.
 
 ## Démarrage
 
+Pour mettre à jour les dépendances puis lancer le backend et le frontend:
+
+```bash
+make start
+```
+
+Pour arrêter les services actifs sur les ports du projet puis les relancer:
+
+```bash
+make restart
+```
+
 Pour installer les dépendances puis lancer le projet en une seule commande:
 
 ```bash
@@ -136,14 +149,27 @@ Si le port `5173` est déjà utilisé, Vite choisit automatiquement le port suiv
 
 ## Commandes Utiles
 
-| Commande | Rôle |
-| --- | --- |
-| `npm run setup` | Installe les dépendances backend et frontend. |
-| `npm run setup:start` | Installe les dépendances puis démarre le projet. |
-| `npm start` | Lance backend et frontend ensemble. |
-| `npm run start:backend` | Lance uniquement l'API Express. |
-| `npm run start:frontend` | Lance uniquement l'application Vue/Vite. |
-| `npm run lint` | Exécute ESLint sur le projet. |
+| Commande                 | Rôle                                                               |
+| ------------------------ | ------------------------------------------------------------------ |
+| `make start`             | Met à jour les dépendances puis lance backend et frontend.         |
+| `make restart`           | Arrête les ports `3000` et `5173`, puis relance le projet.         |
+| `make quality`           | Formate le code, applique ESLint, puis vérifie ESLint et Prettier. |
+| `make precommit`         | Alias de `make quality`, à lancer avant de commit.                 |
+| `npm run setup`          | Installe les dépendances backend et frontend.                      |
+| `npm run setup:start`    | Installe les dépendances puis démarre le projet.                   |
+| `npm start`              | Lance backend et frontend ensemble.                                |
+| `npm run start:backend`  | Lance uniquement l'API Express.                                    |
+| `npm run start:frontend` | Lance uniquement l'application Vue/Vite.                           |
+| `npm run format`         | Applique Prettier sur les fichiers pris en charge.                 |
+| `npm run check-format`   | Vérifie le formatage Prettier sans modifier les fichiers.          |
+| `npm run lint`           | Exécute ESLint sur le projet.                                      |
+| `npm run lint:fix`       | Applique automatiquement les corrections ESLint disponibles.       |
+
+Avant un commit, la commande recommandée est:
+
+```bash
+make precommit
+```
 
 ## Développement
 

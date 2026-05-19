@@ -1,6 +1,13 @@
 import { createUserClient } from '../lib/supabase.js';
 
-const REQUIRED = ['doctor_first_name', 'doctor_last_name', 'profession', 'operation', 'address', 'starts_at'];
+const REQUIRED = [
+  'doctor_first_name',
+  'doctor_last_name',
+  'profession',
+  'operation',
+  'address',
+  'starts_at',
+];
 
 export async function listRendezvous(req, res, next) {
   try {
@@ -44,7 +51,15 @@ export async function createRendezvous(req, res, next) {
       return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
     }
 
-    const { doctor_first_name, doctor_last_name, profession, operation, address, starts_at, profile_picture } = req.body;
+    const {
+      doctor_first_name,
+      doctor_last_name,
+      profession,
+      operation,
+      address,
+      starts_at,
+      profile_picture,
+    } = req.body;
     const db = createUserClient(req.userToken);
 
     const { data, error } = await db

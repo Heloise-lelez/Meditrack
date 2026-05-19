@@ -25,7 +25,10 @@
         </button>
       </nav>
 
-      <form @submit.prevent="submit" :aria-label="isLogin ? 'Formulaire de connexion' : 'Formulaire d\'inscription'">
+      <form
+        @submit.prevent="submit"
+        :aria-label="isLogin ? 'Formulaire de connexion' : 'Formulaire d\'inscription'"
+      >
         <template v-if="!isLogin">
           <div class="field-row">
             <label class="field">
@@ -148,9 +151,11 @@ async function submit() {
 function translateError(msg) {
   if (!msg) return 'Une erreur est survenue.';
   if (msg.includes('Invalid login credentials')) return 'Email ou mot de passe incorrect.';
-  if (msg.includes('Email not confirmed')) return 'Veuillez confirmer votre email avant de vous connecter.';
+  if (msg.includes('Email not confirmed'))
+    return 'Veuillez confirmer votre email avant de vous connecter.';
   if (msg.includes('User already registered')) return 'Un compte existe déjà avec cet email.';
-  if (msg.includes('Password should be at least')) return 'Le mot de passe doit contenir au moins 6 caractères.';
+  if (msg.includes('Password should be at least'))
+    return 'Le mot de passe doit contenir au moins 6 caractères.';
   return msg;
 }
 </script>
@@ -210,7 +215,9 @@ function translateError(msg) {
   font-weight: 500;
   color: #6b7280;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .auth-tab.active {
