@@ -7,21 +7,21 @@
   --color-primary-active: #842d6e;
   --color-primary-disabled: #704c67;
   --color-primary-background: #faf0f8;
-  --color-primary-focus-ring: rgba(140, 58, 120, 0.35);
+  --color-primary-focus: rgba(140, 58, 120, 0.35);
 
   /* Secondaire — Slate */
   --color-secondary: #30287f;
   --color-secondary-hover: #241e57;
   --color-secondary-active: #433999;
   --color-secondary-disabled: #2f2c4e;
-  --color-secondary-focus-ring: rgba(48, 40, 127, 0.3);
+  --color-secondary-focus: rgba(48, 40, 127, 0.3);
 
   /* Active — Blue */
   --color-active: #609ebf;
   --color-active-hover: #4a82a0;
   --color-active-pressed: #7db9da;
   --color-active-disabled: #45606f;
-  --color-active-focus-ring: rgba(96, 158, 191, 0.35);
+  --color-active-focus: rgba(96, 158, 191, 0.35);
 
   /* Success */
   --color-success: #10b981;
