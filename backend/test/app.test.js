@@ -22,3 +22,25 @@ test('protected endpoints reject missing bearer token', async () => {
 
   assert.deepEqual(response.body, { error: 'Unauthorized' });
 });
+
+test('aide endpoints are mounted and protected', async () => {
+  const response = await request(app).get('/api/aide/patients').expect(401);
+
+  assert.deepEqual(response.body, { error: 'Unauthorized' });
+});
+
+test('public audit client endpoint accepts supported audit actions', async () => {
+  await request(app)
+    .post('/api/audit/client')
+    .send({ action: 'auth.sign_in.attempt', email: 'patient@example.com' })
+    .expect(204);
+});
+
+test('public audit client endpoint rejects unsupported audit actions', async () => {
+  const response = await request(app)
+    .post('/api/audit/client')
+    .send({ action: 'unknown.action' })
+    .expect(400);
+
+  assert.deepEqual(response.body, { error: 'Unsupported audit action' });
+});
