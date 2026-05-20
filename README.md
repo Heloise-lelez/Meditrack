@@ -274,12 +274,12 @@ Estimation mensuelle pour exploiter Meditrack en production, basée sur trois pa
 
 ### Hypothèse 1 — Stack par défaut
 
-| Poste              | 1 000 utilisateurs  | 5 000 utilisateurs  | 10 000 utilisateurs |
-| ------------------ | ------------------- | ------------------- | ------------------- |
-| Nom de domaine     | ~1 €/mois           | ~1 €/mois           | ~1 €/mois           |
-| Supabase Pro       | 25 $/mois           | ~26 $/mois          | ~28 $/mois          |
-| Vercel Pro         | 20 $/mois           | 20 $/mois           | 20 $/mois           |
-| **Total estimé**   | **~46 $/mois**      | **~47 $/mois**      | **~49 $/mois**      |
+| Poste            | 1 000 utilisateurs | 5 000 utilisateurs | 10 000 utilisateurs |
+| ---------------- | ------------------ | ------------------ | ------------------- |
+| Nom de domaine   | ~1 €/mois          | ~1 €/mois          | ~1 €/mois           |
+| Supabase Pro     | 25 $/mois          | ~26 $/mois         | ~28 $/mois          |
+| Vercel Pro       | 20 $/mois          | 20 $/mois          | 20 $/mois           |
+| **Total estimé** | **~46 $/mois**     | **~47 $/mois**     | **~49 $/mois**      |
 
 Le principal facteur de coût dans ce palier est le **stockage des documents chiffrés** (Supabase Storage). Le plan Pro Supabase inclut 100 Go ; au-delà, chaque Go supplémentaire coûte 0,021 $/Go.
 
@@ -291,23 +291,23 @@ En France, l'**Article L. 1111-8 du Code de la Santé Publique** impose d'héber
 
 **Changements d'infrastructure :**
 
-| Composant          | Stack par défaut            | Stack HDS                              |
-| ------------------ | --------------------------- | -------------------------------------- |
-| Base de données    | Supabase (PostgreSQL)       | Scaleway Managed PostgreSQL (HDS)      |
-| Stockage fichiers  | Supabase Storage            | Scaleway Object Storage (HDS)          |
-| API backend        | Vercel Serverless           | Scaleway Instance / Container (HDS)    |
-| Frontend           | Vercel Pro                  | Vercel Pro *(inchangé — SPA statique)* |
+| Composant         | Stack par défaut      | Stack HDS                              |
+| ----------------- | --------------------- | -------------------------------------- |
+| Base de données   | Supabase (PostgreSQL) | Scaleway Managed PostgreSQL (HDS)      |
+| Stockage fichiers | Supabase Storage      | Scaleway Object Storage (HDS)          |
+| API backend       | Vercel Serverless     | Scaleway Instance / Container (HDS)    |
+| Frontend          | Vercel Pro            | Vercel Pro _(inchangé — SPA statique)_ |
 
 **Estimation mensuelle (Scaleway HDS + Vercel frontend) :**
 
-| Poste                    | 1 000 utilisateurs | 5 000 utilisateurs | 10 000 utilisateurs |
-| ------------------------ | ------------------ | ------------------ | ------------------- |
-| Nom de domaine           | ~1 €/mois          | ~1 €/mois          | ~1 €/mois           |
-| PostgreSQL HDS           | ~25 €/mois         | ~25 €/mois         | ~55 €/mois          |
-| Stockage HDS             | ~1 €/mois          | ~2 €/mois          | ~3 €/mois           |
-| Backend HDS              | ~12 €/mois         | ~20 €/mois         | ~35 €/mois          |
-| Frontend (Vercel Pro)    | ~18 €/mois         | ~18 €/mois         | ~18 €/mois          |
-| **Total estimé**         | **~57 €/mois**     | **~66 €/mois**     | **~112 €/mois**     |
+| Poste                 | 1 000 utilisateurs | 5 000 utilisateurs | 10 000 utilisateurs |
+| --------------------- | ------------------ | ------------------ | ------------------- |
+| Nom de domaine        | ~1 €/mois          | ~1 €/mois          | ~1 €/mois           |
+| PostgreSQL HDS        | ~25 €/mois         | ~25 €/mois         | ~55 €/mois          |
+| Stockage HDS          | ~1 €/mois          | ~2 €/mois          | ~3 €/mois           |
+| Backend HDS           | ~12 €/mois         | ~20 €/mois         | ~35 €/mois          |
+| Frontend (Vercel Pro) | ~18 €/mois         | ~18 €/mois         | ~18 €/mois          |
+| **Total estimé**      | **~57 €/mois**     | **~66 €/mois**     | **~112 €/mois**     |
 
 > Le passage à un hébergement HDS représente un surcoût de ×1,2 à ×2,3 selon le palier. Ce coût est non-négociable pour une mise en production légale en France.
 
