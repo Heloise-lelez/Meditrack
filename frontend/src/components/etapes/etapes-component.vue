@@ -28,7 +28,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import './etapes.css';
-import Header from '../Chirurgie_Suivi/Header.vue';
 import Cards from './cards/cards-component.vue';
 import { api } from '../../lib/api';
 
