@@ -27,6 +27,20 @@ export default {
           isPageTitleDisplayedMobile: true,
         },
         {
+          link: "/add-patient",
+          title: "Ajouter un patient",
+          label: "add-patient-doctor",
+          icon: "fa-user-plus",
+          isDisplayed: isDoctor,
+        },
+        {
+          link: "/add-patient",
+          title: "Ajouter un patient",
+          label: "add-patient-assistant",
+          icon: "fa-user-plus",
+          isDisplayed: isAssistant,
+        },
+        {
           link: '/patients',
           title: 'Patients',
           pageTitle: 'Patients',
@@ -34,20 +48,6 @@ export default {
           icon: 'fa-users',
           isDisplayed: isDoctor,
           isPageTitleDisplayedMobile: true,
-        },
-        {
-          link: "/add-patient",
-          title: "Ajouter un patient",
-          label: "add-patient",
-          icon: "fa-user-plus",
-          isDisplayed: isDoctor,
-        },
-        {
-          link: "/add-patient",
-          title: "Ajouter un patient",
-          label: "add-patient",
-          icon: "fa-user-plus",
-          isDisplayed: isDoctor,
         },
         {
           link: '/search-patients',

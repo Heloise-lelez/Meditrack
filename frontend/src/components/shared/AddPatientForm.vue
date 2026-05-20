@@ -275,7 +275,7 @@ form {
 }
 
 .field input:focus {
-  border-color: #3a8d7a;
+  border-color: var(--color-primary-focus);
 }
 
 .field select {
@@ -288,7 +288,7 @@ form {
 }
 
 .field select:focus {
-  border-color: #3a8d7a;
+  border-color: var(--color-primary-focus);
 }
 
 .field-row {
@@ -339,7 +339,7 @@ form {
   padding: 12px;
   border: none;
   border-radius: 10px;
-  background: #3a8d7a;
+  background: var(--color-primary);
   color: #fff;
   font-size: 15px;
   font-weight: 600;
@@ -348,7 +348,7 @@ form {
 }
 
 .form-submit:hover:not(:disabled) {
-  background: #2f7464;
+  background: var(--color-primary-hover);
 }
 
 .form-submit:disabled {
