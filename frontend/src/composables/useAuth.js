@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { supabase } from '../lib/supabase';
 import { api } from '../lib/api';
+import { auditClientEvent } from '../lib/auditClient';
 
 const user = ref(null);
 const userRole = ref(null);
@@ -37,22 +38,52 @@ supabase.auth.onAuthStateChange((_event, session) => {
 
 export function useAuth() {
   async function signIn(email, password) {
+    await auditClientEvent('auth.sign_in.attempt', { email });
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    if (error) {
+      await auditClientEvent('auth.sign_in.failure', {
+        email,
+        metadata: { message: error.message, code: error.code },
+      });
+      throw error;
+    }
+    await auditClientEvent('auth.sign_in.success', { email }, { authenticated: true });
   }
 
   async function signUp(email, password, { nom, prenom, tel }) {
+    await auditClientEvent('auth.sign_up.attempt', { email });
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { nom, prenom, tel: tel || null } },
     });
-    if (error) throw error;
+    if (error) {
+      await auditClientEvent('auth.sign_up.failure', {
+        email,
+        metadata: { message: error.message, code: error.code },
+      });
+      throw error;
+    }
+    await auditClientEvent('auth.sign_up.success', { email });
+  }
+
+  async function requestPasswordReset(email) {
+    await auditClientEvent('auth.password_reset.request', { email });
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) {
+      await auditClientEvent('auth.password_reset.failure', {
+        email,
+        metadata: { message: error.message, code: error.code },
+      });
+      throw error;
+    }
+    await auditClientEvent('auth.password_reset.success', { email });
   }
 
   async function signOut() {
+    await auditClientEvent('auth.sign_out', {}, { authenticated: true });
     await supabase.auth.signOut();
   }
 
-  return { user, userRole, loading, signIn, signUp, signOut };
+  return { user, userRole, loading, signIn, signUp, signOut, requestPasswordReset };
 }

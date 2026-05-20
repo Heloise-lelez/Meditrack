@@ -261,6 +261,56 @@ npm install
 npm run dev
 ```
 
+## Estimation des coûts
+
+Estimation mensuelle pour exploiter Meditrack en production, basée sur trois paliers d'utilisateurs.
+
+**Hypothèses communes :**
+
+- Stockage moyen par patient : ~7 documents × 3 Mo ≈ 21 Mo
+- Base de données : ~200 Ko par utilisateur (profils, RDV, tâches, étapes)
+- Vercel Pro
+- Domaine `.fr` ou `.com`
+
+### Hypothèse 1 — Stack par défaut
+
+| Poste            | 1 000 utilisateurs | 5 000 utilisateurs | 10 000 utilisateurs |
+| ---------------- | ------------------ | ------------------ | ------------------- |
+| Nom de domaine   | ~1 €/mois          | ~1 €/mois          | ~1 €/mois           |
+| Supabase Pro     | 25 $/mois          | ~26 $/mois         | ~28 $/mois          |
+| Vercel Pro       | 20 $/mois          | 20 $/mois          | 20 $/mois           |
+| **Total estimé** | **~46 $/mois**     | **~47 $/mois**     | **~49 $/mois**      |
+
+Le principal facteur de coût dans ce palier est le **stockage des documents chiffrés** (Supabase Storage). Le plan Pro Supabase inclut 100 Go ; au-delà, chaque Go supplémentaire coûte 0,021 $/Go.
+
+> Au-delà de 10 000 utilisateurs, prévoir une montée en compute Supabase (+50 $/mois pour le palier Medium) si les temps de réponse se dégradent.
+
+### Hypothèse 2 — Conformité HDS (données de santé)
+
+En France, l'**Article L. 1111-8 du Code de la Santé Publique** impose d'héberger les données de santé à caractère personnel chez un prestataire certifié **HDS** par l'ANS (Agence du Numérique en Santé). Ni Supabase ni Vercel ne sont certifiés HDS : cette hypothèse remplace les composants concernés par **Scaleway** (certifié HDS depuis 2024, sélectionné pour le Health Data Hub français).
+
+**Changements d'infrastructure :**
+
+| Composant         | Stack par défaut      | Stack HDS                              |
+| ----------------- | --------------------- | -------------------------------------- |
+| Base de données   | Supabase (PostgreSQL) | Scaleway Managed PostgreSQL (HDS)      |
+| Stockage fichiers | Supabase Storage      | Scaleway Object Storage (HDS)          |
+| API backend       | Vercel Serverless     | Scaleway Instance / Container (HDS)    |
+| Frontend          | Vercel Pro            | Vercel Pro _(inchangé — SPA statique)_ |
+
+**Estimation mensuelle (Scaleway HDS + Vercel frontend) :**
+
+| Poste                 | 1 000 utilisateurs | 5 000 utilisateurs | 10 000 utilisateurs |
+| --------------------- | ------------------ | ------------------ | ------------------- |
+| Nom de domaine        | ~1 €/mois          | ~1 €/mois          | ~1 €/mois           |
+| PostgreSQL HDS        | ~25 €/mois         | ~25 €/mois         | ~55 €/mois          |
+| Stockage HDS          | ~1 €/mois          | ~2 €/mois          | ~3 €/mois           |
+| Backend HDS           | ~12 €/mois         | ~20 €/mois         | ~35 €/mois          |
+| Frontend (Vercel Pro) | ~18 €/mois         | ~18 €/mois         | ~18 €/mois          |
+| **Total estimé**      | **~57 €/mois**     | **~66 €/mois**     | **~112 €/mois**     |
+
+> Le passage à un hébergement HDS représente un surcoût de ×1,2 à ×2,3 selon le palier. Ce coût est non-négociable pour une mise en production légale en France.
+
 ## Notes
 
 - Le backend utilise `backend/server.js` comme point d'entrée.

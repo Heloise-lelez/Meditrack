@@ -101,6 +101,16 @@
         <button type="submit" class="auth-submit" :disabled="submitting">
           {{ submitting ? 'Chargement…' : isLogin ? 'Se connecter' : 'Créer mon compte' }}
         </button>
+
+        <button
+          v-if="isLogin"
+          type="button"
+          class="auth-link"
+          :disabled="submitting || !form.email"
+          @click="forgotPassword"
+        >
+          Mot de passe oublié ?
+        </button>
       </form>
     </div>
   </main>
@@ -110,7 +120,7 @@
 import { ref } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 
-const { signIn, signUp } = useAuth();
+const { signIn, signUp, requestPasswordReset } = useAuth();
 
 const isLogin = ref(true);
 const submitting = ref(false);
@@ -141,6 +151,25 @@ async function submit() {
       });
       successMessage.value = 'Compte créé ! Vérifiez votre email pour confirmer votre inscription.';
     }
+  } catch (err) {
+    errorMessage.value = translateError(err.message);
+  } finally {
+    submitting.value = false;
+  }
+}
+
+async function forgotPassword() {
+  errorMessage.value = null;
+  successMessage.value = null;
+  if (!form.value.email) {
+    errorMessage.value = 'Renseignez votre email pour réinitialiser le mot de passe.';
+    return;
+  }
+
+  submitting.value = true;
+  try {
+    await requestPasswordReset(form.value.email);
+    successMessage.value = 'Email de réinitialisation envoyé si le compte existe.';
   } catch (err) {
     errorMessage.value = translateError(err.message);
   } finally {
@@ -310,6 +339,22 @@ function translateError(msg) {
 
 .auth-submit:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-link {
+  width: 100%;
+  margin-top: 12px;
+  border: none;
+  background: transparent;
+  color: #0f766e;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-link:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
 }
 </style>

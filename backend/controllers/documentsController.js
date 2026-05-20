@@ -1,5 +1,6 @@
 import { createUserClient, supabaseAdmin } from '../lib/supabase.js';
 import { encryptBuffer, decryptBuffer } from '../lib/encrypt.js';
+import { auditEvent, auditError } from '../lib/auditLogger.js';
 
 export async function listDocuments(req, res, next) {
   try {
@@ -56,6 +57,7 @@ export async function createDocument(req, res, next) {
 export async function uploadDocument(req, res, next) {
   try {
     if (!req.file) {
+      void auditEvent(req, 'document.upload.missing_file');
       return res.status(400).json({ error: 'No file provided' });
     }
 
@@ -76,6 +78,19 @@ export async function uploadDocument(req, res, next) {
     const db = createUserClient(req.userToken);
 
     const encrypted = encryptBuffer(req.file.buffer);
+    void auditEvent(req, 'document.upload.storage_attempt', {
+      file: {
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        storagePath,
+      },
+      document: {
+        titre,
+        type,
+        publication_date: publication_date || null,
+      },
+    });
 
     const { error: storageErr } = await db.storage
       .from('documents')
@@ -84,7 +99,13 @@ export async function uploadDocument(req, res, next) {
         upsert: false,
       });
 
-    if (storageErr) throw storageErr;
+    if (storageErr) {
+      void auditError(req, 'document.upload.storage_failure', storageErr, {
+        storagePath,
+        originalName: req.file.originalname,
+      });
+      throw storageErr;
+    }
 
     const sizeKb = Math.max(1, Math.round(req.file.size / 1024));
 
@@ -107,12 +128,30 @@ export async function uploadDocument(req, res, next) {
       if (insertErr) throw insertErr;
       data = inserted;
     } catch (insertErr) {
+      void auditError(req, 'document.upload.database_failure', insertErr, {
+        storagePath,
+        originalName: req.file.originalname,
+      });
       await db.storage.from('documents').remove([storagePath]);
       throw insertErr;
     }
 
+    void auditEvent(req, 'document.upload.success', {
+      documentId: data.id_document,
+      titre: data.titre,
+      type: data.type,
+      originalName: req.file.originalname,
+      storagePath,
+      sizeKb,
+    });
+
     res.status(201).json(data);
   } catch (err) {
+    void auditError(req, 'document.upload.failure', err, {
+      originalName: req.file?.originalname,
+      size: req.file?.size,
+      mimeType: req.file?.mimetype,
+    });
     next(err);
   }
 }
@@ -133,11 +172,24 @@ export async function downloadDocument(req, res, next) {
     if (!doc.download_link)
       return res.status(404).json({ error: 'Aucun fichier associé à ce document' });
 
+    void auditEvent(req, 'document.download.storage_attempt', {
+      documentId: id,
+      titre: doc.titre,
+      storagePath: doc.download_link,
+    });
+
     const { data: blob, error: dlErr } = await supabaseAdmin.storage
       .from('documents')
       .download(doc.download_link);
 
-    if (dlErr) throw dlErr;
+    if (dlErr) {
+      void auditError(req, 'document.download.storage_failure', dlErr, {
+        documentId: id,
+        titre: doc.titre,
+        storagePath: doc.download_link,
+      });
+      throw dlErr;
+    }
 
     const arrayBuffer = await blob.arrayBuffer();
     const decrypted = decryptBuffer(Buffer.from(arrayBuffer));
@@ -145,8 +197,18 @@ export async function downloadDocument(req, res, next) {
     const contentType = doc.mime_type || 'application/octet-stream';
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(doc.titre)}"`);
+    void auditEvent(req, 'document.download.success', {
+      documentId: id,
+      titre: doc.titre,
+      mimeType: contentType,
+      storagePath: doc.download_link,
+      size: decrypted.length,
+    });
     res.send(decrypted);
   } catch (err) {
+    void auditError(req, 'document.download.failure', err, {
+      documentId: req.params?.id,
+    });
     next(err);
   }
 }
