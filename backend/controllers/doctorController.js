@@ -298,6 +298,40 @@ export async function deletePatientEtape(req, res, next) {
   }
 }
 
+// ── Rendez-vous globaux (accueil) ─────────────────────────────────────────────
+
+export async function listPatientsRendezvous(req, res, next) {
+  try {
+    const { data: assignments, error: aErr } = await supabaseAdmin
+      .from('doctor_patient')
+      .select('patient_id')
+      .eq('doctor_id', req.user.id);
+    if (aErr) throw aErr;
+    if (!assignments?.length) return res.json([]);
+
+    const patientIds = assignments.map((a) => a.patient_id);
+
+    const [{ data: profiles, error: pErr }, { data: rdvs, error: rErr }] = await Promise.all([
+      supabaseAdmin.from('profiles').select('id, nom, prenom').in('id', patientIds),
+      supabaseAdmin
+        .from('rendezvous')
+        .select(
+          'id_rendezvous, doctor_first_name, doctor_last_name, profession, operation, starts_at, address, user_id'
+        )
+        .in('user_id', patientIds)
+        .gte('starts_at', new Date().toISOString())
+        .order('starts_at', { ascending: true }),
+    ]);
+    if (pErr) throw pErr;
+    if (rErr) throw rErr;
+
+    const profileMap = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]));
+    res.json(rdvs.map((r) => ({ ...r, patient: profileMap[r.user_id] ?? null })));
+  } catch (err) {
+    next(err);
+  }
+}
+
 // ── Profil médecin ────────────────────────────────────────────────────────────
 
 export async function getMyProfile(req, res, next) {
