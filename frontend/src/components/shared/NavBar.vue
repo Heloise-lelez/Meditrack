@@ -36,6 +36,20 @@ export default {
           isPageTitleDisplayedMobile: true,
         },
         {
+          link: "/add-patient",
+          title: "Ajouter un patient",
+          label: "add-patient",
+          icon: "fa-user-plus",
+          isDisplayed: isDoctor,
+        },
+        {
+          link: "/add-patient",
+          title: "Ajouter un patient",
+          label: "add-patient",
+          icon: "fa-user-plus",
+          isDisplayed: isDoctor,
+        },
+        {
           link: '/search-patients',
           title: 'Rechercher',
           pageTitle: 'Rechercher',
@@ -43,6 +57,13 @@ export default {
           icon: 'fa-magnifying-glass',
           isDisplayed: isDoctor,
           isPageTitleDisplayedMobile: true,
+        },
+        {
+          link: "/add-patient",
+          title: "Ajouter un patient",
+          label: "add-patient",
+          icon: "fa-user-plus",
+          isDisplayed: isAssistant,
         },
         {
           link: '/assistant',

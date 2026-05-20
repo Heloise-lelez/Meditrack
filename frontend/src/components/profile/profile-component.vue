@@ -15,6 +15,19 @@
         <span class="info-label">Email</span>
         <span class="info-value">{{ user.email }}</span>
       </div>
+      <div class="info-row">
+        <span class="info-label">Mot de passe</span>
+        <span class="info-value">
+          <div class="password-change">
+          <input type="password" :value="getPassword()" aria-label="Mot de passe (non affiché)" v-on:change="(e) => savePassword(e.target.value)"/>
+          <button class="password-submit" :disabled="saving">
+            {{ saving ? 'Chargement…' : 'Changer' }}
+          </button>
+        </div>
+        </span>
+      </div>
+      <p v-if="saveError" class="save-error" role="alert">{{ saveError }}</p>
+      <p v-if="saveSuccess" class="save-success" role="status">{{ saveSuccess }}</p>
       <div class="info-row" v-if="tel">
         <span class="info-label">Téléphone</span>
         <span class="info-value">{{ tel }}</span>
@@ -139,8 +152,10 @@
 import { computed, ref, onMounted, watch } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 import { api } from '../../lib/api';
+import { useProfile } from '@/composables/useProfile';
 
 const { user, userRole, signOut } = useAuth();
+const { getPassword, updatePassword } = useProfile();
 
 const nom = computed(() => user.value?.user_metadata?.nom ?? '');
 const prenom = computed(() => user.value?.user_metadata?.prenom ?? '');
@@ -205,6 +220,22 @@ async function saveDoctorProfile() {
     setTimeout(() => {
       saveSuccess.value = false;
     }, 3000);
+  } catch (err) {
+    saveError.value = 'Erreur lors de la sauvegarde.';
+    console.error(err);
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function savePassword(password) {
+  saving.value = true;
+  saveError.value = null;
+  saveSuccess.value = false;
+  try {
+    await updatePassword(password);
+    saveError.value = 'Mot de passe mis à jour.';
+    setTimeout(() => { saveSuccess.value = false; }, 3000);
   } catch (err) {
     saveError.value = 'Erreur lors de la sauvegarde.';
     console.error(err);
@@ -351,6 +382,46 @@ onMounted(async () => {
   font-weight: 500;
   text-align: right;
   word-break: break-all;
+}
+
+.password-change {
+  display: flex;
+  gap: 4px;
+}
+
+input {
+  width: 100%;
+  max-width: 70%;
+  padding: 12px;
+  border: 1.5px solid #d1faf5;
+  border-radius: 10px;
+  color: #0f2722;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.password-submit {
+  width: 100%;
+  max-width: 35%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #3a8d7a;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.password-submit:hover:not(:disabled) {
+  background: #2f7464;
+}
+
+.password-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .doctors-loading {
