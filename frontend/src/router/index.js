@@ -9,12 +9,12 @@ const routes = [
     name: 'home',
     component: HomeView,
   },
-  {
+  /*   {
     path: '/steps',
     name: 'steps',
     component: () => import('@/views/StepsView.vue'),
     meta: { requiresRole: 'PATIENT' },
-  },
+  }, */
   {
     path: '/appointments',
     name: 'appointments',
