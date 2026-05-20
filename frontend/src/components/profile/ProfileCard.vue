@@ -74,7 +74,9 @@ async function savePassword(password) {
   try {
     await updatePassword(password);
     successMessage.value = 'Mot de passe mis à jour.';
-    setTimeout(() => { successMessage.value = false; }, 3000);
+    setTimeout(() => {
+      successMessage.value = false;
+    }, 3000);
   } catch (err) {
     errorMessage.value = 'Erreur lors de la sauvegarde.';
     console.error(err);
@@ -82,7 +84,6 @@ async function savePassword(password) {
     saving.value = false;
   }
 }
-
 </script>
 
 <template>
@@ -101,34 +102,40 @@ async function savePassword(password) {
       <div class="info-row">
         <div class="password-section">
           <span class="info-label">Mot de passe</span>
-        <span class="info-value">
-          <div class="password-change">
-            <input
-              :type="passwordFieldType"
-              :value="newPassword.value"
-              aria-label="Mot de passe"
-            />
-            <button
-              type="button"
-              class="password-toggle"
-              @click="togglePasswordVisibility"
-              :aria-label="passwordToggleLabel"
-            >
-              <i
-                :class="['fa-solid', showPassword ? 'fa-eye-slash' : 'fa-eye']"
-                aria-hidden="true"
-              ></i>
-            </button>
-            <button class="password-submit" :disabled="saving" @click="savePassword(newPassword.value)">
-              {{ saving ? 'Chargement…' : 'Changer' }}
-            </button>
-          </div>
-        </span>
+          <span class="info-value">
+            <div class="password-change">
+              <input
+                :type="passwordFieldType"
+                :value="newPassword.value"
+                aria-label="Mot de passe"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                @click="togglePasswordVisibility"
+                :aria-label="passwordToggleLabel"
+              >
+                <i
+                  :class="['fa-solid', showPassword ? 'fa-eye-slash' : 'fa-eye']"
+                  aria-hidden="true"
+                ></i>
+              </button>
+              <button
+                class="password-submit"
+                :disabled="saving"
+                @click="savePassword(newPassword.value)"
+              >
+                {{ saving ? 'Chargement…' : 'Changer' }}
+              </button>
+            </div>
+          </span>
         </div>
       </div>
 
       <p v-if="errorMessage" class="update-password-error" role="alert">{{ errorMessage }}</p>
-      <p v-if="successMessage" class="update-password-success" role="status">{{ successMessage }}</p>
+      <p v-if="successMessage" class="update-password-success" role="status">
+        {{ successMessage }}
+      </p>
 
       <div class="accompagnement-row" v-if="userRole === ROLES.PATIENT">
         <div class="accompagnement-label">

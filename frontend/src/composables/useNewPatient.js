@@ -1,26 +1,23 @@
 import { supabase } from '../lib/supabase';
 import { usePatient } from './usePatient';
 
+const { setPatientPassword } = usePatient();
+
 export function useNewPatient() {
-
-  const { setPatientPassword} = usePatient();
-  
   async function createPatient(email, { nom, prenom, tel }) {
-
     const res = await fetch(
-      import.meta.env.VITE_SUPABASE_URL +
-      '/functions/v1/create-new-patient',
+      import.meta.env.VITE_SUPABASE_URL + '/functions/v1/create-new-patient',
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email,
           nom,
           prenom,
-          tel
-        })
+          tel,
+        }),
       }
     );
 
@@ -37,9 +34,7 @@ export function useNewPatient() {
   // CHECK SESSION (simple)
   // ----------------------------
   async function getSession() {
-
-    const { data, error } =
-      await supabase.auth.getSession();
+    const { data, error } = await supabase.auth.getSession();
 
     if (error) throw error;
 
@@ -50,17 +45,13 @@ export function useNewPatient() {
   // CREATE PASSWORD
   // ----------------------------
   async function createFirstPassword(password) {
+    const { data, error } = await supabase.auth.updateUser({
+      password,
+    });
 
-    const { data, error } =
-      await supabase.auth.updateUser({
-        password
-      });
-
-      if(!error) {
-
-        setPatientPassword(password);
-      
-      }
+    if (!error) {
+      setPatientPassword(password);
+    }
 
     if (error) throw error;
 
@@ -70,6 +61,6 @@ export function useNewPatient() {
   return {
     createPatient,
     getSession,
-    createFirstPassword
+    createFirstPassword,
   };
 }

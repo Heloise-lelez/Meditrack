@@ -10,8 +10,8 @@ const routes = [
     component: HomeView,
   },
   {
-    path: "/create-password",
-    name: "create-password",
+    path: '/create-password',
+    name: 'create-password',
     component: () => import('@/views/CreateFirstPassword.vue'),
   },
   /*   {
@@ -57,15 +57,15 @@ const routes = [
     meta: { requiresRole: 'DOCTOR' },
   },
   {
-    path: "/add-patient",
-    name: "add-patient-doctor",
-    component: () => import("@/views/AddPatientView.vue"),
+    path: '/add-patient',
+    name: 'add-patient-doctor',
+    component: () => import('@/views/AddPatientView.vue'),
     meta: { requiresRole: 'DOCTOR' },
   },
   {
-    path: "/add-patient",
-    name: "add-patient-assistant",
-    component: () => import("@/views/AddPatientView.vue"),
+    path: '/add-patient',
+    name: 'add-patient-assistant',
+    component: () => import('@/views/AddPatientView.vue'),
     meta: { requiresRole: 'ASSISTANT' },
   },
   {
