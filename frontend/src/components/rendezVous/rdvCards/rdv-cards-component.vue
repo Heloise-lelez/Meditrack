@@ -174,23 +174,23 @@ const incompleteTasks = computed(() => {
 
 .card__info.warning {
   background: #fff5f0;
-  color: var(--color-warning);
+  color: var(--color-warning-text);
   font-weight: 600;
 }
 
 .card__info.warning i {
-  color: var(--color-warning);
+  color: var(--color-warning-text);
   animation: pulse 2s infinite;
 }
 
 .card__info.success {
   background: #f0f9f4;
-  color: var(--color-success);
+  color: var(--color-success-text);
   font-weight: 600;
 }
 
 .card__info.success i {
-  color: var(--color-success);
+  color: var(--color-success-text);
 }
 .details-button {
   display: flex;

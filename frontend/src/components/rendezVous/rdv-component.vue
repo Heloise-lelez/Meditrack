@@ -69,6 +69,10 @@ const closeDetails = () => {
 const handleRdvDeleted = async () => {
   await loadRdvs();
 };
+
+// État des dropdowns
+const isUpcomingOpen = ref(true);
+const isHistoryOpen = ref(false);
 </script>
 
 <template>
@@ -80,47 +84,75 @@ const handleRdvDeleted = async () => {
       {{ errorMessage }}
     </p>
 
-    <h2 class="rdv-subtitle" tabindex="0" aria-label="Rendez vous à venir">À venir :</h2>
-    <div class="rdv-component" role="region" aria-labelledby="upcoming-title">
-      <p v-if="!loading && upcoming.length === 0" class="rdv__empty-message">
-        Aucun rendez-vous à venir.
-      </p>
-      <RdvCardsComponent
-        v-for="rdv in upcoming"
-        :key="rdv.id_rendezvous"
-        :profilePicture="rdv.profile_picture || 'https://randomuser.me/api/portraits/men/32.jpg'"
-        :nom="rdv.doctor_last_name"
-        :prenom="rdv.doctor_first_name"
-        :profession="rdv.profession"
-        :operation="rdv.operation"
-        :date="formatDateFr(rdv.starts_at)"
-        :heure="formatTime(rdv.starts_at)"
-        :adresse="rdv.address"
-        :isPast="false"
-        :checklist="rdv.checklist || []"
-        @details="openDetails(rdv, false)"
-      />
+    <!-- Dropdown À venir -->
+    <div class="rdv-dropdown">
+      <button
+        class="rdv-dropdown-button"
+        :aria-expanded="isUpcomingOpen"
+        @click="isUpcomingOpen = !isUpcomingOpen"
+      >
+        <span class="rdv-dropdown-title">À venir</span>
+        <i :class="['fa-solid', isUpcomingOpen ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+      </button>
+      <div v-show="isUpcomingOpen" class="rdv-dropdown-content">
+        <div class="rdv-component" role="region" aria-labelledby="upcoming-title">
+          <p v-if="!loading && upcoming.length === 0" class="rdv__empty-message">
+            Aucun rendez-vous à venir.
+          </p>
+          <RdvCardsComponent
+            v-for="rdv in upcoming"
+            :key="rdv.id_rendezvous"
+            :profilePicture="
+              rdv.profile_picture || 'https://randomuser.me/api/portraits/men/32.jpg'
+            "
+            :nom="rdv.doctor_last_name"
+            :prenom="rdv.doctor_first_name"
+            :profession="rdv.profession"
+            :operation="rdv.operation"
+            :date="formatDateFr(rdv.starts_at)"
+            :heure="formatTime(rdv.starts_at)"
+            :adresse="rdv.address"
+            :isPast="false"
+            :checklist="rdv.checklist || []"
+            @details="openDetails(rdv, false)"
+          />
+        </div>
+      </div>
     </div>
 
-    <h2 id="history-title" tabindex="0" aria-label="Historique des rendez-vous">Historique</h2>
-    <div class="rdv-component" role="region" aria-labelledby="history-title">
-      <p v-if="!loading && past.length === 0" class="rdv__empty-message">
-        Aucun rendez-vous passé.
-      </p>
-      <RdvCardsComponent
-        v-for="rdv in past"
-        :key="rdv.id_rendezvous"
-        :profilePicture="rdv.profile_picture || 'https://randomuser.me/api/portraits/men/32.jpg'"
-        :nom="rdv.doctor_last_name"
-        :prenom="rdv.doctor_first_name"
-        :profession="rdv.profession"
-        :operation="rdv.operation"
-        :date="formatDateFr(rdv.starts_at)"
-        :heure="formatTime(rdv.starts_at)"
-        :adresse="rdv.address"
-        :isPast="true"
-        @details="openDetails(rdv, true)"
-      />
+    <!-- Dropdown Historique -->
+    <div class="rdv-dropdown">
+      <button
+        class="rdv-dropdown-button"
+        :aria-expanded="isHistoryOpen"
+        @click="isHistoryOpen = !isHistoryOpen"
+      >
+        <span class="rdv-dropdown-title">Historique</span>
+        <i :class="['fa-solid', isHistoryOpen ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+      </button>
+      <div v-show="isHistoryOpen" class="rdv-dropdown-content">
+        <div class="rdv-component" role="region" aria-labelledby="history-title">
+          <p v-if="!loading && past.length === 0" class="rdv__empty-message">
+            Aucun rendez-vous passé.
+          </p>
+          <RdvCardsComponent
+            v-for="rdv in past"
+            :key="rdv.id_rendezvous"
+            :profilePicture="
+              rdv.profile_picture || 'https://randomuser.me/api/portraits/men/32.jpg'
+            "
+            :nom="rdv.doctor_last_name"
+            :prenom="rdv.doctor_first_name"
+            :profession="rdv.profession"
+            :operation="rdv.operation"
+            :date="formatDateFr(rdv.starts_at)"
+            :heure="formatTime(rdv.starts_at)"
+            :adresse="rdv.address"
+            :isPast="true"
+            @details="openDetails(rdv, true)"
+          />
+        </div>
+      </div>
     </div>
 
     <RdvDetailsModal
@@ -139,9 +171,9 @@ const handleRdvDeleted = async () => {
   padding: 0 14px;
   display: flex;
   flex-direction: column;
-
   gap: 16px;
 }
+
 .rdv-component {
   display: flex;
   align-items: flex-start;
@@ -152,12 +184,73 @@ const handleRdvDeleted = async () => {
 
 .rdv-title {
   font-size: 24px;
+  margin: 0;
 }
-.rdv-subtitle {
-  font-size: 20px;
+
+.rdv-dropdown {
+  border: 1px solid #e8eef2;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.rdv-dropdown-button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8fafb 0%, #f0f3f6 100%);
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f2722;
+  transition: all 0.3s ease;
+}
+
+.rdv-dropdown-button:hover {
+  background: linear-gradient(135deg, #f0f3f6 0%, #e8eef2 100%);
+}
+
+.rdv-dropdown-button:active {
+  background: linear-gradient(135deg, #e8eef2 0%, #dfe5eb 100%);
+}
+
+.rdv-dropdown-title {
+  flex: 1;
+  text-align: left;
+}
+
+.rdv-dropdown-button i {
+  color: var(--color-primary);
+  font-size: 16px;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.rdv-dropdown-content {
+  padding: 20px;
+  background: white;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .rdv__empty-message {
   color: #6b7280;
+  text-align: center;
+  padding: 20px;
+  width: 100%;
 }
 </style>
