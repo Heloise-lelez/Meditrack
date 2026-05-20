@@ -664,11 +664,7 @@ export async function createPatientChirurgie(req, res, next) {
     const [{ data: doctorProfile, error: dErr }, { data: assistantProfile, error: aErr }] =
       await Promise.all([
         supabaseAdmin.from('profiles').select('etablissement_id').eq('id', req.user.id).single(),
-        supabaseAdmin
-          .from('profiles')
-          .select('etablissement_id')
-          .eq('id', assistant_id)
-          .single(),
+        supabaseAdmin.from('profiles').select('etablissement_id').eq('id', assistant_id).single(),
       ]);
     if (dErr) throw dErr;
     if (aErr) throw aErr;

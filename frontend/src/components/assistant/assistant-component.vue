@@ -109,9 +109,7 @@
 
       <!-- ── Panneau Chirurgies ────────────────────────────────── -->
       <div v-if="mainTab === 'chirurgies'" class="assistant-chirurgies">
-        <p v-if="chirurgies.length === 0" class="chirurgie-empty">
-          Aucune chirurgie assignée.
-        </p>
+        <p v-if="chirurgies.length === 0" class="chirurgie-empty">Aucune chirurgie assignée.</p>
         <ul v-else class="chirurgie-list" role="list">
           <li v-for="c in chirurgies" :key="c.id" class="chirurgie-card">
             <div class="chirurgie-header">
@@ -119,8 +117,8 @@
               <span class="chirurgie-date">{{ formatChirurgieDate(c.date_chirurgie) }}</span>
             </div>
             <div class="chirurgie-info">
-              Patient : {{ c.patient?.prenom }} {{ c.patient?.nom }} · Dr.
-              {{ c.doctor?.prenom }} {{ c.doctor?.nom }}
+              Patient : {{ c.patient?.prenom }} {{ c.patient?.nom }} · Dr. {{ c.doctor?.prenom }}
+              {{ c.doctor?.nom }}
             </div>
             <div class="chirurgie-steps">
               <button
