@@ -167,7 +167,7 @@ const isHistoryOpen = ref(false);
 
 <style scoped>
 .rdv-page {
-  margin: 0 auto;
+  margin: 16px auto;
   padding: 0 14px;
   display: flex;
   flex-direction: column;
@@ -183,8 +183,19 @@ const isHistoryOpen = ref(false);
 }
 
 .rdv-title {
-  font-size: 24px;
+  font-size: 32px;
   margin: 0;
+  padding: 24px 0;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 768px) {
+  .rdv-title {
+    display: none;
+  }
 }
 
 .rdv-dropdown {

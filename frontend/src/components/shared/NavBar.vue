@@ -75,7 +75,7 @@ export default {
         {
           link: '/appointments',
           title: 'RDV',
-          pageTitle: 'Rendez-vous',
+          pageTitle: 'Vos Rendez-Vous',
           label: 'rdv',
           icon: 'fa-calendar',
           isDisplayed: isPatient,

@@ -140,7 +140,7 @@ const incompleteTasks = computed(() => {
 .user-info p {
   margin: 0;
   font-size: 13px;
-  color: #6b7580;
+  color: var(--color-secondary);
   font-weight: 500;
 }
 
@@ -166,10 +166,6 @@ const incompleteTasks = computed(() => {
   color: var(--color-primary);
   font-size: 16px;
   flex-shrink: 0;
-}
-
-.card__info:hover {
-  background: #f0f3f6;
 }
 
 .card__info.warning {
