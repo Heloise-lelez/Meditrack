@@ -1,11 +1,10 @@
 import { supabase } from '../lib/supabase';
-import { setPatientPassword } from './usePatient';
+import { usePatient } from './usePatient';
 
 export function useNewPatient() {
 
-  // ----------------------------
-  // Doctor creates patient
-  // ----------------------------
+  const { setPatientPassword} = usePatient();
+  
   async function createPatient(email, { nom, prenom, tel }) {
 
     const res = await fetch(
