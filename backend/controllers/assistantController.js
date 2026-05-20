@@ -210,3 +210,132 @@ export async function listAideAssignments(req, res, next) {
     next(err);
   }
 }
+
+// ── Chirurgies ─────────────────────────────────────────────
+
+const STEP_LABELS = {
+  salle_anesthesie: "salle d'anesthésie",
+  salle_operation: "salle d'opération",
+  salle_reveil: 'salle de réveil',
+};
+
+export async function listMyChirurgies(req, res, next) {
+  try {
+    const { data: chirurgies, error } = await supabaseAdmin
+      .from('chirurgie')
+      .select('*')
+      .eq('assistant_id', req.user.id)
+      .order('date_chirurgie', { ascending: true });
+    if (error) throw error;
+    if (!chirurgies.length) return res.json([]);
+
+    const profileIds = [
+      ...new Set([
+        ...chirurgies.map((c) => c.patient_id),
+        ...chirurgies.map((c) => c.doctor_id),
+      ]),
+    ];
+    const { data: profiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id, nom, prenom')
+      .in('id', profileIds);
+    const profileMap = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]));
+
+    res.json(
+      chirurgies.map((c) => ({
+        ...c,
+        patient: profileMap[c.patient_id] ?? null,
+        doctor: profileMap[c.doctor_id] ?? null,
+      }))
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function checkChirurgieStep(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { step } = req.body;
+    const VALID_STEPS = ['salle_anesthesie', 'salle_operation', 'salle_reveil'];
+    if (!VALID_STEPS.includes(step)) {
+      return res.status(400).json({ error: 'Étape invalide' });
+    }
+
+    const { data: chirurgie, error: fetchErr } = await supabaseAdmin
+      .from('chirurgie')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (fetchErr) throw fetchErr;
+    if (!chirurgie) return res.status(404).json({ error: 'Chirurgie introuvable' });
+    if (chirurgie.assistant_id !== req.user.id) return res.status(403).json({ error: 'Interdit' });
+    if (chirurgie[step]) return res.status(400).json({ error: 'Cette étape est déjà validée' });
+
+    if (step === 'salle_operation' && !chirurgie.salle_anesthesie) {
+      return res
+        .status(400)
+        .json({ error: "La salle d'anesthésie doit être validée en premier" });
+    }
+    if (step === 'salle_reveil' && !chirurgie.salle_operation) {
+      return res
+        .status(400)
+        .json({ error: "La salle d'opération doit être validée en premier" });
+    }
+
+    const { data: updated, error: updateErr } = await supabaseAdmin
+      .from('chirurgie')
+      .update({ [step]: true })
+      .eq('id', id)
+      .select()
+      .single();
+    if (updateErr) throw updateErr;
+
+    // Broadcast to patient's aides
+    const { data: patientProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('nom, prenom')
+      .eq('id', chirurgie.patient_id)
+      .single();
+    const patientName = patientProfile
+      ? `${patientProfile.prenom} ${patientProfile.nom}`
+      : 'Le patient';
+
+    const { data: aides } = await supabaseAdmin
+      .from('aide_patient')
+      .select('aide_id')
+      .eq('patient_id', chirurgie.patient_id);
+
+    if (aides?.length) {
+      const supabaseUrl = process.env.VITE_SUPABASE_URL;
+      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              topic: `patient:${chirurgie.patient_id}`,
+              event: 'surgery_step',
+              payload: {
+                step,
+                message: `${patientName} est en ${STEP_LABELS[step]}`,
+                chirurgieTitre: chirurgie.titre,
+                patientId: chirurgie.patient_id,
+                timestamp: new Date().toISOString(),
+              },
+            },
+          ],
+        }),
+      });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+}

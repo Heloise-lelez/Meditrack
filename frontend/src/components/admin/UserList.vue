@@ -43,7 +43,7 @@
           { key: 'role', label: 'Rôle' },
           { key: 'etablissement', label: 'Établissement' },
         ]"
-        :rows="filteredUsers"
+        :rows="paginatedUsers"
         :loading="loading"
         :emptyMessage="'Aucun utilisateur trouvé.'"
       >
@@ -83,16 +83,26 @@
           </div>
         </template>
       </CustomTable>
+
+      <PaginationControls
+        v-model:currentPage="currentPage"
+        :total-pages="totalPages"
+        :total-items="filteredUsers.length"
+        :page-size="PAGE_SIZE"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useAuth } from '@/composables/useAuth.js';
 import { api } from '@/lib/api.js';
 import { ROLES } from '@/constants/roles.js';
 import CustomTable from '@/components/shared/CustomTable.vue';
+import PaginationControls from '@/components/shared/PaginationControls.vue';
+
+const PAGE_SIZE = 15;
 
 const rolesOptions = Object.values(ROLES);
 
@@ -140,6 +150,8 @@ const onFacilityChange = async (u, newFacilityId) => {
   }
 };
 
+const currentPage = ref(1);
+
 const filteredUsers = computed(() =>
   props.users.filter((u) => {
     const matchSearch = `${u.nom} ${u.prenom} ${u.email}`
@@ -153,9 +165,21 @@ const filteredUsers = computed(() =>
   })
 );
 
+const totalPages = computed(() => Math.ceil(filteredUsers.value.length / PAGE_SIZE));
+
+const paginatedUsers = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE;
+  return filteredUsers.value.slice(start, start + PAGE_SIZE);
+});
+
+watch([search, filterRole, filterFacilities], () => {
+  currentPage.value = 1;
+});
+
 const resetFilters = () => {
   search.value = '';
   filterRole.value = '';
   filterFacilities.value = '';
+  currentPage.value = 1;
 };
 </script>

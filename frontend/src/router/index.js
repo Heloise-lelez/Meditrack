@@ -63,6 +63,12 @@ const routes = [
     meta: { requiresRole: 'AIDE' },
   },
   {
+    path: '/contact',
+    name: 'contact',
+    component: () => import('@/views/ContactView.vue'),
+    meta: { requiresRole: ['PATIENT', 'AIDE'] },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/NotFoundView.vue'),
@@ -88,7 +94,11 @@ router.beforeEach(async (to, from, next) => {
     });
   }
 
-  if (to.meta.requiresRole && userRole.value !== to.meta.requiresRole) {
+  const required = to.meta.requiresRole;
+  if (
+    required &&
+    (Array.isArray(required) ? !required.includes(userRole.value) : userRole.value !== required)
+  ) {
     next({ name: 'home' });
   } else {
     next();

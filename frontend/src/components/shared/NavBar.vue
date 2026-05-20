@@ -90,6 +90,15 @@ export default {
           isPageTitleDisplayedMobile: true,
         },
         {
+          link: '/contact',
+          title: 'Contact',
+          pageTitle: 'Contact',
+          label: 'contact',
+          icon: 'fa-phone',
+          isDisplayed: isPatient || isAide,
+          isPageTitleDisplayedMobile: true,
+        },
+        {
           link: '/profile',
           title: 'Profil',
           pageTitle: 'Profil',

@@ -108,3 +108,25 @@ export async function getPatientRendezvous(req, res, next) {
     next(err);
   }
 }
+
+export async function getPatientChirurgies(req, res, next) {
+  try {
+    const { patientId } = req.params;
+    if (!(await assertAideOwnsPatient(req.user.id, patientId))) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('chirurgie')
+      .select(
+        'id, titre, date_chirurgie, salle_anesthesie, salle_operation, salle_reveil, created_at'
+      )
+      .eq('patient_id', patientId)
+      .order('date_chirurgie', { ascending: true });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
