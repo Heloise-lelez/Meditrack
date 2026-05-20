@@ -98,8 +98,7 @@
           <label class="field">
             <span>Profession <span class="required" aria-hidden="true">*</span></span>
             <select v-model.trim="form.job" :v-if="!isLogin">
-              <option v-for="job in jobs"
-            :key="job.id">{{ job }}</option>
+              <option v-for="job in jobs" :key="job.id">{{ job }}</option>
             </select>
           </label>
         </template>

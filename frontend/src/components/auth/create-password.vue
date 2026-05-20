@@ -1,68 +1,52 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useNewPatient } from '@/composables/useNewPatient'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useNewPatient } from '@/composables/useNewPatient';
 
-const router = useRouter()
+const router = useRouter();
 
-const {
-  getSession,
-  createFirstPassword
-} = useNewPatient()
+const { getSession, createFirstPassword } = useNewPatient();
 
 const form = ref({ password: '' });
-const loading = ref(false)
-const ready = ref(false)
-const errorMessage = ref(null)
+const loading = ref(false);
+const ready = ref(false);
+const errorMessage = ref(null);
 
 // ----------------------------
 // INIT
 // ----------------------------
 onMounted(async () => {
-
   try {
+    const session = await getSession();
 
-    const session = await getSession()
-
-    console.log('[session]', session)
+    console.log('[session]', session);
 
     if (!session) {
-      throw new Error('No session found from email link')
+      throw new Error('No session found from email link');
     }
 
-    ready.value = true
-
+    ready.value = true;
   } catch (err) {
-
-    errorMessage.value = err.message
-
+    errorMessage.value = err.message;
   }
-
-})
+});
 
 // ----------------------------
 // SUBMIT PASSWORD
 // ----------------------------
 async function submit() {
-
-  loading.value = true
-  errorMessage.value = null
+  loading.value = true;
+  errorMessage.value = null;
 
   try {
+    await createFirstPassword(form.value.password);
 
-    await createFirstPassword(form.value.password)
-
-    router.push('/')
-
+    router.push('/');
   } catch (err) {
-
-    errorMessage.value = err.message
-
+    errorMessage.value = err.message;
   } finally {
-
-    loading.value = false
+    loading.value = false;
   }
-
 }
 </script>
 
@@ -73,8 +57,10 @@ async function submit() {
         <h1>Créez votre mot de passe</h1>
       </div>
 
-      <form @submit.prevent="submit" aria-label="'Formulaire de création d'un premier mot de passe'">
-
+      <form
+        @submit.prevent="submit"
+        aria-label="'Formulaire de création d'un premier mot de passe'"
+      >
         <label class="field">
           <input
             v-model.trim="form.password"
@@ -151,7 +137,9 @@ async function submit() {
   font-weight: 500;
   color: #6b7280;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .auth-tab.active {

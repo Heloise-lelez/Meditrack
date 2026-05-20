@@ -77,12 +77,11 @@ export function useAuth() {
       });
       throw error;
     } else {
-      
-      if(role === ROLES.DOCTOR) {
+      if (role === ROLES.DOCTOR) {
         setDoctorPassword(password);
       }
 
-      if(role === ROLES.ASSISTANT) {
+      if (role === ROLES.ASSISTANT) {
         setAssistantPassword(password);
       }
 

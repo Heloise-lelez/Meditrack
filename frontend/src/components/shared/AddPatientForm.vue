@@ -28,87 +28,78 @@ async function submit() {
   successMessage.value = null;
   submitting.value = true;
 
-  if(userRole.value === 'ASSISTANT' && !form.value.doctor) {
-
-    if(form.value.doctor === '') {
-      errorMessage.value = "Vous devez sélectionner un médecin pour ce patient.";
+  if (userRole.value === 'ASSISTANT' && !form.value.doctor) {
+    if (form.value.doctor === '') {
+      errorMessage.value = 'Vous devez sélectionner un médecin pour ce patient.';
       submitting.value = false;
       return;
     }
 
     try {
-
       await createPatient(form.value.email, {
         nom: form.value.nom,
         prenom: form.value.prenom,
         tel: form.value.tel,
       });
 
-      const doctor_id = await api.get('/single-doctor', {
-        params: {
-          prenom: form.value.doctor.split(' ')[0],
-          nom: form.value.doctor.split(' ')[1],
-        }
-      }).then(res => {
-        const doctor = res.data.find(d => `${d.prenom} ${d.nom}` === form.value.doctor);
-        return doctor.id;
-      });
+      const doctor_id = await api
+        .get('/single-doctor', {
+          params: {
+            prenom: form.value.doctor.split(' ')[0],
+            nom: form.value.doctor.split(' ')[1],
+          },
+        })
+        .then((res) => {
+          const doctor = res.data.find((d) => `${d.prenom} ${d.nom}` === form.value.doctor);
+          return doctor.id;
+        });
 
-      const patient_id = await api.get('/single-patient', {
-        params: {
-          prenom: form.value.prenom,
-          nom: form.value.nom,
-        }
-      }).then(res => {
-        const patient = res.data.find(p => `${p.prenom} ${p.nom}` === `${form.value.prenom} ${form.value.nom}`);
-        return patient.id;
-      });
+      const patient_id = await api
+        .get('/single-patient', {
+          params: {
+            prenom: form.value.prenom,
+            nom: form.value.nom,
+          },
+        })
+        .then((res) => {
+          const patient = res.data.find(
+            (p) => `${p.prenom} ${p.nom}` === `${form.value.prenom} ${form.value.nom}`
+          );
+          return patient.id;
+        });
 
       await api.post('/assignments', {
         doctor_id,
         patient_id,
       });
 
-      successMessage.value = "Compte créé ! Le patient peut désormais se connecter à son compte.";
-
+      successMessage.value = 'Compte créé ! Le patient peut désormais se connecter à son compte.';
     } catch (err) {
-
       errorMessage.value = translateError(err.message);
-
     } finally {
-
       submitting.value = false;
-
     }
-
-  } else if(userRole.value === 'DOCTOR') {
-
+  } else if (userRole.value === 'DOCTOR') {
     try {
-
       await createPatient(form.value.email, {
         nom: form.value.nom,
         prenom: form.value.prenom,
         tel: form.value.tel,
       });
 
-      successMessage.value = "Compte créé ! Le patient peut désormais se connecter à son compte.";
-
+      successMessage.value = 'Compte créé ! Le patient peut désormais se connecter à son compte.';
     } catch (err) {
-
       errorMessage.value = translateError(err.message);
-
     } finally {
-
       submitting.value = false;
-      
     }
-
   }
 }
 
 function translateError(msg) {
   if (!msg) return 'Une erreur est survenue.';
-  if (msg.includes('User already registered')) return 'Le patient est déjà enregistré sur MediTrack.';
+  if (msg.includes('User already registered'))
+    return 'Le patient est déjà enregistré sur MediTrack.';
   return msg;
 }
 
@@ -153,78 +144,78 @@ onMounted(async () => {
 
     <!-- ── Formulaire création du patient ─────────────────────────────────────────────── -->
     <form @submit.prevent="submit" aria-label="Formulaire d'ajout d'un patient''">
-        <div class="field-row">
-            <label class="field">
-              <span>Prénom <span class="required" aria-hidden="true">*</span></span>
-              <input
-                v-model.trim="form.prenom"
-                type="text"
-                required
-                autocomplete="given-name"
-                aria-label="Prénom"
-                :disabled="submitting"
-              />
-            </label>
-            <label class="field">
-              <span>Nom <span class="required" aria-hidden="true">*</span></span>
-              <input
-                v-model.trim="form.nom"
-                type="text"
-                required
-                autocomplete="family-name"
-                aria-label="Nom"
-                :disabled="submitting"
-              />
-            </label>
-          </div>
-
+      <div class="field-row">
         <label class="field">
-          <span>Email <span class="required" aria-hidden="true">*</span></span>
+          <span>Prénom <span class="required" aria-hidden="true">*</span></span>
           <input
-            v-model.trim="form.email"
-            type="email"
+            v-model.trim="form.prenom"
+            type="text"
             required
-            autocomplete="email"
-            aria-label="Adresse email"
+            autocomplete="given-name"
+            aria-label="Prénom"
             :disabled="submitting"
           />
         </label>
-
         <label class="field">
-            <span>Téléphone <span class="optional">(facultatif)</span></span>
-            <input
-              v-model.trim="form.tel"
-              type="tel"
-              autocomplete="tel"
-              aria-label="Numéro de téléphone (facultatif)"
-              :disabled="submitting"
-            />
-          </label>
+          <span>Nom <span class="required" aria-hidden="true">*</span></span>
+          <input
+            v-model.trim="form.nom"
+            type="text"
+            required
+            autocomplete="family-name"
+            aria-label="Nom"
+            :disabled="submitting"
+          />
+        </label>
+      </div>
 
-        <!-- ── En attente de l'assignation d'un assitant avec plusieurs médecins  -->
-        <template v-if="userRole === 'ASSISTANT'">
-          <label class="field">
-            <span>Médecin en charge du patient</span>
-            <select v-model.trim="form.doctor">
-              <option value="">Médecin de votre service</option>
-              <option v-for="doctor in registeredDoctors"
-            :key="doctor.id">{{ doctor.prenom }} {{ doctor.nom }}</option>
-            </select>
-          </label>
-        </template>
+      <label class="field">
+        <span>Email <span class="required" aria-hidden="true">*</span></span>
+        <input
+          v-model.trim="form.email"
+          type="email"
+          required
+          autocomplete="email"
+          aria-label="Adresse email"
+          :disabled="submitting"
+        />
+      </label>
 
-        <p v-if="errorMessage" class="form-submit-error" role="alert">{{ errorMessage }}</p>
-        <p v-if="successMessage" class="form-submit-success" role="status">{{ successMessage }}</p>
+      <label class="field">
+        <span>Téléphone <span class="optional">(facultatif)</span></span>
+        <input
+          v-model.trim="form.tel"
+          type="tel"
+          autocomplete="tel"
+          aria-label="Numéro de téléphone (facultatif)"
+          :disabled="submitting"
+        />
+      </label>
 
-        <button type="submit" class="form-submit" :disabled="submitting">
-          {{ submitting ? 'Chargement…' :'Enregistrer' }}
-        </button>
-      </form>
+      <!-- ── En attente de l'assignation d'un assitant avec plusieurs médecins  -->
+      <template v-if="userRole === 'ASSISTANT'">
+        <label class="field">
+          <span>Médecin en charge du patient</span>
+          <select v-model.trim="form.doctor">
+            <option value="">Médecin de votre service</option>
+            <option v-for="doctor in registeredDoctors" :key="doctor.id">
+              {{ doctor.prenom }} {{ doctor.nom }}
+            </option>
+          </select>
+        </label>
+      </template>
+
+      <p v-if="errorMessage" class="form-submit-error" role="alert">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="form-submit-success" role="status">{{ successMessage }}</p>
+
+      <button type="submit" class="form-submit" :disabled="submitting">
+        {{ submitting ? 'Chargement…' : 'Enregistrer' }}
+      </button>
+    </form>
   </div>
 </template>
 
 <style scoped>
-
 .detail {
   display: flex;
   flex-direction: column;
@@ -241,7 +232,7 @@ onMounted(async () => {
 }
 
 form {
-  display:flex;
+  display: flex;
   flex-direction: column;
   border-radius: 16px;
   padding: 32px 24px;

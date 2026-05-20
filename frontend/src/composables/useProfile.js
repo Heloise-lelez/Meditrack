@@ -13,57 +13,33 @@ const patientUser = usePatient().getPatientPassword();
 const doctorUser = useDoctor().getDoctorPassword();
 const assistantUser = useAssistant().getAssistantPassword();
 
-if(user.role === ROLES.PATIENT) {
-
+if (user.role === ROLES.PATIENT) {
   userPassword = patientUser;
-
-} else if(user.role === ROLES.DOCTOR) {
-
+} else if (user.role === ROLES.DOCTOR) {
   userPassword = doctorUser;
-
-} else if(user.role === ROLES.ASSISTANT) {
-
+} else if (user.role === ROLES.ASSISTANT) {
   userPassword = assistantUser;
-
 }
 
 export function useProfile() {
-
   function getPassword() {
-
     return userPassword;
-
   }
 
   async function updatePassword(password) {
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
 
-<<<<<<< HEAD
-    const { error } =
-=======
-    const { data, error } =
->>>>>>> aa566a40a5863b764c3757f95e998c56aa8b1e34
-      await supabase.auth.updateUser({
-        password
-      });
-
-      if(!error) {
-
-        userPassword = password;
-<<<<<<< HEAD
-=======
-        return data;
->>>>>>> aa566a40a5863b764c3757f95e998c56aa8b1e34
-
-      } else {
-
-        throw error;
-
-      }
-
+    if (!error) {
+      userPassword = password;
+    } else {
+      throw error;
+    }
   }
 
   return {
     getPassword,
-    updatePassword
+    updatePassword,
   };
 }
