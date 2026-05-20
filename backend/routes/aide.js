@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 import {
   listMyPatients,
+  listPatientsRendezvous,
   getPatientTaches,
   getPatientEtapes,
   getPatientRendezvous,
@@ -13,6 +14,7 @@ const isAide = [requireAuth, requireRole('AIDE')];
 
 // Liste des patients assignés à l'aide connecté
 router.get('/patients', ...isAide, listMyPatients);
+router.get('/rendezvous', ...isAide, listPatientsRendezvous);
 
 // Détail d'un patient : tâches du jour, étapes, rendez-vous (lecture seule)
 router.get('/patients/:patientId/taches', ...isAide, getPatientTaches);

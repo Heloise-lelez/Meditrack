@@ -1,6 +1,5 @@
 .assistant {
   padding: 16px;
-  font-family: 'Arimo', sans-serif;
 }
 
 .assistant-header {
@@ -22,8 +21,8 @@
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #d1faf5;
-  border-top-color: #3a8d7a;
+  border: 3px solid var(--color-primary-background);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -58,8 +57,8 @@
   padding: 14px 16px;
   margin: 0;
   font-size: 1rem;
-  color: #3a8d7a;
-  border-bottom: 1px solid #e0f2ee;
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-primary-background);
   font-weight: 600;
 }
 
@@ -97,10 +96,10 @@
   border-bottom: none;
 }
 .person-row:hover {
-  background: #f9fffe;
+  background: var(--color-primary-background);
 }
 .person-row.selected {
-  background: #f0faf8;
+  background: var(--color-primary-background);
 }
 
 .doctor-row {
@@ -114,8 +113,8 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #d1faf5;
-  color: #3a8d7a;
+  background: var(--color-primary-background);
+  color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -148,7 +147,7 @@
 }
 
 .btn-assign {
-  background: #3a8d7a;
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -160,7 +159,7 @@
 }
 
 .btn-assign:hover:not(:disabled) {
-  background: #2d7060;
+  background: var(--color-primary-hover);
 }
 
 .btn-unassign {
@@ -208,8 +207,8 @@
 }
 
 .main-tab.active {
-  color: #3a8d7a;
-  border-bottom-color: #3a8d7a;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -217,8 +216,8 @@
 .inline-form {
   margin: 0 0 12px;
   padding: 14px 16px;
-  background: #f9fffe;
-  border: 1px solid #d1faf5;
+  background: var(--color-primary-background);
+  border: 1px solid var(--color-primary-background);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -255,7 +254,7 @@
 }
 
 .field-row input:focus {
-  border-color: #3a8d7a;
+  border-color: var(--color-primary);
 }
 
 .form-actions {
@@ -265,7 +264,7 @@
 }
 
 .btn-create {
-  background: #3a8d7a;
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -276,7 +275,7 @@
 }
 
 .btn-create:hover:not(:disabled) {
-  background: #2d7060;
+  background: var(--color-primary-hover);
 }
 
 .btn-create:disabled {
@@ -301,8 +300,8 @@
   margin: 12px 14px;
   padding: 8px;
   background: none;
-  border: 1px dashed #3a8d7a;
-  color: #3a8d7a;
+  border: 1px dashed var(--color-primary);
+  color: var(--color-primary);
   border-radius: 8px;
   font-size: 0.85rem;
   cursor: pointer;
@@ -311,7 +310,7 @@
 }
 
 .btn-add-aide:hover {
-  background: #f0faf8;
+  background: var(--color-primary-background);
 }
 
 .form-error {
@@ -412,13 +411,13 @@
 }
 
 .step-todo:hover:not(:disabled) {
-  background: #d1faf5;
-  color: #3a8d7a;
+  background: var(--color-primary-background);
+  color: var(--color-primary);
 }
 
 .step-done {
-  background: #d1faf5;
-  color: #3a8d7a;
+  background: var(--color-primary-background);
+  color: var(--color-primary);
   cursor: default;
 }
 
@@ -428,6 +427,6 @@
 }
 
 .step-btn:not(.step-done):not(:disabled):hover {
-  background: #d1faf5;
-  color: #3a8d7a;
+  background: var(--color-primary-background);
+  color: var(--color-primary);
 }

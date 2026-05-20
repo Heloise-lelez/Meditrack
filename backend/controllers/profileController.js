@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '../lib/supabase.js';
+import { createUserClient, supabaseAdmin } from '../lib/supabase.js';
 
 export async function getMyDoctors(req, res, next) {
   try {
@@ -55,12 +55,12 @@ export async function getMyRole(req, res, next) {
   try {
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .select('role')
+      .select('role, is_accompanied')
       .eq('id', req.user.id)
       .single();
 
     if (error) throw error;
-    res.json({ role: data?.role ?? 'PATIENT' });
+    res.json({ role: data?.role ?? 'PATIENT', is_accompanied: data?.is_accompanied });
   } catch (err) {
     next(err);
   }
@@ -92,6 +92,31 @@ export async function getMyAides(req, res, next) {
         profiles: aideMap[a.aide_id] ?? null,
       }))
     );
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateProfile(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { is_accompanied } = req.body;
+
+    if (typeof is_accompanied !== 'boolean') {
+      return res.status(400).json({ error: 'is_accompanied doit être un boolean' });
+    }
+
+    const db = createUserClient(req.userToken);
+    const { data, error } = await db
+      .from('profiles')
+      .update({ is_accompanied })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Étape introuvable' });
+    res.json(data);
   } catch (err) {
     next(err);
   }

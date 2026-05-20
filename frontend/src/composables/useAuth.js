@@ -11,6 +11,13 @@ async function fetchRole() {
   try {
     const data = await api.get('/api/profile/my-role');
     userRole.value = data.role ?? 'PATIENT';
+    user.value = {
+      ...user.value,
+      user_metadata: {
+        ...(user.value.user_metadata || {}),
+        is_accompanied: data.is_accompanied,
+      },
+    };
   } catch {
     userRole.value = 'PATIENT';
   }

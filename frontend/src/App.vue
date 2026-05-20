@@ -74,14 +74,14 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #f0faf8;
+  background: var(--color-primary-background);
 }
 
 .loader {
   width: 40px;
   height: 40px;
   border: 4px solid #e5e7eb;
-  border-top-color: #3a8d7a;
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
