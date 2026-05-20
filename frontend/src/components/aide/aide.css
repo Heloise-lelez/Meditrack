@@ -1,6 +1,5 @@
 .aide {
   padding: 16px;
-  font-family: 'Arimo', sans-serif;
 }
 
 .aide-header {
@@ -22,8 +21,8 @@
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #d1faf5;
-  border-top-color: #3a8d7a;
+  border: 3px solid var(--color-primary-background);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -69,15 +68,15 @@
 
 .patient-card:hover,
 .patient-card.selected {
-  background: #f9fffe;
+  background: var(--color-primary-background);
 }
 
 .patient-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #d1faf5;
-  color: #3a8d7a;
+  background: var(--color-primary-background);
+  color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -103,7 +102,6 @@
 /* Detail view */
 .detail {
   padding: 16px;
-  font-family: 'Arimo', sans-serif;
 }
 
 .detail-header {
@@ -126,7 +124,7 @@
   gap: 4px;
   background: none;
   border: none;
-  color: #3a8d7a;
+  color: var(--color-primary);
   font-size: 0.95rem;
   cursor: pointer;
   padding: 4px 0;
@@ -158,8 +156,8 @@
 }
 
 .sub-tab.active {
-  color: #3a8d7a;
-  border-bottom-color: #3a8d7a;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -259,7 +257,7 @@
 }
 
 .checklist-count {
-  color: #3a8d7a;
+  color: var(--color-primary);
 }
 
 .readonly-badge {
@@ -288,8 +286,8 @@
 }
 
 .step-done {
-  background: #d1faf5;
-  color: #3a8d7a;
+  background: var(--color-primary-background);
+  color: var(--color-primary);
 }
 
 .step-pending {

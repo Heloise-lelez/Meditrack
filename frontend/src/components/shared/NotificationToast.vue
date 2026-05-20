@@ -72,7 +72,7 @@ function relativeTime(iso) {
 
 .toast-card {
   background: var(--color-white, #fff);
-  border-left: 4px solid var(--color-primary, #3a8d7a);
+  border-left: 4px solid var(--color-primary, #8c3a78);
   border-radius: 8px;
   padding: 14px 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);

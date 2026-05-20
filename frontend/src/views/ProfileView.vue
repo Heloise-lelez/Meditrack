@@ -99,7 +99,9 @@ onMounted(async () => {
         num_service: p.num_service ?? '',
         horaire_service: p.horaire_service ?? '',
       };
-    } catch {}
+    } catch {
+      console.log('todo');
+    }
   }
 });
 </script>

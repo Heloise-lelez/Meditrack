@@ -97,7 +97,7 @@ export async function getPatientRendezvous(req, res, next) {
     const { data, error } = await supabaseAdmin
       .from('rendezvous')
       .select(
-        'id, doctor_first_name, doctor_last_name, profession, starts_at, address, profile_picture'
+        'id_rendezvous, doctor_first_name, doctor_last_name, profession, starts_at, address, profile_picture'
       )
       .eq('user_id', patientId)
       .order('starts_at', { ascending: true });

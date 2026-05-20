@@ -110,6 +110,29 @@ export async function createPatientRendezvous(req, res, next) {
       .single();
 
     if (error) throw error;
+
+    try {
+      const { data: doctorProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('nom, prenom')
+        .eq('id', req.user.id)
+        .single();
+      const doctorName = doctorProfile
+        ? `Dr. ${doctorProfile.prenom} ${doctorProfile.nom}`
+        : 'Votre médecin';
+      const dateStr = new Date(starts_at).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+      await broadcastToPatientAides(pid, {
+        doctorName,
+        message: `Un rendez-vous a été créé : ${operation} le ${dateStr}`,
+      });
+    } catch (broadcastErr) {
+      console.error('[RDV notify] broadcast failed:', broadcastErr.message);
+    }
+
     res.status(201).json(data);
   } catch (err) {
     next(err);
@@ -712,6 +735,32 @@ export async function deletePatientChirurgie(req, res, next) {
   }
 }
 
+async function broadcastToPatientAides(pid, { message, doctorName }) {
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const res = await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+    },
+    body: JSON.stringify({
+      messages: [
+        {
+          topic: `patient:${pid}`,
+          event: 'doctor_notification',
+          payload: { message, doctorName, patientId: pid, timestamp: new Date().toISOString() },
+        },
+      ],
+    }),
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Broadcast failed: ${errText}`);
+  }
+}
+
 export async function notifyPatientAides(req, res, next) {
   try {
     const { pid } = req.params;
@@ -735,36 +784,7 @@ export async function notifyPatientAides(req, res, next) {
       ? `Dr. ${doctorProfile.prenom} ${doctorProfile.nom}`
       : 'Un médecin';
 
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    const broadcastRes = await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            topic: `patient:${pid}`,
-            event: 'doctor_notification',
-            payload: {
-              message: message.trim(),
-              doctorName,
-              patientId: pid,
-              timestamp: new Date().toISOString(),
-            },
-          },
-        ],
-      }),
-    });
-
-    if (!broadcastRes.ok) {
-      const errText = await broadcastRes.text();
-      throw new Error(`Broadcast failed: ${errText}`);
-    }
+    await broadcastToPatientAides(pid, { message: message.trim(), doctorName });
 
     res.json({ ok: true, patientId: pid });
   } catch (err) {
