@@ -117,9 +117,15 @@
             <div class="item-title">{{ c.titre }}</div>
             <div class="item-meta">{{ formatDateTime(c.date_chirurgie) }}</div>
             <div class="chirurgie-steps">
-              <span :class="['step-badge', c.salle_anesthesie ? 'step-done' : 'step-pending']">Anesthésie</span>
-              <span :class="['step-badge', c.salle_operation ? 'step-done' : 'step-pending']">Opération</span>
-              <span :class="['step-badge', c.salle_reveil ? 'step-done' : 'step-pending']">Réveil</span>
+              <span :class="['step-badge', c.salle_anesthesie ? 'step-done' : 'step-pending']"
+                >Anesthésie</span
+              >
+              <span :class="['step-badge', c.salle_operation ? 'step-done' : 'step-pending']"
+                >Opération</span
+              >
+              <span :class="['step-badge', c.salle_reveil ? 'step-done' : 'step-pending']"
+                >Réveil</span
+              >
             </div>
           </div>
         </li>

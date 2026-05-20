@@ -302,11 +302,7 @@
     </section>
 
     <!-- ── Chirurgies ───────────────────────────────────────────── -->
-    <section
-      v-if="activeTab === 'chirurgies'"
-      class="section"
-      aria-label="Chirurgies du patient"
-    >
+    <section v-if="activeTab === 'chirurgies'" class="section" aria-label="Chirurgies du patient">
       <div class="section-actions">
         <button class="btn-primary" @click="showChirurgieForm = true">+ Nouvelle chirurgie</button>
       </div>

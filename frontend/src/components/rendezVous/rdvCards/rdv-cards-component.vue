@@ -12,7 +12,7 @@ const props = defineProps({
   heure: { type: String, default: '' },
   adresse: { type: String, default: '' },
   isPast: { type: Boolean, default: false },
-  checklist: { type: Array, default: [] },
+  checklist: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits(['details']);

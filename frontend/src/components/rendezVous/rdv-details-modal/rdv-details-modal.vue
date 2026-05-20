@@ -67,16 +67,6 @@ const formatTime = (iso) =>
     minute: '2-digit',
   });
 
-const toggleStep = async (etape, index) => {
-  etape.checklist[index].fait = !etape.checklist[index].fait;
-  try {
-    await api.put(`/api/etapes/${etape.id_etape}`, { checklist: etape.checklist });
-  } catch {
-    // Revert on failure
-    etape.checklist[index].fait = !etape.checklist[index].fait;
-  }
-};
-
 const toggleChecklistItem = async (index) => {
   const previousValue = checklistItems.value[index].fait;
   checklistItems.value[index].fait = !previousValue;
@@ -84,8 +74,6 @@ const toggleChecklistItem = async (index) => {
     await api.put(`/api/rendezvous/${props.rdv.id_rendezvous}`, {
       checklist: checklistItems.value,
     });
-    // Mettre à jour le checklist du parent pour la réactivité
-    props.rdv.checklist[index].fait = !previousValue;
   } catch (err) {
     // Revert on failure
     console.error('Erreur mise à jour checklist:', err);

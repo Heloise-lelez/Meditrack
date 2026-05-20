@@ -230,10 +230,7 @@ export async function listMyChirurgies(req, res, next) {
     if (!chirurgies.length) return res.json([]);
 
     const profileIds = [
-      ...new Set([
-        ...chirurgies.map((c) => c.patient_id),
-        ...chirurgies.map((c) => c.doctor_id),
-      ]),
+      ...new Set([...chirurgies.map((c) => c.patient_id), ...chirurgies.map((c) => c.doctor_id)]),
     ];
     const { data: profiles } = await supabaseAdmin
       .from('profiles')
@@ -273,14 +270,10 @@ export async function checkChirurgieStep(req, res, next) {
     if (chirurgie[step]) return res.status(400).json({ error: 'Cette étape est déjà validée' });
 
     if (step === 'salle_operation' && !chirurgie.salle_anesthesie) {
-      return res
-        .status(400)
-        .json({ error: "La salle d'anesthésie doit être validée en premier" });
+      return res.status(400).json({ error: "La salle d'anesthésie doit être validée en premier" });
     }
     if (step === 'salle_reveil' && !chirurgie.salle_operation) {
-      return res
-        .status(400)
-        .json({ error: "La salle d'opération doit être validée en premier" });
+      return res.status(400).json({ error: "La salle d'opération doit être validée en premier" });
     }
 
     const { data: updated, error: updateErr } = await supabaseAdmin
