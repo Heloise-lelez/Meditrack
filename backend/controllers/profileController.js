@@ -18,12 +18,15 @@ export async function getMyDoctors(req, res, next) {
 
     if (docError) throw docError;
 
-    const emailResults = await Promise.all(
-      doctorIds.map((id) => supabaseAdmin.auth.admin.getUserById(id))
-    );
-    const emailMap = Object.fromEntries(
-      emailResults.map(({ data }) => [data?.user?.id, data?.user?.email ?? null])
-    );
+    let emailMap = {};
+    try {
+      const emailResults = await Promise.all(
+        doctorIds.map((id) => supabaseAdmin.auth.admin.getUserById(id))
+      );
+      emailMap = Object.fromEntries(
+        emailResults.map(({ data }) => [data?.user?.id, data?.user?.email ?? null])
+      );
+    } catch { /* non-fatal — doctors returned without email */ }
 
     res.json(doctors.map((d) => ({ ...d, email: emailMap[d.id] ?? null })));
   } catch (err) {
@@ -56,6 +59,37 @@ export async function getMyRole(req, res, next) {
 
     if (error) throw error;
     res.json({ role: data?.role ?? 'PATIENT' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getMyAides(req, res, next) {
+  try {
+    const { data: assignments, error: assignError } = await supabaseAdmin
+      .from('aide_patient')
+      .select('aide_id, assigned_at')
+      .eq('patient_id', req.user.id);
+
+    if (assignError) throw assignError;
+    if (!assignments.length) return res.json([]);
+
+    const aideIds = assignments.map((a) => a.aide_id);
+    const { data: aides, error: aideError } = await supabaseAdmin
+      .from('profiles')
+      .select('id, nom, prenom')
+      .in('id', aideIds);
+
+    if (aideError) throw aideError;
+
+    const aideMap = Object.fromEntries(aides.map((a) => [a.id, a]));
+    res.json(
+      assignments.map((a) => ({
+        aide_id: a.aide_id,
+        assigned_at: a.assigned_at,
+        profiles: aideMap[a.aide_id] ?? null,
+      }))
+    );
   } catch (err) {
     next(err);
   }

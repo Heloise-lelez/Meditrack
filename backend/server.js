@@ -12,6 +12,7 @@ import profileRouter from './routes/profile.js';
 import adminRouter from './routes/admin.js';
 import doctorRouter from './routes/doctor.js';
 import assistantRouter from './routes/assistant.js';
+import aideRouter from './routes/aide.js';
 import auditRouter from './routes/audit.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { auditRequestLogger } from './middleware/audit.js';
@@ -39,6 +40,7 @@ app.use('/api/profile', profileRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/doctor', doctorRouter);
 app.use('/api/assistant', assistantRouter);
+app.use('/api/aide', aideRouter);
 app.use('/api/audit', auditRouter);
 
 app.use(errorHandler);

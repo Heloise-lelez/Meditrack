@@ -2,8 +2,7 @@
   <main class="auth-page" role="main" aria-label="Authentification">
     <div class="auth-card">
       <div class="auth-header">
-        <h1>Chirurgie Suivi</h1>
-        <p>{{ isLogin ? 'Connectez-vous à votre espace' : 'Créez votre compte' }}</p>
+        <img src="@/assets/meditrack-logo-text.svg" alt="Logo Meditrack" />
       </div>
 
       <nav class="auth-tabs" role="tablist">
@@ -118,8 +117,10 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuth } from '../../composables/useAuth';
 
+const router = useRouter();
 const { signIn, signUp, requestPasswordReset } = useAuth();
 
 const isLogin = ref(true);
@@ -143,6 +144,7 @@ async function submit() {
   try {
     if (isLogin.value) {
       await signIn(form.value.email, form.value.password);
+      router.push('/');
     } else {
       await signUp(form.value.email, form.value.password, {
         nom: form.value.nom,
@@ -195,17 +197,17 @@ function translateError(msg) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0faf8;
+  background: var(--color-primary-background);
   padding: 24px 16px;
 }
 
 .auth-card {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--color-white);
+  border-radius: var(--radius-md);
   padding: 32px 24px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 8px 24px rgba(15, 39, 34, 0.1);
+  box-shadow: 0 0 24px rgba(15, 39, 34, 0.1);
 }
 
 .auth-header {
@@ -213,23 +215,16 @@ function translateError(msg) {
   margin-bottom: 24px;
 }
 
-.auth-header h1 {
-  margin: 0 0 6px;
-  font-size: 22px;
-  color: #0f2722;
-}
-
-.auth-header p {
-  margin: 0;
-  font-size: 14px;
-  color: #6b7280;
+.auth-header img {
+  height: 40px;
+  width: auto;
 }
 
 .auth-tabs {
   display: flex;
   gap: 0;
-  border-radius: 10px;
-  background: #f3f4f6;
+  border-radius: var(--radius-sm);
+  background: var(--color-gray-light);
   padding: 4px;
   margin-bottom: 24px;
 }
@@ -238,11 +233,11 @@ function translateError(msg) {
   flex: 1;
   padding: 8px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: transparent;
   font-size: 14px;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--color-gray-dark);
   cursor: pointer;
   transition:
     background 0.15s,
@@ -250,8 +245,8 @@ function translateError(msg) {
 }
 
 .auth-tab.active {
-  background: #fff;
-  color: #0f2722;
+  background: var(--color-white);
+  color: var(--color-primary-active);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -260,13 +255,12 @@ function translateError(msg) {
   flex-direction: column;
   gap: 6px;
   font-size: 13px;
-  color: #374151;
   margin-bottom: 14px;
 }
 
 .field input {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border: 1px solid var(--color-gray-light);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   font-size: 14px;
   outline: none;
@@ -274,7 +268,7 @@ function translateError(msg) {
 }
 
 .field input:focus {
-  border-color: #3a8d7a;
+  border-color: var(--color-primary-focus);
 }
 
 .field-row {
@@ -289,32 +283,32 @@ function translateError(msg) {
 
 .field-hint {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--color-gray);
   margin-top: -2px;
 }
 
 .required {
-  color: #b91c1c;
+  color: var(--color-error);
 }
 
 .optional {
-  color: #9ca3af;
+  color: var(--color-gray);
   font-weight: 400;
 }
 
 .auth-error {
-  background: #fef2f2;
-  color: #b91c1c;
-  border-radius: 8px;
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   font-size: 13px;
   margin: 0 0 14px;
 }
 
 .auth-success {
-  background: #f0fdf4;
-  color: #166534;
-  border-radius: 8px;
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   font-size: 13px;
   margin: 0 0 14px;
@@ -324,9 +318,9 @@ function translateError(msg) {
   width: 100%;
   padding: 12px;
   border: none;
-  border-radius: 10px;
-  background: #3a8d7a;
-  color: #fff;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-white);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -334,7 +328,7 @@ function translateError(msg) {
 }
 
 .auth-submit:hover:not(:disabled) {
-  background: #2f7464;
+  background: var(--color-primary-hover);
 }
 
 .auth-submit:disabled {
@@ -347,7 +341,7 @@ function translateError(msg) {
   margin-top: 12px;
   border: none;
   background: transparent;
-  color: #0f766e;
+  color: var(--color-primary-dark);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
