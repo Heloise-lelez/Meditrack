@@ -2,6 +2,15 @@
 import { ROLES } from '@/constants/roles.js';
 import { computed, ref } from 'vue';
 import { api } from '@/lib/api.js';
+import { useProfile } from '@/composables/useProfile';
+
+const { getPassword, updatePassword } = useProfile();
+
+const newPassword = ref(getPassword() || '');
+const saving = ref(false);
+const errorMessage = ref(null);
+const successMessage = ref(null);
+const showPassword = ref(false);
 
 const props = defineProps({
   user: { type: Object, required: true },
@@ -28,6 +37,11 @@ const initials = computed(() => {
   return props.user.value?.email?.[0]?.toUpperCase() || '?';
 });
 
+const passwordFieldType = computed(() => (showPassword.value ? 'text' : 'password'));
+const passwordToggleLabel = computed(() =>
+  showPassword.value ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
+);
+
 const infoProfile = [
   { label: 'Email', value: props.user.email },
   ...(props.user.user_metadata?.tel
@@ -48,6 +62,27 @@ const toggleAccompanied = async () => {
     togglingAccompanied.value = false;
   }
 };
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
+
+async function savePassword(password) {
+  saving.value = true;
+  errorMessage.value = null;
+  successMessage.value = null;
+  try {
+    await updatePassword(password);
+    successMessage.value = 'Mot de passe mis à jour.';
+    setTimeout(() => { successMessage.value = false; }, 3000);
+  } catch (err) {
+    errorMessage.value = 'Erreur lors de la sauvegarde.';
+    console.error(err);
+  } finally {
+    saving.value = false;
+  }
+}
+
 </script>
 
 <template>
@@ -63,6 +98,38 @@ const toggleAccompanied = async () => {
         <span class="info-label">{{ info.label }}</span>
         <span class="info-value">{{ info.value }}</span>
       </div>
+      <div class="info-row">
+        <div class="password-section">
+          <span class="info-label">Mot de passe</span>
+        <span class="info-value">
+          <div class="password-change">
+            <input
+              :type="passwordFieldType"
+              :value="newPassword.value"
+              aria-label="Mot de passe"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              @click="togglePasswordVisibility"
+              :aria-label="passwordToggleLabel"
+            >
+              <i
+                :class="['fa-solid', showPassword ? 'fa-eye-slash' : 'fa-eye']"
+                aria-hidden="true"
+              ></i>
+            </button>
+            <button class="password-submit" :disabled="saving" @click="savePassword(newPassword.value)">
+              {{ saving ? 'Chargement…' : 'Changer' }}
+            </button>
+          </div>
+        </span>
+        </div>
+      </div>
+
+      <p v-if="errorMessage" class="update-password-error" role="alert">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="update-password-success" role="status">{{ successMessage }}</p>
+
       <div class="accompagnement-row" v-if="userRole === ROLES.PATIENT">
         <div class="accompagnement-label">
           <i class="fa-solid fa-people-arrows"></i>
@@ -172,6 +239,102 @@ const toggleAccompanied = async () => {
   font-weight: 500;
   text-align: right;
   word-break: break-all;
+}
+
+.info-value .password-change {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.password-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.password-change {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.password-change input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+  border: 1.5px solid var(--color-primary-light);
+  border-radius: 10px;
+  color: #0f2722;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.password-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1.5px solid var(--color-primary-light);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--color-gray-dark);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.password-toggle i {
+  font-size: 14px;
+  background: #f0f9f6;
+}
+
+.password-toggle:focus {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.password-submit {
+  width: 100%;
+  max-width: 23%;
+  padding: 11px;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.password-submit:hover:not(:disabled) {
+  background: #2f7464;
+}
+
+.password-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.update-password-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin: 0 0 14px;
+}
+
+.update-password-success {
+  background: #f0fdf4;
+  color: #166534;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin: 0 0 14px;
 }
 
 .accompagnement-row {
