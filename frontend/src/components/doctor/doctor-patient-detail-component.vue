@@ -312,6 +312,54 @@
           </div>
         </li>
       </ul>
+
+      <div class="notify-section">
+        <button
+          v-if="!showNotifyForm"
+          class="btn-primary"
+          :disabled="aideList.length === 0"
+          @click="showNotifyForm = true"
+        >
+          Notifier les aides
+        </button>
+        <form v-else class="inline-form" @submit.prevent="sendNotification">
+          <h3>Message aux aides</h3>
+          <label class="notify-label">
+            Message
+            <textarea
+              v-model="notifyMessage"
+              rows="3"
+              maxlength="500"
+              placeholder="Ex : Opération terminée, le patient peut être récupéré."
+              required
+              class="notify-textarea"
+            ></textarea>
+          </label>
+          <p v-if="notifyError" class="form-error">{{ notifyError }}</p>
+          <p v-if="notifySuccess" class="form-success">{{ notifySuccess }}</p>
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="btn-primary"
+              :disabled="submitting || !notifyMessage.trim()"
+            >
+              Envoyer
+            </button>
+            <button
+              type="button"
+              class="btn-secondary"
+              @click="
+                showNotifyForm = false;
+                notifyMessage = '';
+                notifyError = '';
+                notifySuccess = '';
+              "
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
     </section>
   </div>
 </template>
@@ -363,6 +411,10 @@ const showRdvForm = ref(false);
 const showTacheForm = ref(false);
 const showEtapeForm = ref(false);
 const showDocForm = ref(false);
+const showNotifyForm = ref(false);
+const notifyMessage = ref('');
+const notifyError = ref('');
+const notifySuccess = ref('');
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -428,6 +480,27 @@ const loadAides = async () => {
     aideList.value = await api.get(`/api/doctor/patients/${pid}/aides`);
   } catch {
     aideList.value = [];
+  }
+};
+
+const sendNotification = async () => {
+  notifyError.value = '';
+  notifySuccess.value = '';
+  submitting.value = true;
+  try {
+    await api.post(`/api/doctor/patients/${pid}/notify-aides`, {
+      message: notifyMessage.value.trim(),
+    });
+    notifySuccess.value = 'Notification envoyée.';
+    notifyMessage.value = '';
+    setTimeout(() => {
+      showNotifyForm.value = false;
+      notifySuccess.value = '';
+    }, 2000);
+  } catch (e) {
+    notifyError.value = e.message ?? "Erreur lors de l'envoi.";
+  } finally {
+    submitting.value = false;
   }
 };
 

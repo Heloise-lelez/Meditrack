@@ -16,6 +16,7 @@ import {
   downloadPatientDocument,
   uploadDocumentForPatient,
   listPatientAides,
+  notifyPatientAides,
   getMyProfile,
   updateMyProfile,
   searchPatients,
@@ -51,6 +52,7 @@ router.delete('/patients/:pid/etapes/:id', ...isDoctor, deletePatientEtape);
 router.get('/patients/:pid/documents', ...isDoctor, listPatientDocuments);
 router.get('/patients/:pid/documents/:id/download', ...isDoctor, downloadPatientDocument);
 router.get('/patients/:pid/aides', ...isDoctor, listPatientAides);
+router.post('/patients/:pid/notify-aides', ...isDoctor, notifyPatientAides);
 router.post(
   '/patients/:pid/documents/upload',
   ...isDoctor,

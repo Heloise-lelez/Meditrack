@@ -1,13 +1,32 @@
 <script>
+import { watch, onUnmounted } from 'vue';
 import NavBar from './components/shared/NavBar.vue';
 import AuthComponent from './components/auth/auth-component.vue';
+import NotificationToast from './components/shared/NotificationToast.vue';
 import { useAuth } from './composables/useAuth';
+import { usePatientNotifications } from './composables/usePatientNotifications';
+import { api } from './lib/api';
 
 export default {
-  components: { NavBar, AuthComponent },
+  components: { NavBar, AuthComponent, NotificationToast },
   setup() {
-    const { user, loading } = useAuth();
-    return { user, loading };
+    const { user, loading, userRole } = useAuth();
+    const { notifications, init, cleanup, dismiss } = usePatientNotifications();
+
+    watch(loading, async (isLoading) => {
+      if (!isLoading && userRole.value === 'AIDE') {
+        try {
+          const patients = await api.get('/api/aide/patients');
+          init(patients);
+        } catch {
+          /* non-blocking */
+        }
+      }
+    });
+
+    onUnmounted(cleanup);
+
+    return { user, loading, notifications, dismiss };
   },
 };
 </script>
@@ -22,6 +41,7 @@ export default {
     <main class="main-content">
       <RouterView />
     </main>
+    <NotificationToast :notifications="notifications" @dismiss="dismiss" />
   </div>
 </template>
 

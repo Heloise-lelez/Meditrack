@@ -591,3 +591,63 @@ export async function listPatientAides(req, res, next) {
     next(err);
   }
 }
+
+export async function notifyPatientAides(req, res, next) {
+  try {
+    const { pid } = req.params;
+    if (!(await assertPatientOfDoctor(req.user.id, pid, res))) return;
+
+    const { message } = req.body;
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'Message requis' });
+    }
+    if (message.length > 500) {
+      return res.status(400).json({ error: 'Message trop long (max 500 caractères)' });
+    }
+
+    const { data: doctorProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('nom, prenom')
+      .eq('id', req.user.id)
+      .single();
+
+    const doctorName = doctorProfile
+      ? `Dr. ${doctorProfile.prenom} ${doctorProfile.nom}`
+      : 'Un médecin';
+
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    const broadcastRes = await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: serviceRoleKey,
+        Authorization: `Bearer ${serviceRoleKey}`,
+      },
+      body: JSON.stringify({
+        messages: [
+          {
+            topic: `patient:${pid}`,
+            event: 'doctor_notification',
+            payload: {
+              message: message.trim(),
+              doctorName,
+              patientId: pid,
+              timestamp: new Date().toISOString(),
+            },
+          },
+        ],
+      }),
+    });
+
+    if (!broadcastRes.ok) {
+      const errText = await broadcastRes.text();
+      throw new Error(`Broadcast failed: ${errText}`);
+    }
+
+    res.json({ ok: true, patientId: pid });
+  } catch (err) {
+    next(err);
+  }
+}
