@@ -18,12 +18,15 @@ export async function getMyDoctors(req, res, next) {
 
     if (docError) throw docError;
 
-    const emailResults = await Promise.all(
-      doctorIds.map((id) => supabaseAdmin.auth.admin.getUserById(id))
-    );
-    const emailMap = Object.fromEntries(
-      emailResults.map(({ data }) => [data?.user?.id, data?.user?.email ?? null])
-    );
+    let emailMap = {};
+    try {
+      const emailResults = await Promise.all(
+        doctorIds.map((id) => supabaseAdmin.auth.admin.getUserById(id))
+      );
+      emailMap = Object.fromEntries(
+        emailResults.map(({ data }) => [data?.user?.id, data?.user?.email ?? null])
+      );
+    } catch { /* non-fatal — doctors returned without email */ }
 
     res.json(doctors.map((d) => ({ ...d, email: emailMap[d.id] ?? null })));
   } catch (err) {

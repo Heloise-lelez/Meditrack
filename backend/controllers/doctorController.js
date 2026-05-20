@@ -456,23 +456,6 @@ export async function downloadPatientDocument(req, res, next) {
   }
 }
 
-export async function listPatientAides(req, res, next) {
-  try {
-    const { pid } = req.params;
-    if (!(await assertPatientOfDoctor(req.user.id, pid, res))) return;
-
-    const { data, error } = await supabaseAdmin
-      .from('aide_patient')
-      .select('aide_id, assigned_at, profiles!aide_patient_aide_id_fkey(id, nom, prenom)')
-      .eq('patient_id', pid);
-
-    if (error) throw error;
-    res.json(data);
-  } catch (err) {
-    next(err);
-  }
-}
-
 export async function uploadDocumentForPatient(req, res, next) {
   try {
     const { pid } = req.params;

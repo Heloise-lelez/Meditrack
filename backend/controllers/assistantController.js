@@ -168,12 +168,8 @@ export async function assignAideToPatient(req, res, next) {
       .single();
 
     if (error) {
-<<<<<<< HEAD
       if (error.code === '23505')
         return res.status(409).json({ error: 'Assignation déjà existante' });
-=======
-      if (error.code === '23505') return res.status(409).json({ error: 'Assignation déjà existante' });
->>>>>>> a793900 (feat: auth role aide - RLS read-only policies, assistant aide management endpoints)
       throw error;
     }
     res.status(201).json(data);
@@ -201,7 +197,6 @@ export async function removeAideFromPatient(req, res, next) {
     next(err);
   }
 }
-<<<<<<< HEAD
 
 export async function listAideAssignments(req, res, next) {
   try {
@@ -215,5 +210,3 @@ export async function listAideAssignments(req, res, next) {
     next(err);
   }
 }
-=======
->>>>>>> a793900 (feat: auth role aide - RLS read-only policies, assistant aide management endpoints)

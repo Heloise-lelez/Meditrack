@@ -65,7 +65,7 @@
       </div>
       <p v-else-if="myAides.length === 0" class="doctors-empty">Aucun aide assigné.</p>
       <div v-else v-for="a in myAides" :key="a.aide_id" class="doctor-card">
-        <p class="doctor-fullname">{{ a.profiles.prenom }} {{ a.profiles.nom }}</p>
+        <p class="doctor-fullname">{{ a.profiles?.prenom }} {{ a.profiles?.nom }}</p>
       </div>
     </section>
 
