@@ -62,7 +62,7 @@ export default {
           isDisplayed: isAide,
           isPageTitleDisplayedMobile: true,
         },
-        {
+        /*         {
           link: '/steps',
           title: 'Étapes',
           pageTitle: 'Étapes',
@@ -71,10 +71,11 @@ export default {
           isDisplayed: isPatient,
           isPageTitleDisplayedMobile: true,
         },
+        }, */
         {
           link: '/appointments',
           title: 'RDV',
-          pageTitle: 'Rendez-vous',
+          pageTitle: 'Vos Rendez-Vous',
           label: 'rdv',
           icon: 'fa-calendar',
           isDisplayed: isPatient,

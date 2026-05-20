@@ -1,29 +1,29 @@
 <template>
   <main class="home" role="main" aria-label="Page d'accueil">
-    <!-- Header -->
-    <header class="header">
-      <h1>Chirurgie Suivi</h1>
-      <p>Votre parcours chirurgical étape par étape</p>
-    </header>
-
     <!-- Content -->
     <div class="container">
       <!-- Greeting -->
       <section class="greeting" aria-label="Accueil personnalisé">
-        <h2>Bonjour</h2>
+        <h2>Bonjour {{ userFirstName }} {{ userLastName }}</h2>
         <p>Voici votre suivi du jour</p>
       </section>
 
       <!-- Next Appointment -->
       <section class="appointment-card" aria-label="Prochain rendez-vous">
         <header class="appointment-header">
-          <h2 class="appointment-label" tabindex="0">Prochain rendez-vous</h2>
+          <h2 class="appointment-label" tabindex="0">
+            <i class="fa-solid fa-calendar-days"></i> Prochain rendez-vous
+          </h2>
         </header>
         <article class="appointment-doctor">
-          <h3 v-if="nextRdv" tabindex="0">Dr. {{ nextRdv.prenom }} {{ nextRdv.nom }}</h3>
+          <h3 v-if="nextRdv" tabindex="0">
+            <i class="fa-solid fa-user-doctor"></i> Dr. {{ nextRdv.prenom }} {{ nextRdv.nom }}
+          </h3>
           <h3 v-else tabindex="0">Aucun rendez-vous</h3>
           <p class="specialty" v-if="nextRdv">{{ nextRdv.profession }}</p>
-          <p class="description" v-if="nextRdv">{{ nextRdv.operation }}</p>
+          <p class="description" v-if="nextRdv">
+            <i class="fa-solid fa-stethoscope"></i> {{ nextRdv.operation }}
+          </p>
           <p class="description" v-else>
             Ajoute ton premier rendez-vous dans l'onglet "Rendez-vous".
           </p>
@@ -33,15 +33,56 @@
           <div class="detail-item">
             <span class="detail-label" id="appointment-date-label">Date</span>
             <span class="detail-value" aria-labelledby="appointment-date-label">
-              {{ nextRdv ? nextRdv.dateShort : '—' }}
+              <i class="fa-regular fa-calendar"></i> {{ nextRdv ? nextRdv.dateShort : '—' }}
             </span>
           </div>
           <div class="detail-item">
             <span class="detail-label" id="appointment-time-label">Heure</span>
             <span class="detail-value" aria-labelledby="appointment-time-label">
-              {{ nextRdv ? nextRdv.heure : '—' }}
+              <i class="fa-regular fa-clock"></i> {{ nextRdv ? nextRdv.heure : '—' }}
             </span>
           </div>
+        </div>
+        <div class="appointment-divider" role="presentation"></div>
+        <div
+          class="appointment-checklist-container"
+          v-if="nextRdv && nextRdv.checklist && nextRdv.checklist.length"
+          role="region"
+          aria-label="Tâches à faire avant le rendez-vous"
+        >
+          <h3 class="checklist-header" id="checklist-title">
+            Tâches à faire avant le rendez-vous :
+          </h3>
+          <ul class="appointment-checklist" role="list" aria-labelledby="checklist-title">
+            <li
+              v-for="task in nextRdv.checklist"
+              :key="task.id"
+              class="checklist-item"
+              :class="{ 'checklist-item--done': task.fait }"
+              role="listitem"
+            >
+              <button
+                @click="toggleChecklistTask(task)"
+                class="checklist-checkbox"
+                :aria-label="`${task.label} - ${task.fait ? 'Complété' : 'À faire'}`"
+                :aria-pressed="task.fait"
+                type="button"
+              >
+                <span aria-hidden="true" v-if="task.fait">✓</span>
+                <span class="sr-only">{{ task.fait ? 'Complété' : 'Non complété' }}</span>
+              </button>
+              <span class="next-rdv__task">
+                {{ task.label }}
+              </span>
+              <span
+                class="checklist-status"
+                :class="{ 'checklist-status--done': task.fait }"
+                aria-live="polite"
+              >
+                {{ task.fait ? 'Fait' : 'À faire' }}
+              </span>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -120,9 +161,15 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import './home.css';
 import { api } from '../../lib/api';
+import { useAuth } from '../../composables/useAuth';
+
+const { user } = useAuth();
+
+const userFirstName = computed(() => user.value?.user_metadata?.prenom || '');
+const userLastName = computed(() => user.value?.user_metadata?.nom || '');
 
 const TASK_LABELS = {
   prise_medicaments: 'Prise de médicaments',
@@ -149,13 +196,16 @@ const loadNextRdv = async () => {
       return;
     }
     const d = new Date(data.starts_at);
+    console.warn('Next RDV data:', data);
     nextRdv.value = {
+      id: data.id_rendezvous,
       prenom: data.doctor_first_name,
       nom: data.doctor_last_name,
       profession: data.profession,
       operation: data.operation,
       dateShort: d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
       heure: d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      checklist: data.checklist || [],
     };
   } catch {
     nextRdv.value = null;
@@ -177,6 +227,20 @@ const toggleTache = async (tache) => {
     tache.statut = updated.statut;
   } catch {
     // keep UI consistent on failure
+  }
+};
+
+const toggleChecklistTask = async (task) => {
+  const previousValue = task.fait;
+  task.fait = !previousValue;
+  try {
+    await api.put(`/api/rendezvous/${nextRdv.value.id}`, {
+      checklist: nextRdv.value.checklist,
+    });
+  } catch (err) {
+    // Revert on failure
+    console.error('Erreur mise à jour checklist:', err);
+    task.fait = previousValue;
   }
 };
 

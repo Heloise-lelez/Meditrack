@@ -73,6 +73,7 @@ export async function createRendezvous(req, res, next) {
         starts_at,
         profile_picture: profile_picture ?? null,
         user_id: req.user.id,
+        checklist: [],
       })
       .select()
       .single();
@@ -96,6 +97,36 @@ export async function deleteRendezvous(req, res, next) {
 
     if (error) throw error;
     res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+export async function updateRdvChecklist(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { checklist } = req.body;
+
+    if (!Array.isArray(checklist)) {
+      return res.status(400).json({ error: 'checklist doit être un tableau' });
+    }
+
+    const db = createUserClient(req.userToken);
+    const { data, error } = await db
+      .from('rendezvous')
+      .update({ checklist })
+      .eq('id_rendezvous', id)
+      .select();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'Rendez-vous introuvable ou permission denied' });
+    }
+
+    res.json(data[0]);
   } catch (err) {
     next(err);
   }
