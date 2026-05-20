@@ -41,7 +41,7 @@
           { key: 'adresse', label: 'Adresse' },
           { key: 'created_at', label: 'Créé le' },
         ]"
-        :rows="filtered"
+        :rows="paginatedFacilities"
         :emptyMessage="'Aucun établissement trouvé.'"
       >
         <template #adresse="{ row }">{{ row.adresse ?? '—' }}</template>
@@ -49,15 +49,25 @@
           {{ new Date(row.created_at).toLocaleDateString('fr-FR') }}
         </template>
       </CustomTable>
+
+      <PaginationControls
+        v-model:currentPage="currentPage"
+        :total-pages="totalPages"
+        :total-items="filtered.length"
+        :page-size="PAGE_SIZE"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { api } from '@/lib/api.js';
 import CustomTable from '@/components/shared/CustomTable.vue';
+import PaginationControls from '@/components/shared/PaginationControls.vue';
 import './AdminList.css';
+
+const PAGE_SIZE = 10;
 
 const props = defineProps({
   facilities: { type: Array, default: () => [] },
@@ -70,9 +80,22 @@ const newFacility = ref({ nom: '', adresse: '' });
 const creatingFacility = ref(false);
 const facilityError = ref(null);
 
+const currentPage = ref(1);
+
 const filtered = computed(() => {
   const q = search.value.toLowerCase();
   return props.facilities.filter((e) => `${e.nom} ${e.adresse ?? ''}`.toLowerCase().includes(q));
+});
+
+const totalPages = computed(() => Math.ceil(filtered.value.length / PAGE_SIZE));
+
+const paginatedFacilities = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE;
+  return filtered.value.slice(start, start + PAGE_SIZE);
+});
+
+watch(search, () => {
+  currentPage.value = 1;
 });
 
 const submitFacility = async () => {
