@@ -148,7 +148,7 @@ onMounted(loadAssigned);
 .search-input {
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #d1faf5;
+  border: 1.5px solid var(--color-primary-background);
   border-radius: 12px;
   font-size: 15px;
   color: #0f2722;
@@ -159,7 +159,7 @@ onMounted(loadAssigned);
 }
 
 .search-input:focus {
-  border-color: #3a8d7a;
+  border-color: var(--color-primary);
 }
 
 .results-section {
@@ -203,12 +203,12 @@ onMounted(loadAssigned);
 }
 
 .btn-assign {
-  background: #3a8d7a;
+  background: var(--color-primary);
   color: #fff;
 }
 
 .btn-assign:hover:not(:disabled) {
-  background: #2f7364;
+  background: var(--color-primary-hover);
 }
 
 .btn-unassign {

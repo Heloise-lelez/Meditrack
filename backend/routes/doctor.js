@@ -3,6 +3,7 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 import { upload, handleUploadError } from '../middleware/upload.js';
 import {
   listMyPatients,
+  listPatientsRendezvous,
   listPatientRendezvous,
   createPatientRendezvous,
   deletePatientRendezvous,
@@ -40,6 +41,7 @@ router.post('/patients/self-assign', ...isDoctor, selfAssign);
 router.delete('/patients/self-unassign', ...isDoctor, selfUnassign);
 
 router.get('/patients', ...isDoctor, listMyPatients);
+router.get('/rendezvous', ...isDoctor, listPatientsRendezvous);
 
 router.get('/patients/:pid/rendezvous', ...isDoctor, listPatientRendezvous);
 router.post('/patients/:pid/rendezvous', ...isDoctor, createPatientRendezvous);

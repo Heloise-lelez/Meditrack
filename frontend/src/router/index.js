@@ -9,6 +9,11 @@ const routes = [
     name: 'home',
     component: HomeView,
   },
+  {
+    path: '/create-password',
+    name: 'create-password',
+    component: () => import('@/views/CreateFirstPassword.vue'),
+  },
   /*   {
     path: '/steps',
     name: 'steps',
@@ -50,6 +55,18 @@ const routes = [
     name: 'search-patients',
     component: () => import('@/views/SearchPatientsView.vue'),
     meta: { requiresRole: 'DOCTOR' },
+  },
+  {
+    path: '/add-patient',
+    name: 'add-patient-doctor',
+    component: () => import('@/views/AddPatientView.vue'),
+    meta: { requiresRole: 'DOCTOR' },
+  },
+  {
+    path: '/add-patient',
+    name: 'add-patient-assistant',
+    component: () => import('@/views/AddPatientView.vue'),
+    meta: { requiresRole: 'ASSISTANT' },
   },
   {
     path: '/profile',

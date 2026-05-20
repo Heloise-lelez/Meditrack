@@ -43,6 +43,39 @@ export async function listMyPatients(req, res, next) {
   }
 }
 
+export async function listPatientsRendezvous(req, res, next) {
+  try {
+    const { data: assignments, error: aErr } = await supabaseAdmin
+      .from('aide_patient')
+      .select('patient_id')
+      .eq('aide_id', req.user.id);
+    if (aErr) throw aErr;
+    if (!assignments?.length) return res.json([]);
+
+    const patientIds = assignments.map((a) => a.patient_id);
+
+    const [{ data: profiles, error: pErr }, { data: rdvs, error: rErr }] = await Promise.all([
+      supabaseAdmin.from('profiles').select('id, nom, prenom').in('id', patientIds),
+      supabaseAdmin
+        .from('rendezvous')
+        // L'aide ne voit PAS le champ "operation"
+        .select(
+          'id_rendezvous, doctor_first_name, doctor_last_name, profession, starts_at, address, user_id'
+        )
+        .in('user_id', patientIds)
+        .gte('starts_at', new Date().toISOString())
+        .order('starts_at', { ascending: true }),
+    ]);
+    if (pErr) throw pErr;
+    if (rErr) throw rErr;
+
+    const profileMap = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]));
+    res.json(rdvs.map((r) => ({ ...r, patient: profileMap[r.user_id] ?? null })));
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function getPatientTaches(req, res, next) {
   try {
     const { patientId } = req.params;
@@ -97,7 +130,7 @@ export async function getPatientRendezvous(req, res, next) {
     const { data, error } = await supabaseAdmin
       .from('rendezvous')
       .select(
-        'id, doctor_first_name, doctor_last_name, profession, starts_at, address, profile_picture'
+        'id_rendezvous, doctor_first_name, doctor_last_name, profession, starts_at, address, profile_picture'
       )
       .eq('user_id', patientId)
       .order('starts_at', { ascending: true });

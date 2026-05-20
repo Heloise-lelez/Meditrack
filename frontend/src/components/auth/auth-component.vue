@@ -94,6 +94,15 @@
           </label>
         </template>
 
+        <template v-if="!isLogin">
+          <label class="field">
+            <span>Profession <span class="required" aria-hidden="true">*</span></span>
+            <select v-model.trim="form.job" :v-if="!isLogin">
+              <option v-for="job in jobs" :key="job.id">{{ job }}</option>
+            </select>
+          </label>
+        </template>
+
         <p v-if="errorMessage" class="auth-error" role="alert">{{ errorMessage }}</p>
         <p v-if="successMessage" class="auth-success" role="status">{{ successMessage }}</p>
 
@@ -119,6 +128,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../../composables/useAuth';
+import { ROLES } from '@/constants/roles';
 
 const router = useRouter();
 const { signIn, signUp, requestPasswordReset } = useAuth();
@@ -127,14 +137,15 @@ const isLogin = ref(true);
 const submitting = ref(false);
 const errorMessage = ref(null);
 const successMessage = ref(null);
+const jobs = ref([ROLES.DOCTOR, ROLES.ASSISTANT]);
 
-const form = ref({ prenom: '', nom: '', email: '', password: '', tel: '' });
+const form = ref({ prenom: '', nom: '', email: '', password: '', tel: '', job: jobs.value[0] });
 
 function switchMode(toLogin) {
   isLogin.value = toLogin;
   errorMessage.value = null;
   successMessage.value = null;
-  form.value = { prenom: '', nom: '', email: '', password: '', tel: '' };
+  form.value = { prenom: '', nom: '', email: '', password: '', tel: '', job: jobs.value[0] };
 }
 
 async function submit() {
@@ -150,8 +161,9 @@ async function submit() {
         nom: form.value.nom,
         prenom: form.value.prenom,
         tel: form.value.tel,
+        role: form.value.job,
       });
-      successMessage.value = 'Compte créé ! Vérifiez votre email pour confirmer votre inscription.';
+      successMessage.value = 'Compte créé ! Vous pouvez désormais vous connectez à votre espace.';
     }
   } catch (err) {
     errorMessage.value = translateError(err.message);
@@ -285,6 +297,17 @@ function translateError(msg) {
   font-size: 11px;
   color: var(--color-gray);
   margin-top: -2px;
+}
+
+.field select {
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+  margin-bottom: 10px;
 }
 
 .required {

@@ -15,6 +15,33 @@ export async function listPatients(req, res, next) {
   }
 }
 
+export async function getSinglePatient(req, res, next) {
+  try {
+    if (req.query.id) {
+      const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .select('id, nom, prenom, created_at')
+        .eq('id', req.query.id)
+        .eq('role', 'PATIENT');
+
+      if (error) throw error;
+      res.json(data);
+    } else {
+      const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .select('id, nom, prenom')
+        .eq('nom', req.query.nom)
+        .eq('prenom', req.query.prenom)
+        .eq('role', 'PATIENT');
+
+      if (error) throw error;
+      res.json(data);
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listDoctors(req, res, next) {
   try {
     const { data: assistant, error: aErr } = await supabaseAdmin
@@ -35,6 +62,33 @@ export async function listDoctors(req, res, next) {
 
     if (error) throw error;
     res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSingleDoctor(req, res, next) {
+  try {
+    if (req.query.id) {
+      const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .select('id, nom, prenom, created_at')
+        .eq('id', req.query.id)
+        .eq('role', 'DOCTOR');
+
+      if (error) throw error;
+      res.json(data);
+    } else {
+      const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .select('id, nom, prenom')
+        .eq('nom', req.query.nom)
+        .eq('prenom', req.query.prenom)
+        .eq('role', 'DOCTOR');
+
+      if (error) throw error;
+      res.json(data);
+    }
   } catch (err) {
     next(err);
   }

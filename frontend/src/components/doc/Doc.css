@@ -5,7 +5,7 @@
 }
 
 .header {
-  background: linear-gradient(135deg, #4a9b8e 0%, #3d8078 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
   padding: 24px 16px;
   border-radius: 0 0 16px 16px;
@@ -62,7 +62,7 @@
 }
 
 .upload-btn {
-  background: #4a9b8e;
+  background: var(--color-primary);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -77,7 +77,7 @@
 }
 
 .upload-btn:hover {
-  background: #3d8078;
+  background: var(--color-primary-hover);
   transform: scale(1.05);
 }
 
@@ -86,7 +86,7 @@
 }
 
 .upload-btn:focus-visible {
-  outline: 2px solid #3d8078;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -134,19 +134,19 @@
 }
 
 .filter-btn:hover {
-  border-color: #4a9b8e;
-  color: #4a9b8e;
-  background: #f0fffe;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-background);
 }
 
 .filter-btn.active {
-  background: #4a9b8e;
+  background: var(--color-primary);
   color: white;
-  border-color: #4a9b8e;
+  border-color: var(--color-primary);
 }
 
 .filter-btn:focus-visible {
-  outline: 2px solid #4a9b8e;
+  outline: 2px solid var(--color-primary);
   outline-offset: 1px;
 }
 
@@ -185,7 +185,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e0f2f1;
+  background: var(--color-primary-background);
   border-radius: 8px;
   flex-shrink: 0;
 }
@@ -263,12 +263,12 @@
 }
 
 .view-btn {
-  color: #4a9b8e;
-  background: #e0f2f1;
+  color: var(--color-primary);
+  background: var(--color-primary-background);
 }
 
 .view-btn:hover {
-  background: #4a9b8e;
+  background: var(--color-primary);
   color: white;
 }
 
@@ -311,7 +311,7 @@
 }
 
 .action-btn:focus-visible {
-  outline: 2px solid #4a9b8e;
+  outline: 2px solid var(--color-primary);
   outline-offset: 1px;
 }
 
