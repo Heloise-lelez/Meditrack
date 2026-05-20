@@ -124,3 +124,30 @@ export async function updateUserEtablissement(req, res, next) {
     next(err);
   }
 }
+
+export async function listAuditLogs(req, res, next) {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 500);
+
+    let query = supabaseAdmin
+      .from('audit_logs')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (req.query.actor_id) query = query.eq('actor_id', req.query.actor_id);
+    if (req.query.actor_email) query = query.ilike('actor_email', `%${req.query.actor_email}%`);
+    if (req.query.action) query = query.eq('action', req.query.action);
+    if (req.query.event_type) query = query.eq('event_type', req.query.event_type);
+    if (req.query.path) query = query.ilike('path', `%${req.query.path}%`);
+    if (req.query.from) query = query.gte('created_at', req.query.from);
+    if (req.query.to) query = query.lte('created_at', req.query.to);
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
