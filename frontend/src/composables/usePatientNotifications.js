@@ -24,6 +24,16 @@ export function usePatientNotifications() {
             timestamp: payload.timestamp ?? new Date().toISOString(),
           });
         })
+        .on('broadcast', { event: 'surgery_step' }, ({ payload }) => {
+          notifications.value.unshift({
+            id: `${Date.now()}-${Math.random()}`,
+            message: payload.message,
+            doctorName: `Chirurgie : ${payload.chirurgieTitre}`,
+            patientId,
+            patientName,
+            timestamp: payload.timestamp ?? new Date().toISOString(),
+          });
+        })
         .subscribe();
 
       channels.push(channel);

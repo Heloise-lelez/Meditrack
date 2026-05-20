@@ -17,6 +17,10 @@ import {
   uploadDocumentForPatient,
   listPatientAides,
   notifyPatientAides,
+  listEtablissementAssistants,
+  listPatientChirurgies,
+  createPatientChirurgie,
+  deletePatientChirurgie,
   getMyProfile,
   updateMyProfile,
   searchPatients,
@@ -53,6 +57,10 @@ router.get('/patients/:pid/documents', ...isDoctor, listPatientDocuments);
 router.get('/patients/:pid/documents/:id/download', ...isDoctor, downloadPatientDocument);
 router.get('/patients/:pid/aides', ...isDoctor, listPatientAides);
 router.post('/patients/:pid/notify-aides', ...isDoctor, notifyPatientAides);
+router.get('/assistants', ...isDoctor, listEtablissementAssistants);
+router.get('/patients/:pid/chirurgies', ...isDoctor, listPatientChirurgies);
+router.post('/patients/:pid/chirurgies', ...isDoctor, createPatientChirurgie);
+router.delete('/patients/:pid/chirurgies/:id', ...isDoctor, deletePatientChirurgie);
 router.post(
   '/patients/:pid/documents/upload',
   ...isDoctor,

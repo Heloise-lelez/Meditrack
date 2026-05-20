@@ -592,6 +592,130 @@ export async function listPatientAides(req, res, next) {
   }
 }
 
+export async function listEtablissementAssistants(req, res, next) {
+  try {
+    const { data: doctor, error: dErr } = await supabaseAdmin
+      .from('profiles')
+      .select('etablissement_id')
+      .eq('id', req.user.id)
+      .single();
+    if (dErr) throw dErr;
+    if (!doctor.etablissement_id) return res.json([]);
+
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, nom, prenom')
+      .eq('role', 'ASSISTANT')
+      .eq('etablissement_id', doctor.etablissement_id)
+      .order('nom', { ascending: true });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listPatientChirurgies(req, res, next) {
+  try {
+    const { pid } = req.params;
+    if (!(await assertPatientOfDoctor(req.user.id, pid, res))) return;
+
+    const { data: chirurgies, error } = await supabaseAdmin
+      .from('chirurgie')
+      .select('*')
+      .eq('doctor_id', req.user.id)
+      .eq('patient_id', pid)
+      .order('date_chirurgie', { ascending: true });
+    if (error) throw error;
+
+    const assistantIds = [...new Set(chirurgies.map((c) => c.assistant_id).filter(Boolean))];
+    let assistantMap = {};
+    if (assistantIds.length) {
+      const { data: assistants } = await supabaseAdmin
+        .from('profiles')
+        .select('id, nom, prenom')
+        .in('id', assistantIds);
+      if (assistants) assistantMap = Object.fromEntries(assistants.map((a) => [a.id, a]));
+    }
+
+    res.json(
+      chirurgies.map((c) => ({
+        ...c,
+        assistant: c.assistant_id ? (assistantMap[c.assistant_id] ?? null) : null,
+      }))
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createPatientChirurgie(req, res, next) {
+  try {
+    const { pid } = req.params;
+    if (!(await assertPatientOfDoctor(req.user.id, pid, res))) return;
+
+    const { titre, date_chirurgie, assistant_id } = req.body;
+    if (!titre || !date_chirurgie || !assistant_id) {
+      return res
+        .status(400)
+        .json({ error: 'Champs manquants: titre, date_chirurgie, assistant_id' });
+    }
+
+    const [{ data: doctorProfile, error: dErr }, { data: assistantProfile, error: aErr }] =
+      await Promise.all([
+        supabaseAdmin.from('profiles').select('etablissement_id').eq('id', req.user.id).single(),
+        supabaseAdmin
+          .from('profiles')
+          .select('etablissement_id')
+          .eq('id', assistant_id)
+          .single(),
+      ]);
+    if (dErr) throw dErr;
+    if (aErr) throw aErr;
+
+    if (
+      !doctorProfile.etablissement_id ||
+      doctorProfile.etablissement_id !== assistantProfile?.etablissement_id
+    ) {
+      return res
+        .status(403)
+        .json({ error: "Cet assistant n'appartient pas à votre établissement" });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('chirurgie')
+      .insert({ titre, date_chirurgie, doctor_id: req.user.id, patient_id: pid, assistant_id })
+      .select()
+      .single();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deletePatientChirurgie(req, res, next) {
+  try {
+    const { pid, id } = req.params;
+    if (!(await assertPatientOfDoctor(req.user.id, pid, res))) return;
+
+    const { data: chirurgie, error: fetchErr } = await supabaseAdmin
+      .from('chirurgie')
+      .select('doctor_id')
+      .eq('id', id)
+      .maybeSingle();
+    if (fetchErr) throw fetchErr;
+    if (!chirurgie) return res.status(404).json({ error: 'Chirurgie introuvable' });
+    if (chirurgie.doctor_id !== req.user.id) return res.status(403).json({ error: 'Interdit' });
+
+    const { error } = await supabaseAdmin.from('chirurgie').delete().eq('id', id);
+    if (error) throw error;
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function notifyPatientAides(req, res, next) {
   try {
     const { pid } = req.params;

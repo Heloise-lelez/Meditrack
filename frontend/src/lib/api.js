@@ -41,6 +41,11 @@ export const api = {
     }),
   // For multipart/form-data (file uploads) — do NOT stringify, browser sets Content-Type with boundary
   postForm: (path, formData) => request(path, { method: 'POST', body: formData }),
+  patch: (path, body) =>
+    request(path, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
   delete: (path, body) =>
     request(path, {
       method: 'DELETE',

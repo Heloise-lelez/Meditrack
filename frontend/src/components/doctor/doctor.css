@@ -440,6 +440,31 @@
   }
 }
 
+/* Chirurgie step badges */
+.chirurgie-steps {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.step-badge {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.step-done {
+  background: #d1faf5;
+  color: #3a8d7a;
+}
+
+.step-pending {
+  background: #f0f0f0;
+  color: #aaa;
+}
+
 /* Notify aides */
 .notify-section {
   margin-top: 20px;

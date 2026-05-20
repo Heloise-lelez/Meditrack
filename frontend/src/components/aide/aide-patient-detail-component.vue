@@ -107,6 +107,24 @@
         </li>
       </ul>
     </section>
+
+    <!-- ── Chirurgies ─────────────────────────────────────────── -->
+    <section v-if="activeTab === 'chirurgies'" class="section" aria-label="Chirurgies du patient">
+      <ul class="item-list" role="list">
+        <li v-if="chirurgieList.length === 0" class="item-empty">Aucune chirurgie.</li>
+        <li v-for="c in chirurgieList" :key="c.id" class="item-row">
+          <div class="item-info">
+            <div class="item-title">{{ c.titre }}</div>
+            <div class="item-meta">{{ formatDateTime(c.date_chirurgie) }}</div>
+            <div class="chirurgie-steps">
+              <span :class="['step-badge', c.salle_anesthesie ? 'step-done' : 'step-pending']">Anesthésie</span>
+              <span :class="['step-badge', c.salle_operation ? 'step-done' : 'step-pending']">Opération</span>
+              <span :class="['step-badge', c.salle_reveil ? 'step-done' : 'step-pending']">Réveil</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
@@ -124,6 +142,7 @@ const TABS = [
   { id: 'taches', label: 'Tâches du jour' },
   { id: 'etapes', label: 'Étapes' },
   { id: 'rdv', label: 'Rendez-vous' },
+  { id: 'chirurgies', label: 'Chirurgies' },
 ];
 
 const TASK_LABELS = {
@@ -143,6 +162,7 @@ const tacheDate = ref('');
 const tacheList = ref([]);
 const etapeList = ref([]);
 const rdvList = ref([]);
+const chirurgieList = ref([]);
 
 const formatDateTime = (iso) => {
   const d = new Date(iso);
@@ -172,6 +192,10 @@ onMounted(async () => {
     api
       .get(`/api/aide/patients/${pid}/rendezvous`)
       .then((d) => (rdvList.value = d || []))
+      .catch(() => {}),
+    api
+      .get(`/api/aide/patients/${pid}/chirurgies`)
+      .then((d) => (chirurgieList.value = d || []))
       .catch(() => {}),
   ]);
 });
