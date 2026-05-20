@@ -67,7 +67,12 @@
   border-bottom: none;
 }
 
+<<<<<<< HEAD
 .patient-card:hover {
+=======
+.patient-card:hover,
+.patient-card.selected {
+>>>>>>> 0a47edb (feat: aide)
   background: #f9fffe;
 }
 
@@ -260,3 +265,17 @@
 .checklist-count {
   color: #3a8d7a;
 }
+<<<<<<< HEAD
+=======
+
+.readonly-badge {
+  display: inline-block;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  font-weight: 500;
+}
+>>>>>>> 0a47edb (feat: aide)
