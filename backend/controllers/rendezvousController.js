@@ -59,6 +59,7 @@ export async function createRendezvous(req, res, next) {
       address,
       starts_at,
       profile_picture,
+      checklist,
     } = req.body;
     const db = createUserClient(req.userToken);
 
@@ -73,7 +74,7 @@ export async function createRendezvous(req, res, next) {
         starts_at,
         profile_picture: profile_picture ?? null,
         user_id: req.user.id,
-        checklist: [],
+        checklist: Array.isArray(checklist) ? checklist : [],
       })
       .select()
       .single();

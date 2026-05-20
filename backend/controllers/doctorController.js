@@ -93,6 +93,7 @@ export async function createPatientRendezvous(req, res, next) {
       address,
       starts_at,
       profile_picture,
+      checklist,
     } = req.body;
     const { data, error } = await supabaseAdmin
       .from('rendezvous')
@@ -105,6 +106,7 @@ export async function createPatientRendezvous(req, res, next) {
         starts_at,
         profile_picture: profile_picture ?? null,
         user_id: pid,
+        checklist: Array.isArray(checklist) ? checklist : [],
       })
       .select()
       .single();
