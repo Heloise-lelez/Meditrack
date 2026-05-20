@@ -37,7 +37,11 @@ export function useProfile() {
 
   async function updatePassword(password) {
 
+<<<<<<< HEAD
     const { error } =
+=======
+    const { data, error } =
+>>>>>>> aa566a40a5863b764c3757f95e998c56aa8b1e34
       await supabase.auth.updateUser({
         password
       });
@@ -45,6 +49,10 @@ export function useProfile() {
       if(!error) {
 
         userPassword = password;
+<<<<<<< HEAD
+=======
+        return data;
+>>>>>>> aa566a40a5863b764c3757f95e998c56aa8b1e34
 
       } else {
 
