@@ -5,7 +5,7 @@
 }
 
 .header {
-  background: linear-gradient(135deg, #4a9b8e 0%, #3d8078 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
   padding: 32px 16px;
   border-radius: 0 0 20px 20px;
@@ -52,8 +52,8 @@
 }
 
 .status-badge {
-  background: #e0f2f1;
-  border: 1px solid #4a9b8e;
+  background: var(--color-primary-background);
+  border: 1px solid var(--color-primary);
   border-radius: 8px;
   padding: 12px 16px;
   margin-bottom: 20px;
@@ -61,7 +61,7 @@
 }
 
 .status-badge span {
-  color: #2d6b62;
+  color: var(--color-primary-dark);
   font-size: 14px;
   font-weight: 500;
 }
@@ -250,9 +250,8 @@
   border-width: 0;
 }
 
-/* Focus visible pour la navigation au clavier */
 .checklist-checkbox:focus-visible {
-  outline: 3px solid #4a9b8e;
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -261,7 +260,6 @@
   outline-offset: 2px;
 }
 
-/* Amélioration du contraste pour les États */
 @media (prefers-contrast: more) {
   .checklist-checkbox {
     border-width: 3px;
@@ -277,7 +275,6 @@
   }
 }
 
-/* Respect de prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .checklist-item,
   .checklist-checkbox,
@@ -435,7 +432,7 @@
 
 .see-all {
   font-size: 16px;
-  color: #4a9b8e;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 500;
 }
@@ -538,7 +535,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e0f2f1;
+  background: var(--color-primary-background);
   border-radius: 8px;
   flex-shrink: 0;
 }
@@ -556,6 +553,63 @@
 
 .doc-meta {
   font-size: 16px;
+  color: #9ca3af;
+}
+
+/* ── Rendez-vous patients (docteur / aide) ───────────────────────────────── */
+
+.rdv-loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.rdv-empty {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  padding: 24px 0;
+  margin: 0;
+}
+
+.rdv-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rdv-item {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-left: 3px solid var(--color-primary);
+}
+
+.rdv-patient {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.rdv-info {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.rdv-date {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.rdv-address {
+  font-size: 12px;
   color: #9ca3af;
 }
 

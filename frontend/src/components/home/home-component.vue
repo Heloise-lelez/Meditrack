@@ -1,15 +1,16 @@
 <template>
   <main class="home" role="main" aria-label="Page d'accueil">
-    <!-- Content -->
     <div class="container">
       <!-- Greeting -->
       <section class="greeting" aria-label="Accueil personnalisé">
         <h2>Bonjour {{ userFirstName }} {{ userLastName }}</h2>
-        <p>Voici votre suivi du jour</p>
+        <p>{{ greetingSubtitle }}</p>
       </section>
 
-      <!-- Next Appointment -->
-      <section class="appointment-card" aria-label="Prochain rendez-vous">
+      <!-- ── Vue PATIENT ─────────────────────────────────────────── -->
+
+      <!-- Next Appointment (patient only) -->
+      <section v-if="isPatient" class="appointment-card" aria-label="Prochain rendez-vous">
         <header class="appointment-header">
           <h2 class="appointment-label" tabindex="0">
             <i class="fa-solid fa-calendar-days"></i> Prochain rendez-vous
@@ -71,9 +72,7 @@
                 <span aria-hidden="true" v-if="task.fait">✓</span>
                 <span class="sr-only">{{ task.fait ? 'Complété' : 'Non complété' }}</span>
               </button>
-              <span class="next-rdv__task">
-                {{ task.label }}
-              </span>
+              <span class="next-rdv__task">{{ task.label }}</span>
               <span
                 class="checklist-status"
                 :class="{ 'checklist-status--done': task.fait }"
@@ -86,15 +85,14 @@
         </div>
       </section>
 
-      <!-- Tasks Section -->
-      <section class="section" aria-label="Tâches du jour">
+      <!-- Tasks Section (patient only) -->
+      <section v-if="isPatient" class="section" aria-label="Tâches du jour">
         <header class="section-header">
           <h2 tabindex="0">Tâches du jour</h2>
           <span v-if="taches.length" class="count" :aria-label="`${taches.length} tâches`"
             >{{ taches.length }} tâche{{ taches.length > 1 ? 's' : '' }}</span
           >
         </header>
-
         <ul class="tasks" role="list">
           <li v-if="taches.length === 0" class="task" role="listitem">
             <div class="task-left">
@@ -104,7 +102,6 @@
               </div>
             </div>
           </li>
-
           <li v-for="tache in taches" :key="tache.id_tache" class="task" role="listitem">
             <div class="task-left">
               <div
@@ -132,12 +129,11 @@
         </ul>
       </section>
 
-      <!-- Documents Section -->
-      <section class="section" aria-label="Documents récents">
+      <!-- Documents Section (patient only) -->
+      <section v-if="isPatient" class="section" aria-label="Documents récents">
         <header class="section-header">
           <h2 id="recent-docs-title" tabindex="0">Documents récents</h2>
         </header>
-
         <ul class="documents" role="list">
           <li v-if="recentDocs.length === 0" class="document" role="listitem">
             <div class="doc-icon" aria-hidden="true">📄</div>
@@ -146,7 +142,6 @@
               <div class="doc-meta">Ajoute tes documents dans l'onglet "Documents".</div>
             </div>
           </li>
-
           <li v-for="doc in recentDocs" :key="doc.id" class="document" role="listitem">
             <div class="doc-icon" aria-hidden="true">📄</div>
             <div class="doc-info">
@@ -156,20 +151,64 @@
           </li>
         </ul>
       </section>
+
+      <!-- ── Vue DOCTEUR / AIDE ───────────────────────────────────── -->
+
+      <section
+        v-if="isDoctor || isAide"
+        class="section"
+        aria-label="Rendez-vous à venir des patients"
+      >
+        <header class="section-header">
+          <h2 tabindex="0">Rendez-vous à venir</h2>
+          <span v-if="!rdvLoading && rdvPatients.length" class="count">
+            {{ rdvPatients.length }}
+          </span>
+        </header>
+
+        <div v-if="rdvLoading" class="rdv-loading" aria-busy="true">
+          <div class="spinner" aria-label="Chargement..."></div>
+        </div>
+
+        <p v-else-if="rdvPatients.length === 0" class="rdv-empty">
+          Aucun rendez-vous à venir pour vos patients.
+        </p>
+
+        <ul v-else class="rdv-list" role="list">
+          <li v-for="r in rdvPatients" :key="r.id_rendezvous" class="rdv-item" role="listitem">
+            <div class="rdv-patient">{{ r.patient?.prenom }} {{ r.patient?.nom }}</div>
+            <div class="rdv-info">
+              Dr. {{ r.doctor_first_name }} {{ r.doctor_last_name }} · {{ r.profession
+              }}<span v-if="r.operation"> · {{ r.operation }}</span>
+            </div>
+            <div class="rdv-date">{{ formatRdvDate(r.starts_at) }}</div>
+            <div v-if="r.address" class="rdv-address">{{ r.address }}</div>
+          </li>
+        </ul>
+      </section>
     </div>
   </main>
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import './home.css';
 import { api } from '../../lib/api';
 import { useAuth } from '../../composables/useAuth';
 
-const { user } = useAuth();
+const { user, userRole } = useAuth();
 
 const userFirstName = computed(() => user.value?.user_metadata?.prenom || '');
 const userLastName = computed(() => user.value?.user_metadata?.nom || '');
+
+const isPatient = computed(() => !userRole.value || userRole.value === 'PATIENT');
+const isDoctor = computed(() => userRole.value === 'DOCTOR');
+const isAide = computed(() => userRole.value === 'AIDE');
+
+const greetingSubtitle = computed(() => {
+  if (isDoctor.value || isAide.value) return 'Voici les prochains rendez-vous de vos patients';
+  return 'Voici votre suivi du jour';
+});
 
 const TASK_LABELS = {
   prise_medicaments: 'Prise de médicaments',
@@ -185,8 +224,19 @@ const TASK_LABELS = {
 const nextRdv = ref(null);
 const recentDocs = ref([]);
 const taches = ref([]);
+const rdvPatients = ref([]);
+const rdvLoading = ref(false);
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
+
+const formatRdvDate = (iso) => {
+  const d = new Date(iso);
+  return (
+    d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) +
+    ' à ' +
+    d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  );
+};
 
 const loadNextRdv = async () => {
   try {
@@ -196,7 +246,6 @@ const loadNextRdv = async () => {
       return;
     }
     const d = new Date(data.starts_at);
-    console.warn('Next RDV data:', data);
     nextRdv.value = {
       id: data.id_rendezvous,
       prenom: data.doctor_first_name,
@@ -238,7 +287,6 @@ const toggleChecklistTask = async (task) => {
       checklist: nextRdv.value.checklist,
     });
   } catch (err) {
-    // Revert on failure
     console.error('Erreur mise à jour checklist:', err);
     task.fait = previousValue;
   }
@@ -264,9 +312,30 @@ const loadRecentDocs = async () => {
   }
 };
 
-onMounted(() => {
-  loadNextRdv();
-  loadTaches();
-  loadRecentDocs();
-});
+const loadPatientsRdv = async () => {
+  rdvLoading.value = true;
+  try {
+    const endpoint = isDoctor.value ? '/api/doctor/rendezvous' : '/api/aide/rendezvous';
+    rdvPatients.value = await api.get(endpoint);
+  } catch {
+    rdvPatients.value = [];
+  } finally {
+    rdvLoading.value = false;
+  }
+};
+
+watch(
+  userRole,
+  (role) => {
+    if (role === null) return;
+    if (role === 'PATIENT') {
+      loadNextRdv();
+      loadTaches();
+      loadRecentDocs();
+    } else if (role === 'DOCTOR' || role === 'AIDE') {
+      loadPatientsRdv();
+    }
+  },
+  { immediate: true }
+);
 </script>

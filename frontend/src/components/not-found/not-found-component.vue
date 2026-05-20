@@ -49,7 +49,7 @@ p {
 .home-btn {
   margin-top: 8px;
   padding: 10px 24px;
-  background: #3a8d7a;
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 10px;

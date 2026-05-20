@@ -98,7 +98,7 @@
     <section v-if="activeTab === 'rdv'" class="section" aria-label="Rendez-vous du patient">
       <ul class="item-list" role="list">
         <li v-if="rdvList.length === 0" class="item-empty">Aucun rendez-vous.</li>
-        <li v-for="r in rdvList" :key="r.id" class="item-row">
+        <li v-for="r in rdvList" :key="r.id_rendezvous" class="item-row">
           <div class="item-info">
             <div class="item-title">Dr. {{ r.doctor_first_name }} {{ r.doctor_last_name }}</div>
             <div class="item-meta">{{ r.profession }} · {{ formatDateTime(r.starts_at) }}</div>

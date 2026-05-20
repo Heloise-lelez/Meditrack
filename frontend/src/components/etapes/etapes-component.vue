@@ -80,8 +80,8 @@ onMounted(loadEtapes);
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #d1faf5;
-  border-top-color: #3a8d7a;
+  border: 3px solid var(--color-primary-background);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
