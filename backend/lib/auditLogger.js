@@ -105,6 +105,14 @@ function logAuditFailure(destination, error) {
   console.error(`Failed to write audit log to ${destination}`, normalizeError(error));
 }
 
+function getCurrentResponse(req) {
+  if (!req?.res) return undefined;
+
+  return {
+    status: req.res.statusCode,
+  };
+}
+
 export async function writeAuditLog(event) {
   const entry = {
     timestamp: new Date().toISOString(),
@@ -140,9 +148,11 @@ export function auditEvent(req, action, details = {}) {
           method: req.method,
           path: req.originalUrl,
           ip: req.ip,
+          ips: req.ips,
           userAgent: req.get('user-agent') ?? null,
         }
       : undefined,
+    response: getCurrentResponse(req),
     details,
   });
 }
@@ -162,9 +172,11 @@ export function auditError(req, action, error, details = {}) {
           method: req.method,
           path: req.originalUrl,
           ip: req.ip,
+          ips: req.ips,
           userAgent: req.get('user-agent') ?? null,
         }
       : undefined,
+    response: getCurrentResponse(req),
     error: normalizeError(error),
     details,
   });

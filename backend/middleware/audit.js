@@ -43,6 +43,7 @@ export function auditRequestLogger(req, res, next) {
         params: sanitizeValue(req.params ?? {}),
         query: sanitizeValue(req.query ?? {}),
         ip: req.ip,
+        ips: req.ips,
         userAgent: req.get('user-agent') ?? null,
         referer: req.get('referer') ?? null,
       },

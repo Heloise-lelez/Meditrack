@@ -17,6 +17,11 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { auditRequestLogger } from './middleware/audit.js';
 
 const app = express();
+const trustProxy = ['1', 'true', 'yes'].includes(String(process.env.TRUST_PROXY).toLowerCase());
+
+if (process.env.VERCEL || trustProxy) {
+  app.set('trust proxy', true);
+}
 
 app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' }));
 app.use(express.json());

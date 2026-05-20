@@ -1,44 +1,60 @@
 import { supabase, supabaseAdmin } from '../lib/supabase.js';
 import { auditEvent, auditError } from '../lib/auditLogger.js';
 
+async function attachUserRole(req) {
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .select('role')
+    .eq('id', req.user.id)
+    .maybeSingle();
+
+  if (error) {
+    void auditError(req, 'auth.profile_role.lookup_failure', error);
+    return;
+  }
+
+  req.userRole = data?.role ?? null;
+}
+
 export async function requireAuth(req, res, next) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) {
+    res.status(401);
     void auditEvent(req, 'auth.require_auth.missing_token');
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.json({ error: 'Unauthorized' });
   }
 
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data.user) {
+    res.status(401);
     void auditError(req, 'auth.require_auth.invalid_token', error);
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.json({ error: 'Unauthorized' });
   }
 
   req.user = data.user;
   req.userToken = token;
+  await attachUserRole(req);
   void auditEvent(req, 'auth.require_auth.success');
   next();
 }
 
 export function requireRole(...roles) {
   return async (req, res, next) => {
-    const { data } = await supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', req.user.id)
-      .single();
+    if (!req.userRole) {
+      await attachUserRole(req);
+    }
 
-    if (!data || !roles.includes(data.role)) {
+    if (!req.userRole || !roles.includes(req.userRole)) {
+      res.status(403);
       void auditEvent(req, 'auth.require_role.forbidden', {
         requiredRoles: roles,
-        actualRole: data?.role ?? null,
+        actualRole: req.userRole ?? null,
       });
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.json({ error: 'Forbidden' });
     }
-    req.userRole = data.role;
     void auditEvent(req, 'auth.require_role.success', {
       requiredRoles: roles,
-      actualRole: data.role,
+      actualRole: req.userRole,
     });
     next();
   };
