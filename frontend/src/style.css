@@ -45,6 +45,9 @@
   --color-gray: #888888;
   --color-gray-dark: #333333;
   --color-black: #1a1a1a;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
 }
 
 * {
@@ -57,4 +60,10 @@
 body {
   margin: 0;
   padding: 0;
+}
+
+.main-content {
+  margin: 0 auto;
+  padding: 24px;
+  max-width: 1200px;
 }
