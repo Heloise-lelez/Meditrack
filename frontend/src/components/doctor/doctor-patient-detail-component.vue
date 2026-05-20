@@ -301,6 +301,83 @@
       </ul>
     </section>
 
+    <!-- ── Chirurgies ───────────────────────────────────────────── -->
+    <section
+      v-if="activeTab === 'chirurgies'"
+      class="section"
+      aria-label="Chirurgies du patient"
+    >
+      <div class="section-actions">
+        <button class="btn-primary" @click="showChirurgieForm = true">+ Nouvelle chirurgie</button>
+      </div>
+
+      <form v-if="showChirurgieForm" class="inline-form" @submit.prevent="createChirurgie">
+        <h3>Nouvelle chirurgie</h3>
+        <div class="form-grid">
+          <label>Titre<input v-model="chirurgieForm.titre" required /></label>
+          <label
+            >Date & heure<input
+              type="datetime-local"
+              v-model="chirurgieForm.date_chirurgie"
+              required
+          /></label>
+          <label class="full-width">
+            Assistant
+            <select v-model="chirurgieForm.assistant_id" required>
+              <option value="" disabled>Sélectionner un assistant…</option>
+              <option v-for="a in assistants" :key="a.id" :value="a.id">
+                {{ a.prenom }} {{ a.nom }}
+              </option>
+            </select>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" :disabled="submitting">Créer</button>
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="
+              showChirurgieForm = false;
+              chirurgieForm = { titre: '', date_chirurgie: '', assistant_id: '' };
+            "
+          >
+            Annuler
+          </button>
+        </div>
+      </form>
+
+      <ul class="item-list" role="list">
+        <li v-if="chirurgieList.length === 0" class="item-empty">Aucune chirurgie.</li>
+        <li v-for="c in chirurgieList" :key="c.id" class="item-row">
+          <div class="item-info">
+            <div class="item-title">{{ c.titre }}</div>
+            <div class="item-meta">
+              {{ formatDateTime(c.date_chirurgie) }}
+              <span v-if="c.assistant">· {{ c.assistant.prenom }} {{ c.assistant.nom }}</span>
+            </div>
+            <div class="chirurgie-steps">
+              <span :class="['step-badge', c.salle_anesthesie ? 'step-done' : 'step-pending']"
+                >Anesthésie</span
+              >
+              <span :class="['step-badge', c.salle_operation ? 'step-done' : 'step-pending']"
+                >Opération</span
+              >
+              <span :class="['step-badge', c.salle_reveil ? 'step-done' : 'step-pending']"
+                >Réveil</span
+              >
+            </div>
+          </div>
+          <button
+            class="btn-delete"
+            aria-label="Supprimer la chirurgie"
+            @click="deleteChirurgie(c.id)"
+          >
+            ✕
+          </button>
+        </li>
+      </ul>
+    </section>
+
     <!-- ── Aides ──────────────────────────────────────────────── -->
     <section v-if="activeTab === 'aides'" class="section" aria-label="Aides du patient">
       <ul class="item-list" role="list">
@@ -312,6 +389,54 @@
           </div>
         </li>
       </ul>
+
+      <div class="notify-section">
+        <button
+          v-if="!showNotifyForm"
+          class="btn-primary"
+          :disabled="aideList.length === 0"
+          @click="showNotifyForm = true"
+        >
+          Notifier les aides
+        </button>
+        <form v-else class="inline-form" @submit.prevent="sendNotification">
+          <h3>Message aux aides</h3>
+          <label class="notify-label">
+            Message
+            <textarea
+              v-model="notifyMessage"
+              rows="3"
+              maxlength="500"
+              placeholder="Ex : Opération terminée, le patient peut être récupéré."
+              required
+              class="notify-textarea"
+            ></textarea>
+          </label>
+          <p v-if="notifyError" class="form-error">{{ notifyError }}</p>
+          <p v-if="notifySuccess" class="form-success">{{ notifySuccess }}</p>
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="btn-primary"
+              :disabled="submitting || !notifyMessage.trim()"
+            >
+              Envoyer
+            </button>
+            <button
+              type="button"
+              class="btn-secondary"
+              @click="
+                showNotifyForm = false;
+                notifyMessage = '';
+                notifyError = '';
+                notifySuccess = '';
+              "
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
     </section>
   </div>
 </template>
@@ -334,6 +459,7 @@ const TABS = [
   { id: 'etapes', label: 'Étapes' },
   { id: 'documents', label: 'Documents' },
   { id: 'aides', label: 'Aides' },
+  { id: 'chirurgies', label: 'Chirurgies' },
 ];
 
 const TASK_LABELS = {
@@ -363,6 +489,15 @@ const showRdvForm = ref(false);
 const showTacheForm = ref(false);
 const showEtapeForm = ref(false);
 const showDocForm = ref(false);
+const showNotifyForm = ref(false);
+const notifyMessage = ref('');
+const notifyError = ref('');
+const notifySuccess = ref('');
+
+const chirurgieList = ref([]);
+const assistants = ref([]);
+const showChirurgieForm = ref(false);
+const chirurgieForm = ref({ titre: '', date_chirurgie: '', assistant_id: '' });
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -428,6 +563,55 @@ const loadAides = async () => {
     aideList.value = await api.get(`/api/doctor/patients/${pid}/aides`);
   } catch {
     aideList.value = [];
+  }
+};
+
+const loadChirurgies = async () => {
+  try {
+    chirurgieList.value = await api.get(`/api/doctor/patients/${pid}/chirurgies`);
+  } catch {
+    chirurgieList.value = [];
+  }
+};
+
+const createChirurgie = async () => {
+  submitting.value = true;
+  try {
+    await api.post(`/api/doctor/patients/${pid}/chirurgies`, chirurgieForm.value);
+    showChirurgieForm.value = false;
+    chirurgieForm.value = { titre: '', date_chirurgie: '', assistant_id: '' };
+    await loadChirurgies();
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    submitting.value = false;
+  }
+};
+
+const deleteChirurgie = async (id) => {
+  if (!confirm('Supprimer cette chirurgie ?')) return;
+  await api.delete(`/api/doctor/patients/${pid}/chirurgies/${id}`);
+  await loadChirurgies();
+};
+
+const sendNotification = async () => {
+  notifyError.value = '';
+  notifySuccess.value = '';
+  submitting.value = true;
+  try {
+    await api.post(`/api/doctor/patients/${pid}/notify-aides`, {
+      message: notifyMessage.value.trim(),
+    });
+    notifySuccess.value = 'Notification envoyée.';
+    notifyMessage.value = '';
+    setTimeout(() => {
+      showNotifyForm.value = false;
+      notifySuccess.value = '';
+    }, 2000);
+  } catch (e) {
+    notifyError.value = e.message ?? "Erreur lors de l'envoi.";
+  } finally {
+    submitting.value = false;
   }
 };
 
@@ -596,8 +780,14 @@ onMounted(async () => {
   loadEtapes();
   loadDocs();
   loadAides();
+  loadChirurgies();
   try {
     doctors.value = await api.get('/api/profile/doctors');
+  } catch {
+    /* non-bloquant */
+  }
+  try {
+    assistants.value = await api.get('/api/doctor/assistants');
   } catch {
     /* non-bloquant */
   }

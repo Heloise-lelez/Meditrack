@@ -9,7 +9,7 @@
     </div>
 
     <div v-else>
-      <!-- Main tabs: Médecins / Aides -->
+      <!-- Main tabs: Médecins / Aides / Chirurgies -->
       <nav class="main-tabs" role="tablist" aria-label="Section">
         <button
           class="main-tab"
@@ -28,6 +28,15 @@
           @click="mainTab = 'aides'"
         >
           Aides
+        </button>
+        <button
+          class="main-tab"
+          :class="{ active: mainTab === 'chirurgies' }"
+          role="tab"
+          :aria-selected="mainTab === 'chirurgies'"
+          @click="mainTab = 'chirurgies'"
+        >
+          Chirurgies
         </button>
       </nav>
 
@@ -96,6 +105,51 @@
             </li>
           </ul>
         </section>
+      </div>
+
+      <!-- ── Panneau Chirurgies ────────────────────────────────── -->
+      <div v-if="mainTab === 'chirurgies'" class="assistant-chirurgies">
+        <p v-if="chirurgies.length === 0" class="chirurgie-empty">
+          Aucune chirurgie assignée.
+        </p>
+        <ul v-else class="chirurgie-list" role="list">
+          <li v-for="c in chirurgies" :key="c.id" class="chirurgie-card">
+            <div class="chirurgie-header">
+              <span class="chirurgie-titre">{{ c.titre }}</span>
+              <span class="chirurgie-date">{{ formatChirurgieDate(c.date_chirurgie) }}</span>
+            </div>
+            <div class="chirurgie-info">
+              Patient : {{ c.patient?.prenom }} {{ c.patient?.nom }} · Dr.
+              {{ c.doctor?.prenom }} {{ c.doctor?.nom }}
+            </div>
+            <div class="chirurgie-steps">
+              <button
+                :class="['step-btn', c.salle_anesthesie ? 'step-done' : 'step-todo']"
+                :disabled="c.salle_anesthesie || busy"
+                :aria-label="`Valider salle d'anesthésie`"
+                @click="checkStep(c.id, 'salle_anesthesie')"
+              >
+                {{ c.salle_anesthesie ? '✓' : '○' }} Anesthésie
+              </button>
+              <button
+                :class="['step-btn', c.salle_operation ? 'step-done' : 'step-todo']"
+                :disabled="c.salle_operation || !c.salle_anesthesie || busy"
+                :aria-label="`Valider salle d'opération`"
+                @click="checkStep(c.id, 'salle_operation')"
+              >
+                {{ c.salle_operation ? '✓' : '○' }} Opération
+              </button>
+              <button
+                :class="['step-btn', c.salle_reveil ? 'step-done' : 'step-todo']"
+                :disabled="c.salle_reveil || !c.salle_operation || busy"
+                aria-label="Valider salle de réveil"
+                @click="checkStep(c.id, 'salle_reveil')"
+              >
+                {{ c.salle_reveil ? '✓' : '○' }} Réveil
+              </button>
+            </div>
+          </li>
+        </ul>
       </div>
 
       <!-- ── Panneau Aides ─────────────────────────────────────── -->
@@ -214,6 +268,7 @@ const doctors = ref([]);
 const assignments = ref([]);
 const aides = ref([]);
 const aideAssignments = ref([]);
+const chirurgies = ref([]);
 const loading = ref(true);
 const busy = ref(false);
 const busyForm = ref(false);
@@ -330,22 +385,48 @@ const cancelAideForm = () => {
   aideFormError.value = null;
 };
 
+// ── Chirurgies ────────────────────────────────────────────────────────────────
+
+const formatChirurgieDate = (iso) =>
+  new Date(iso).toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+const checkStep = async (chirurgieId, step) => {
+  busy.value = true;
+  try {
+    const updated = await api.patch(`/api/assistant/chirurgies/${chirurgieId}/step`, { step });
+    const idx = chirurgies.value.findIndex((c) => c.id === chirurgieId);
+    if (idx !== -1) chirurgies.value[idx] = { ...chirurgies.value[idx], ...updated };
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    busy.value = false;
+  }
+};
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 onMounted(async () => {
   try {
-    const [p, d, a, ai, aa] = await Promise.all([
+    const [p, d, a, ai, aa, ch] = await Promise.all([
       api.get('/api/assistant/patients').catch(() => []),
       api.get('/api/assistant/doctors').catch(() => []),
       api.get('/api/assistant/assignments').catch(() => []),
       api.get('/api/assistant/aides').catch(() => []),
       api.get('/api/assistant/aide-assignments').catch(() => []),
+      api.get('/api/assistant/chirurgies').catch(() => []),
     ]);
     patients.value = p;
     doctors.value = d;
     assignments.value = a;
     aides.value = ai;
     aideAssignments.value = aa;
+    chirurgies.value = ch;
   } finally {
     loading.value = false;
   }

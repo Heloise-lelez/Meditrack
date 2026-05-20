@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   num_service      TEXT,
   horaire_service  TEXT,
   etablissement_id UUID        REFERENCES etablissement(id) ON DELETE SET NULL,
+  is_accompanied BOOLEAN       NOT NULL DEFAULT FALSE,
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -144,6 +145,20 @@ CREATE TABLE IF NOT EXISTS patient_etablissement (
   PRIMARY KEY (patient_id, etablissement_id)
 );
 
+-- ── chirurgie ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS chirurgie (
+  id                UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  titre             TEXT        NOT NULL,
+  date_chirurgie    TIMESTAMPTZ NOT NULL,
+  doctor_id         UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  patient_id        UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  assistant_id      UUID        REFERENCES auth.users(id) ON DELETE SET NULL,
+  salle_anesthesie  BOOLEAN     NOT NULL DEFAULT false,
+  salle_operation   BOOLEAN     NOT NULL DEFAULT false,
+  salle_reveil      BOOLEAN     NOT NULL DEFAULT false,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ── audit_logs ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.audit_logs (
   id          BIGSERIAL   PRIMARY KEY,
@@ -189,6 +204,7 @@ ALTER TABLE etape                  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE doctor_patient         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE aide_patient           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE patient_etablissement  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chirurgie              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_logs      ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
@@ -374,6 +390,35 @@ DROP POLICY IF EXISTS "Patients see own enrollments" ON patient_etablissement;
 CREATE POLICY "Patients see own enrollments"
   ON patient_etablissement FOR SELECT
   USING (patient_id = auth.uid());
+
+-- ── chirurgie ──────────────────────────────────────────────
+DROP POLICY IF EXISTS "chirurgie_doctor_all" ON chirurgie;
+CREATE POLICY "chirurgie_doctor_all"
+  ON chirurgie FOR ALL TO authenticated
+  USING (doctor_id = auth.uid())
+  WITH CHECK (doctor_id = auth.uid());
+
+DROP POLICY IF EXISTS "chirurgie_assistant_select" ON chirurgie;
+CREATE POLICY "chirurgie_assistant_select"
+  ON chirurgie FOR SELECT TO authenticated
+  USING (assistant_id = auth.uid());
+
+DROP POLICY IF EXISTS "chirurgie_assistant_update" ON chirurgie;
+CREATE POLICY "chirurgie_assistant_update"
+  ON chirurgie FOR UPDATE TO authenticated
+  USING (assistant_id = auth.uid())
+  WITH CHECK (assistant_id = auth.uid());
+
+DROP POLICY IF EXISTS "chirurgie_aide_select" ON chirurgie;
+CREATE POLICY "chirurgie_aide_select"
+  ON chirurgie FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM aide_patient
+      WHERE aide_patient.aide_id = auth.uid()
+        AND aide_patient.patient_id = chirurgie.patient_id
+    )
+  );
 
 -- ── audit_logs ─────────────────────────────────────────────
 DROP POLICY IF EXISTS "super admins can read audit logs" ON public.audit_logs;

@@ -439,3 +439,66 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Chirurgie step badges */
+.chirurgie-steps {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.step-badge {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.step-done {
+  background: #d1faf5;
+  color: #3a8d7a;
+}
+
+.step-pending {
+  background: #f0f0f0;
+  color: #aaa;
+}
+
+/* Notify aides */
+.notify-section {
+  margin-top: 20px;
+}
+
+.notify-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.notify-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  min-height: 80px;
+}
+
+.form-error {
+  font-size: 0.85rem;
+  color: #dc2626;
+  margin: 0 0 8px;
+}
+
+.form-success {
+  font-size: 0.85rem;
+  color: #3a8d7a;
+  margin: 0 0 8px;
+}

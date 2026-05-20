@@ -5,6 +5,7 @@ import {
   getPatientTaches,
   getPatientEtapes,
   getPatientRendezvous,
+  getPatientChirurgies,
 } from '../controllers/aideController.js';
 
 const router = Router();
@@ -17,5 +18,6 @@ router.get('/patients', ...isAide, listMyPatients);
 router.get('/patients/:patientId/taches', ...isAide, getPatientTaches);
 router.get('/patients/:patientId/etapes', ...isAide, getPatientEtapes);
 router.get('/patients/:patientId/rendezvous', ...isAide, getPatientRendezvous);
+router.get('/patients/:patientId/chirurgies', ...isAide, getPatientChirurgies);
 
 export default router;

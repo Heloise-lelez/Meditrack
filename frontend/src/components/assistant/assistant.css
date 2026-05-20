@@ -333,3 +333,101 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Chirurgies panel */
+.assistant-chirurgies {
+  padding: 4px 0;
+}
+
+.chirurgie-empty {
+  text-align: center;
+  color: #aaa;
+  font-size: 0.9rem;
+  padding: 40px 16px;
+}
+
+.chirurgie-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chirurgie-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  padding: 16px;
+}
+
+.chirurgie-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.chirurgie-titre {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1a1a2e;
+}
+
+.chirurgie-date {
+  font-size: 0.8rem;
+  color: #888;
+  white-space: nowrap;
+}
+
+.chirurgie-info {
+  font-size: 0.82rem;
+  color: #666;
+  margin-bottom: 14px;
+}
+
+.chirurgie-steps {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.step-btn {
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.step-todo {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.step-todo:hover:not(:disabled) {
+  background: #d1faf5;
+  color: #3a8d7a;
+}
+
+.step-done {
+  background: #d1faf5;
+  color: #3a8d7a;
+  cursor: default;
+}
+
+.step-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.step-btn:not(.step-done):not(:disabled):hover {
+  background: #d1faf5;
+  color: #3a8d7a;
+}
