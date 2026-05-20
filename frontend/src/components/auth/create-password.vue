@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNewPatient } from '@/composables/useNewPatient'
-import { userPassword } from '@/composables/useProfile'
 
 const router = useRouter()
 
@@ -53,8 +52,6 @@ async function submit() {
 
     await createFirstPassword(form.value.password)
 
-    userPassword.value = form.value.password
-
     router.push('/')
 
   } catch (err) {
@@ -90,7 +87,6 @@ async function submit() {
         </label>
 
         <p v-if="errorMessage" class="auth-error" role="alert">{{ errorMessage }}</p>
-        <p v-if="successMessage" class="auth-success" role="status">{{ successMessage }}</p>
 
         <button type="submit" class="auth-submit" :disabled="submitting">
           {{ submitting ? 'Chargement…' : 'Enregistrer' }}
@@ -106,7 +102,7 @@ async function submit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0faf8;
+  background: #fff;
   padding: 24px 16px;
 }
 
@@ -183,7 +179,7 @@ async function submit() {
 }
 
 .field input:focus {
-  border-color: #3a8d7a;
+  border-color: var(--color-primary-focus);
 }
 
 .field-row {
@@ -234,7 +230,7 @@ async function submit() {
   padding: 12px;
   border: none;
   border-radius: 10px;
-  background: #3a8d7a;
+  background: var(--color-primary);
   color: #fff;
   font-size: 15px;
   font-weight: 600;
@@ -243,7 +239,7 @@ async function submit() {
 }
 
 .auth-submit:hover:not(:disabled) {
-  background: #2f7464;
+  background: var(--color-primary-hover);
 }
 
 .auth-submit:disabled {
