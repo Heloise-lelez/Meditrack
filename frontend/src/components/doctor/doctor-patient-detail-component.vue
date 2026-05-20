@@ -67,6 +67,29 @@
             >Date & heure<input type="datetime-local" v-model="rdvForm.starts_at" required
           /></label>
         </div>
+
+        <div class="checklist-builder">
+          <p class="checklist-label">Préparation avant le rendez-vous</p>
+          <div v-for="(item, i) in rdvForm.checklist" :key="i" class="checklist-row">
+            <input v-model="item.label" :placeholder="`Élément ${i + 1}`" class="checklist-input" />
+            <button
+              type="button"
+              class="btn-delete"
+              :aria-label="`Supprimer l'élément ${i + 1}`"
+              @click="rdvForm.checklist.splice(i, 1)"
+            >
+              ✕
+            </button>
+          </div>
+          <button
+            type="button"
+            class="btn-add-item"
+            @click="rdvForm.checklist.push({ label: '', fait: false })"
+          >
+            + Ajouter un élément
+          </button>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="btn-primary" :disabled="submitting">Créer</button>
           <button
@@ -75,6 +98,15 @@
             @click="
               showRdvForm = false;
               selectedRdvDoctorId = '';
+              rdvForm = {
+                doctor_first_name: '',
+                doctor_last_name: '',
+                profession: '',
+                operation: '',
+                address: '',
+                starts_at: '',
+                checklist: [],
+              };
             "
           >
             Annuler
@@ -438,13 +470,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { api } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../composables/useAuth.js';
 import './doctor.css';
 
 const props = defineProps({ patient: { type: Object, required: true } });
 defineEmits(['back']);
+
+const { user } = useAuth();
 
 const pid = props.patient.id;
 const activeTab = ref('rdv');
@@ -516,6 +551,7 @@ const rdvForm = ref({
   operation: '',
   address: '',
   starts_at: '',
+  checklist: [],
 });
 const tacheForm = ref({ nom_tache: 'consultation', date_tache: today, heure: '', commentaire: '' });
 // FIX Bug 3: checklist dans le formulaire étape
@@ -523,6 +559,26 @@ const etapeForm = ref({ titre: '', detail: '', date_debut: '', date_fin: '', che
 const docForm = ref({ titre: '', type: 'Chirurgie', publication_date: '' });
 // FIX Bug 2: fichier sélectionné pour l'upload document
 const selectedDocFile = ref(null);
+
+// Fonction pour pré-remplir le formulaire RDV avec le docteur connecté
+const preFillCurrentDoctor = () => {
+  if (user.value?.id) {
+    const currentDoctor = doctors.value.find((d) => d.id === user.value.id);
+    if (currentDoctor) {
+      selectedRdvDoctorId.value = currentDoctor.id;
+      rdvForm.value.doctor_first_name = currentDoctor.prenom;
+      rdvForm.value.doctor_last_name = currentDoctor.nom;
+      rdvForm.value.profession = currentDoctor.specialite ?? '';
+    }
+  }
+};
+
+// Regarde si le formulaire RDV s'ouvre pour pré-remplir
+watch(showRdvForm, (newVal) => {
+  if (newVal) {
+    preFillCurrentDoctor();
+  }
+});
 
 const formatDate = (iso) =>
   new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -615,7 +671,13 @@ const sendNotification = async () => {
 const createRdv = async () => {
   submitting.value = true;
   try {
-    await api.post(`/api/doctor/patients/${pid}/rendezvous`, rdvForm.value);
+    const body = {
+      ...rdvForm.value,
+      checklist: rdvForm.value.checklist
+        .filter((i) => i.label.trim())
+        .map((i) => ({ label: i.label.trim(), fait: false })),
+    };
+    await api.post(`/api/doctor/patients/${pid}/rendezvous`, body);
     showRdvForm.value = false;
     rdvForm.value = {
       doctor_first_name: '',
@@ -624,6 +686,7 @@ const createRdv = async () => {
       operation: '',
       address: '',
       starts_at: '',
+      checklist: [],
     };
     selectedRdvDoctorId.value = '';
     await loadRdv();
@@ -779,6 +842,8 @@ onMounted(async () => {
   loadChirurgies();
   try {
     doctors.value = await api.get('/api/profile/doctors');
+    // Pré-sélectionner le docteur connecté
+    preFillCurrentDoctor();
   } catch {
     /* non-bloquant */
   }
