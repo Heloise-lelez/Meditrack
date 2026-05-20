@@ -2,7 +2,9 @@ import { Router } from 'express';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 import {
   listPatients,
+  getSinglePatient,
   listDoctors,
+  getSingleDoctor,
   listAssignments,
   createAssignment,
   deleteAssignment,
