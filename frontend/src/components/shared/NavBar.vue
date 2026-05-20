@@ -19,60 +19,79 @@ export default {
         {
           link: '/',
           title: 'Accueil',
+          pageTitle: 'Accueil',
           label: 'home',
           icon: 'fa-house-chimney',
           isDisplayed: true,
+          isPageTitleDisplayedMobile: true,
         },
         {
           link: '/patients',
           title: 'Patients',
+          pageTitle: 'Patients',
           label: 'patients',
           icon: 'fa-users',
           isDisplayed: isDoctor,
+          isPageTitleDisplayedMobile: true,
         },
         {
           link: '/search-patients',
           title: 'Rechercher',
+          pageTitle: 'Rechercher',
           label: 'search',
           icon: 'fa-magnifying-glass',
           isDisplayed: isDoctor,
+          isPageTitleDisplayedMobile: true,
         },
         {
-          link: '/assistant',
+          true: '/assistant',
           title: 'Patients',
+          pageTitle: 'Patients',
           label: 'patients',
           icon: 'fa-users',
           isDisplayed: isAssistant,
+          isPageTitleDisplayedMobile: true,
         },
         {
           link: '/steps',
           title: 'Étapes',
+          pageTitle: 'Étapes',
           label: 'steps',
           icon: 'fa-list-ul',
           isDisplayed: isPatient,
+          isPageTitleDisplayedMobile: true,
         },
         {
           link: '/appointments',
           title: 'RDV',
+          pageTitle: 'Rendez-vous',
           label: 'rdv',
           icon: 'fa-calendar',
           isDisplayed: isPatient,
+          isPageTitleDisplayedMobile: true,
         },
         {
           link: '/admin',
           title: 'Admin',
+          pageTitle: 'Admin',
           label: 'admin',
           icon: 'fa-user-gear',
           isDisplayed: isSuperAdmin,
+          isPageTitleDisplayedMobile: true,
         },
         {
           link: '/profile',
           title: 'Profil',
+          pageTitle: 'Profil',
           label: 'profile',
           icon: 'fa-circle-user',
           isDisplayed: true,
+          isPageTitleDisplayedMobile: false,
         },
       ];
+    },
+    currentPage() {
+      return this.menu.find((item) => item.link === this.$route.path);
     },
   },
   methods: {
@@ -106,6 +125,14 @@ export default {
   </nav>
 
   <!-- Mobile Navigation -->
+  <header
+    v-show="currentPage.isPageTitleDisplayedMobile"
+    class="header-mobile"
+    aria-label="En-tête mobile"
+  >
+    {{ currentPage.pageTitle }}
+  </header>
+
   <nav class="navbar navbar-mobile" aria-label="Navigation mobile">
     <div class="navbar-mobile-content">
       <router-link
@@ -187,11 +214,30 @@ export default {
   left: 6px;
   right: 6px;
   height: 3px;
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary);
   border-radius: 2px;
 }
 
 /* Mobile Navigation */
+.header-mobile {
+  display: none;
+  align-items: center;
+  padding: 0 16px;
+  height: 56px;
+  color: var(--color-white);
+  background-color: var(--color-primary);
+  border-bottom: 1px solid var(--color-gray-light);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-mobile-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-gray-dark);
+}
+
 .navbar-mobile {
   display: flex;
   position: fixed;
@@ -220,7 +266,7 @@ export default {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  color: var(--color-gray);
+  color: var(--color-gray-dark);
   gap: 12px;
 }
 
@@ -232,7 +278,7 @@ export default {
 
 .nav-link-mobile.active {
   color: var(--color-primary-hover);
-  background-color: var(--color-success-bg);
+  background-color: var(--color-primary-background);
 }
 
 .nav-link-mobile span {
@@ -241,6 +287,10 @@ export default {
 
 /* Responsive Breakpoints */
 @media (max-width: 768px) {
+  .header-mobile {
+    display: flex;
+  }
+
   .navbar-desktop {
     display: none !important;
   }
@@ -255,6 +305,10 @@ export default {
 }
 
 @media (min-width: 769px) {
+  .header-mobile {
+    display: flex;
+  }
+
   .navbar-desktop {
     display: block;
   }
@@ -265,6 +319,10 @@ export default {
 
   body {
     padding-bottom: 0;
+  }
+
+  .header-mobile {
+    display: none;
   }
 }
 
@@ -280,7 +338,7 @@ export default {
 .nav-link:focus-visible,
 .nav-link-mobile:focus-visible,
 .brand-link:focus-visible {
-  outline: 2px solid #1a73e8;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 </style>

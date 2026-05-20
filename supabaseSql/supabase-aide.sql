@@ -35,6 +35,33 @@ CREATE POLICY "ap_aide_sees_own"
   ON aide_patient FOR SELECT
   USING (auth.uid() = aide_id);
 
+-- Les assistants peuvent gérer (INSERT/DELETE) les assignations aide ↔ patient
+DROP POLICY IF EXISTS "ap_assistant_manage" ON aide_patient;
+CREATE POLICY "ap_assistant_manage"
+  ON aide_patient FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'ASSISTANT'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'ASSISTANT'
+    )
+  );
+
+-- Les docteurs peuvent voir les aides de leurs patients
+DROP POLICY IF EXISTS "ap_doctor_sees_patient_aides" ON aide_patient;
+CREATE POLICY "ap_doctor_sees_patient_aides"
+  ON aide_patient FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM doctor_patient
+      WHERE doctor_patient.doctor_id = auth.uid()
+        AND doctor_patient.patient_id = aide_patient.patient_id
+    )
+  );
+
 -- ── 4. Seed : aides + assignations ────────────────────────
 -- Dépend de : supabase-seed-full.sql (patients déjà créés)
 -- Mot de passe commun : Test1234!
@@ -43,10 +70,10 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 DO $$
 DECLARE
-  aide1_id UUID := gen_random_uuid();
-  aide2_id UUID := gen_random_uuid();
-  aide3_id UUID := gen_random_uuid();
-  aide4_id UUID := gen_random_uuid();
+  aide1_id UUID;
+  aide2_id UUID;
+  aide3_id UUID;
+  aide4_id UUID;
 
   pat1_id  UUID;
   pat2_id  UUID;
@@ -59,6 +86,16 @@ DECLARE
   pat9_id  UUID;
   pat10_id UUID;
 BEGIN
+  -- Réutilise les comptes AIDE s'ils existent déjà pour rendre le seed relançable
+  SELECT id INTO aide1_id FROM auth.users WHERE email = 'camille.roy@test.com' LIMIT 1;
+  SELECT id INTO aide2_id FROM auth.users WHERE email = 'thomas.vidal@test.com' LIMIT 1;
+  SELECT id INTO aide3_id FROM auth.users WHERE email = 'lea.morin@test.com' LIMIT 1;
+  SELECT id INTO aide4_id FROM auth.users WHERE email = 'kevin.perrin@test.com' LIMIT 1;
+
+  aide1_id := COALESCE(aide1_id, gen_random_uuid());
+  aide2_id := COALESCE(aide2_id, gen_random_uuid());
+  aide3_id := COALESCE(aide3_id, gen_random_uuid());
+  aide4_id := COALESCE(aide4_id, gen_random_uuid());
 
   -- Récupération des IDs patients créés dans supabase-seed-full.sql
   SELECT id INTO pat1_id  FROM auth.users WHERE email = 'alice.thomas@test.com'   LIMIT 1;
@@ -78,23 +115,35 @@ BEGIN
     email_confirmed_at, raw_user_meta_data, raw_app_meta_data,
     aud, role, created_at, updated_at,
     confirmation_token, recovery_token, email_change_token_new, email_change
-  ) VALUES
-    (aide1_id, '00000000-0000-0000-0000-000000000000',
-     'camille.roy@test.com', crypt('Test1234!', gen_salt('bf')),
-     now(), '{"nom":"Roy","prenom":"Camille","tel":"0644000001"}', '{"provider":"email","providers":["email"]}',
-     'authenticated', 'authenticated', now(), now(), '', '', '', ''),
-    (aide2_id, '00000000-0000-0000-0000-000000000000',
-     'thomas.vidal@test.com', crypt('Test1234!', gen_salt('bf')),
-     now(), '{"nom":"Vidal","prenom":"Thomas","tel":"0644000002"}', '{"provider":"email","providers":["email"]}',
-     'authenticated', 'authenticated', now(), now(), '', '', '', ''),
-    (aide3_id, '00000000-0000-0000-0000-000000000000',
-     'lea.morin@test.com', crypt('Test1234!', gen_salt('bf')),
-     now(), '{"nom":"Morin","prenom":"Léa","tel":"0644000003"}', '{"provider":"email","providers":["email"]}',
-     'authenticated', 'authenticated', now(), now(), '', '', '', ''),
-    (aide4_id, '00000000-0000-0000-0000-000000000000',
-     'kevin.perrin@test.com', crypt('Test1234!', gen_salt('bf')),
-     now(), '{"nom":"Perrin","prenom":"Kévin","tel":"0644000004"}', '{"provider":"email","providers":["email"]}',
-     'authenticated', 'authenticated', now(), now(), '', '', '', '');
+  )
+  SELECT *
+  FROM (
+    VALUES
+      (aide1_id, '00000000-0000-0000-0000-000000000000'::uuid,
+       'camille.roy@test.com', crypt('Test1234!', gen_salt('bf')),
+       now(), '{"nom":"Roy","prenom":"Camille","tel":"0644000001"}'::jsonb, '{"provider":"email","providers":["email"]}'::jsonb,
+       'authenticated', 'authenticated', now(), now(), '', '', '', ''),
+      (aide2_id, '00000000-0000-0000-0000-000000000000'::uuid,
+       'thomas.vidal@test.com', crypt('Test1234!', gen_salt('bf')),
+       now(), '{"nom":"Vidal","prenom":"Thomas","tel":"0644000002"}'::jsonb, '{"provider":"email","providers":["email"]}'::jsonb,
+       'authenticated', 'authenticated', now(), now(), '', '', '', ''),
+      (aide3_id, '00000000-0000-0000-0000-000000000000'::uuid,
+       'lea.morin@test.com', crypt('Test1234!', gen_salt('bf')),
+       now(), '{"nom":"Morin","prenom":"Léa","tel":"0644000003"}'::jsonb, '{"provider":"email","providers":["email"]}'::jsonb,
+       'authenticated', 'authenticated', now(), now(), '', '', '', ''),
+      (aide4_id, '00000000-0000-0000-0000-000000000000'::uuid,
+       'kevin.perrin@test.com', crypt('Test1234!', gen_salt('bf')),
+       now(), '{"nom":"Perrin","prenom":"Kévin","tel":"0644000004"}'::jsonb, '{"provider":"email","providers":["email"]}'::jsonb,
+       'authenticated', 'authenticated', now(), now(), '', '', '', '')
+  ) AS new_users (
+    id, instance_id, email, encrypted_password,
+    email_confirmed_at, raw_user_meta_data, raw_app_meta_data,
+    aud, role, created_at, updated_at,
+    confirmation_token, recovery_token, email_change_token_new, email_change
+  )
+  WHERE NOT EXISTS (
+    SELECT 1 FROM auth.users u WHERE u.email = new_users.email
+  );
 
   -- Profils avec rôle AIDE
   INSERT INTO profiles (id, nom, prenom, tel, role) VALUES
@@ -110,19 +159,24 @@ BEGIN
   -- Léa Morin     → Julie Laurent, Théo Michel
   -- Kévin Perrin  → Sarah Mercier, Hugo Garcia
   -- Alice Thomas et Marc Robert ont aussi Léa Morin (many-to-many)
-  INSERT INTO aide_patient (aide_id, patient_id) VALUES
-    (aide1_id, pat1_id),
-    (aide1_id, pat2_id),
-    (aide1_id, pat3_id),
-    (aide2_id, pat4_id),
-    (aide2_id, pat5_id),
-    (aide2_id, pat6_id),
-    (aide3_id, pat7_id),
-    (aide3_id, pat8_id),
-    (aide3_id, pat1_id),  -- Alice a aussi Léa
-    (aide3_id, pat2_id),  -- Marc a aussi Léa
-    (aide4_id, pat9_id),
-    (aide4_id, pat10_id)
+  INSERT INTO aide_patient (aide_id, patient_id)
+  SELECT aide_id, patient_id
+  FROM (
+    VALUES
+      (aide1_id, pat1_id),
+      (aide1_id, pat2_id),
+      (aide1_id, pat3_id),
+      (aide2_id, pat4_id),
+      (aide2_id, pat5_id),
+      (aide2_id, pat6_id),
+      (aide3_id, pat7_id),
+      (aide3_id, pat8_id),
+      (aide3_id, pat1_id),  -- Alice a aussi Léa
+      (aide3_id, pat2_id),  -- Marc a aussi Léa
+      (aide4_id, pat9_id),
+      (aide4_id, pat10_id)
+  ) AS assignments(aide_id, patient_id)
+  WHERE patient_id IS NOT NULL
   ON CONFLICT DO NOTHING;
 
 END $$;

@@ -1,7 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import './rdv.css';
-import Header from '../Chirurgie_Suivi/Header.vue';
 import RdvCardsComponent from './rdvCards/rdv-cards-component.vue';
 import { api } from '../../lib/api';
 
