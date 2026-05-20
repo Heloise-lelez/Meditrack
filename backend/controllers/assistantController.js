@@ -108,3 +108,105 @@ export async function deleteAssignment(req, res, next) {
     next(err);
   }
 }
+
+// ── Gestion des Aides ──────────────────────────────────────
+
+export async function listAides(req, res, next) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, nom, prenom, tel, created_at')
+      .eq('role', 'AIDE')
+      .order('nom', { ascending: true });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createAideAccount(req, res, next) {
+  try {
+    const { email, password, nom, prenom, tel } = req.body;
+    if (!email || !password || !nom || !prenom) {
+      return res.status(400).json({ error: 'email, password, nom et prenom sont requis' });
+    }
+
+    // Créer le user dans Supabase Auth avec le rôle AIDE dans les metadata
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { nom, prenom, tel: tel || null, role: 'AIDE' },
+    });
+
+    if (authError) throw authError;
+
+    res.status(201).json({
+      id: authData.user.id,
+      email: authData.user.email,
+      nom,
+      prenom,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function assignAideToPatient(req, res, next) {
+  try {
+    const { aide_id, patient_id } = req.body;
+    if (!aide_id || !patient_id) {
+      return res.status(400).json({ error: 'aide_id et patient_id sont requis' });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('aide_patient')
+      .insert({ aide_id, patient_id })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === '23505')
+        return res.status(409).json({ error: 'Assignation déjà existante' });
+      throw error;
+    }
+    res.status(201).json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function removeAideFromPatient(req, res, next) {
+  try {
+    const { aide_id, patient_id } = req.body;
+    if (!aide_id || !patient_id) {
+      return res.status(400).json({ error: 'aide_id et patient_id sont requis' });
+    }
+
+    const { error } = await supabaseAdmin
+      .from('aide_patient')
+      .delete()
+      .eq('aide_id', aide_id)
+      .eq('patient_id', patient_id);
+
+    if (error) throw error;
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listAideAssignments(req, res, next) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('aide_patient')
+      .select('aide_id, patient_id, assigned_at');
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}

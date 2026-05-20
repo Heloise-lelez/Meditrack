@@ -117,8 +117,10 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuth } from '../../composables/useAuth';
 
+const router = useRouter();
 const { signIn, signUp, requestPasswordReset } = useAuth();
 
 const isLogin = ref(true);
@@ -142,6 +144,7 @@ async function submit() {
   try {
     if (isLogin.value) {
       await signIn(form.value.email, form.value.password);
+      router.push('/');
     } else {
       await signUp(form.value.email, form.value.password, {
         nom: form.value.nom,

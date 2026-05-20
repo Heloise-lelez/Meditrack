@@ -557,3 +557,37 @@ export async function uploadDocumentForPatient(req, res, next) {
     next(err);
   }
 }
+
+export async function listPatientAides(req, res, next) {
+  try {
+    const { pid } = req.params;
+    if (!(await assertPatientOfDoctor(req.user.id, pid, res))) return;
+
+    const { data: assignments, error: assignError } = await supabaseAdmin
+      .from('aide_patient')
+      .select('aide_id, assigned_at')
+      .eq('patient_id', pid);
+
+    if (assignError) throw assignError;
+    if (!assignments.length) return res.json([]);
+
+    const aideIds = assignments.map((a) => a.aide_id);
+    const { data: aides, error: aideError } = await supabaseAdmin
+      .from('profiles')
+      .select('id, nom, prenom')
+      .in('id', aideIds);
+
+    if (aideError) throw aideError;
+
+    const aideMap = Object.fromEntries(aides.map((a) => [a.id, a]));
+    res.json(
+      assignments.map((a) => ({
+        aide_id: a.aide_id,
+        assigned_at: a.assigned_at,
+        profiles: aideMap[a.aide_id] ?? null,
+      }))
+    );
+  } catch (err) {
+    next(err);
+  }
+}

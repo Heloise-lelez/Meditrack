@@ -300,6 +300,19 @@
         </li>
       </ul>
     </section>
+
+    <!-- ── Aides ──────────────────────────────────────────────── -->
+    <section v-if="activeTab === 'aides'" class="section" aria-label="Aides du patient">
+      <ul class="item-list" role="list">
+        <li v-if="aideList.length === 0" class="item-empty">Aucun aide assigné à ce patient.</li>
+        <li v-for="a in aideList" :key="a.aide_id" class="item-row">
+          <div class="item-info">
+            <div class="item-title">{{ a.profiles.prenom }} {{ a.profiles.nom }}</div>
+            <div class="item-meta">Assigné le {{ formatDate(a.assigned_at) }}</div>
+          </div>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
@@ -320,6 +333,7 @@ const TABS = [
   { id: 'taches', label: 'Tâches' },
   { id: 'etapes', label: 'Étapes' },
   { id: 'documents', label: 'Documents' },
+  { id: 'aides', label: 'Aides' },
 ];
 
 const TASK_LABELS = {
@@ -342,6 +356,7 @@ const rdvList = ref([]);
 const tacheList = ref([]);
 const etapeList = ref([]);
 const docList = ref([]);
+const aideList = ref([]);
 const submitting = ref(false);
 
 const showRdvForm = ref(false);
@@ -378,6 +393,9 @@ const docForm = ref({ titre: '', type: 'Chirurgie', publication_date: '' });
 // FIX Bug 2: fichier sélectionné pour l'upload document
 const selectedDocFile = ref(null);
 
+const formatDate = (iso) =>
+  new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+
 const formatDateTime = (iso) => {
   const d = new Date(iso);
   return (
@@ -403,6 +421,14 @@ const loadEtapes = async () => {
 };
 const loadDocs = async () => {
   docList.value = await api.get(`/api/doctor/patients/${pid}/documents`);
+};
+
+const loadAides = async () => {
+  try {
+    aideList.value = await api.get(`/api/doctor/patients/${pid}/aides`);
+  } catch {
+    aideList.value = [];
+  }
 };
 
 // ── Actions RDV ──────────────────────────────────────────────────────────────
@@ -569,6 +595,7 @@ onMounted(async () => {
   loadTaches();
   loadEtapes();
   loadDocs();
+  loadAides();
   try {
     doctors.value = await api.get('/api/profile/doctors');
   } catch {

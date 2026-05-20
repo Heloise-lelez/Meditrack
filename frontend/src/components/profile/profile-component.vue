@@ -23,7 +23,7 @@
 
     <!-- Mes médecins (PATIENT uniquement) -->
     <section
-      v-if="userRole === 'PATIENT'"
+      v-if="isPatient"
       class="info-section doctors-section"
       aria-label="Mes médecins"
     >
@@ -54,6 +54,18 @@
           <span class="info-label">Email</span>
           <span class="info-value">{{ d.email }}</span>
         </div>
+      </div>
+    </section>
+
+    <!-- Mes aides (PATIENT uniquement) -->
+    <section v-if="isPatient" class="info-section" aria-label="Mes aides">
+      <h3 class="section-title">Mes aides</h3>
+      <div v-if="loadingAides" class="doctors-loading" role="status">
+        <div class="mini-spinner" aria-hidden="true"></div>
+      </div>
+      <p v-else-if="myAides.length === 0" class="doctors-empty">Aucun aide assigné.</p>
+      <div v-else v-for="a in myAides" :key="a.aide_id" class="doctor-card">
+        <p class="doctor-fullname">{{ a.profiles?.prenom }} {{ a.profiles?.nom }}</p>
       </div>
     </section>
 
@@ -105,7 +117,7 @@
 
     <!-- Accès documents (PATIENT uniquement) -->
     <router-link
-      v-if="userRole === 'PATIENT'"
+      v-if="isPatient"
       to="/documents"
       class="documents-btn"
       aria-label="Accéder à mes documents"
@@ -128,7 +140,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 import { api } from '../../lib/api';
 
@@ -151,10 +163,14 @@ const initials = computed(() => {
   return email[0]?.toUpperCase() || '?';
 });
 
+const isPatient = computed(() => userRole.value === 'PATIENT');
+
 const loggingOut = ref(false);
 const logoutError = ref(null);
 const myDoctors = ref([]);
 const loadingDoctors = ref(false);
+const myAides = ref([]);
+const loadingAides = ref(false);
 
 const doctorProfile = ref({ specialite: '', num_service: '', horaire_service: '' });
 const saving = ref(false);
@@ -201,15 +217,26 @@ async function saveDoctorProfile() {
   }
 }
 
-onMounted(async () => {
-  if (userRole.value === 'PATIENT') {
+watch(
+  isPatient,
+  async (val) => {
+    if (!val) return;
     loadingDoctors.value = true;
+    loadingAides.value = true;
     try {
-      myDoctors.value = await api.get('/api/profile/my-doctors');
+      [myDoctors.value, myAides.value] = await Promise.all([
+        api.get('/api/profile/my-doctors').catch(() => []),
+        api.get('/api/profile/my-aides').catch(() => []),
+      ]);
     } finally {
       loadingDoctors.value = false;
+      loadingAides.value = false;
     }
-  }
+  },
+  { immediate: true }
+);
+
+onMounted(async () => {
   if (userRole.value === 'DOCTOR') {
     try {
       const p = await api.get('/api/doctor/profile');
