@@ -2,9 +2,18 @@
   <div class="detail" :aria-label="`Dossier de ${patient.prenom} ${patient.nom}`">
     <header class="detail-header">
       <button class="back-btn" @click="$emit('back')" aria-label="Retour à la liste">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
           <polyline points="15 18 9 12 15 6" />
         </svg>
         Retour
@@ -40,7 +49,10 @@
           v-if="tacheDate"
           class="btn-secondary"
           type="button"
-          @click="tacheDate = ''; loadTaches();"
+          @click="
+            tacheDate = '';
+            loadTaches();
+          "
         >
           Toutes les dates
         </button>
@@ -89,9 +101,7 @@
         <li v-for="r in rdvList" :key="r.id" class="item-row">
           <div class="item-info">
             <div class="item-title">Dr. {{ r.doctor_first_name }} {{ r.doctor_last_name }}</div>
-            <div class="item-meta">
-              {{ r.profession }} · {{ formatDateTime(r.starts_at) }}
-            </div>
+            <div class="item-meta">{{ r.profession }} · {{ formatDateTime(r.starts_at) }}</div>
             <div v-if="r.address" class="item-comment">{{ r.address }}</div>
           </div>
         </li>
@@ -155,8 +165,14 @@ const loadTaches = async () => {
 onMounted(async () => {
   await Promise.all([
     loadTaches(),
-    api.get(`/api/aide/patients/${pid}/etapes`).then((d) => (etapeList.value = d || [])).catch(() => {}),
-    api.get(`/api/aide/patients/${pid}/rendezvous`).then((d) => (rdvList.value = d || [])).catch(() => {}),
+    api
+      .get(`/api/aide/patients/${pid}/etapes`)
+      .then((d) => (etapeList.value = d || []))
+      .catch(() => {}),
+    api
+      .get(`/api/aide/patients/${pid}/rendezvous`)
+      .then((d) => (rdvList.value = d || []))
+      .catch(() => {}),
   ]);
 });
 </script>

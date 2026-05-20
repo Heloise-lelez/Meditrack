@@ -26,7 +26,9 @@ export async function getMyDoctors(req, res, next) {
       emailMap = Object.fromEntries(
         emailResults.map(({ data }) => [data?.user?.id, data?.user?.email ?? null])
       );
-    } catch { /* non-fatal — doctors returned without email */ }
+    } catch {
+      /* non-fatal — doctors returned without email */
+    }
 
     res.json(doctors.map((d) => ({ ...d, email: emailMap[d.id] ?? null })));
   } catch (err) {

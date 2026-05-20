@@ -22,11 +22,7 @@
     </section>
 
     <!-- Mes médecins (PATIENT uniquement) -->
-    <section
-      v-if="isPatient"
-      class="info-section doctors-section"
-      aria-label="Mes médecins"
-    >
+    <section v-if="isPatient" class="info-section doctors-section" aria-label="Mes médecins">
       <h3 class="section-title">Mes médecins</h3>
       <div v-if="loadingDoctors" class="doctors-loading" role="status">
         <div class="mini-spinner" aria-hidden="true"></div>

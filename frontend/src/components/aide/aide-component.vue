@@ -26,9 +26,19 @@
             <div class="patient-info">
               <div class="patient-name">{{ p.prenom }} {{ p.nom }}</div>
             </div>
-            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg
+              class="chevron"
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
               <polyline points="9 18 15 12 9 6" />
             </svg>
           </li>
@@ -36,11 +46,7 @@
       </div>
     </div>
 
-    <AidePatientDetail
-      v-else
-      :patient="selectedPatient"
-      @back="selectedPatient = null"
-    />
+    <AidePatientDetail v-else :patient="selectedPatient" @back="selectedPatient = null" />
   </main>
 </template>
 
