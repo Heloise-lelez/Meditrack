@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../lib/supabase.js';
 import { encryptBuffer, decryptBuffer } from '../lib/encrypt.js';
+import { auditEvent, auditError } from '../lib/auditLogger.js';
 
 // Verify that patientId is assigned to this doctor; returns 403 if not
 async function assertPatientOfDoctor(doctorId, patientId, res) {
@@ -410,11 +411,26 @@ export async function downloadPatientDocument(req, res, next) {
     if (!doc.download_link)
       return res.status(404).json({ error: 'Aucun fichier associé à ce document' });
 
+    void auditEvent(req, 'doctor.patient_document.download.storage_attempt', {
+      patientId: pid,
+      documentId: id,
+      titre: doc.titre,
+      storagePath: doc.download_link,
+    });
+
     const { data: blob, error: dlErr } = await supabaseAdmin.storage
       .from('documents')
       .download(doc.download_link);
 
-    if (dlErr) throw dlErr;
+    if (dlErr) {
+      void auditError(req, 'doctor.patient_document.download.storage_failure', dlErr, {
+        patientId: pid,
+        documentId: id,
+        titre: doc.titre,
+        storagePath: doc.download_link,
+      });
+      throw dlErr;
+    }
 
     const arrayBuffer = await blob.arrayBuffer();
     const decrypted = decryptBuffer(Buffer.from(arrayBuffer));
@@ -422,8 +438,20 @@ export async function downloadPatientDocument(req, res, next) {
     const contentType = doc.mime_type || 'application/octet-stream';
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(doc.titre)}"`);
+    void auditEvent(req, 'doctor.patient_document.download.success', {
+      patientId: pid,
+      documentId: id,
+      titre: doc.titre,
+      mimeType: contentType,
+      storagePath: doc.download_link,
+      size: decrypted.length,
+    });
     res.send(decrypted);
   } catch (err) {
+    void auditError(req, 'doctor.patient_document.download.failure', err, {
+      patientId: req.params?.pid,
+      documentId: req.params?.id,
+    });
     next(err);
   }
 }
@@ -447,6 +475,20 @@ export async function uploadDocumentForPatient(req, res, next) {
     const storagePath = `uploads/${crypto.randomUUID()}-${safeTitle}${ext ? `.${ext}` : ''}`;
 
     const encrypted = encryptBuffer(req.file.buffer);
+    void auditEvent(req, 'doctor.patient_document.upload.storage_attempt', {
+      patientId: pid,
+      file: {
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        storagePath,
+      },
+      document: {
+        titre,
+        type,
+        publication_date: publication_date || null,
+      },
+    });
 
     const { error: storageErr } = await supabaseAdmin.storage
       .from('documents')
@@ -455,7 +497,14 @@ export async function uploadDocumentForPatient(req, res, next) {
         upsert: false,
       });
 
-    if (storageErr) throw storageErr;
+    if (storageErr) {
+      void auditError(req, 'doctor.patient_document.upload.storage_failure', storageErr, {
+        patientId: pid,
+        storagePath,
+        originalName: req.file.originalname,
+      });
+      throw storageErr;
+    }
 
     const sizeKb = Math.max(1, Math.round(req.file.size / 1024));
 
@@ -478,12 +527,33 @@ export async function uploadDocumentForPatient(req, res, next) {
       if (insertErr) throw insertErr;
       data = inserted;
     } catch (insertErr) {
+      void auditError(req, 'doctor.patient_document.upload.database_failure', insertErr, {
+        patientId: pid,
+        storagePath,
+        originalName: req.file.originalname,
+      });
       await supabaseAdmin.storage.from('documents').remove([storagePath]);
       throw insertErr;
     }
 
+    void auditEvent(req, 'doctor.patient_document.upload.success', {
+      patientId: pid,
+      documentId: data.id_document,
+      titre: data.titre,
+      type: data.type,
+      originalName: req.file.originalname,
+      storagePath,
+      sizeKb,
+    });
+
     res.status(201).json(data);
   } catch (err) {
+    void auditError(req, 'doctor.patient_document.upload.failure', err, {
+      patientId: req.params?.pid,
+      originalName: req.file?.originalname,
+      size: req.file?.size,
+      mimeType: req.file?.mimetype,
+    });
     next(err);
   }
 }

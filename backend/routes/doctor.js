@@ -13,6 +13,7 @@ import {
   createPatientEtape,
   deletePatientEtape,
   listPatientDocuments,
+  downloadPatientDocument,
   uploadDocumentForPatient,
   getMyProfile,
   updateMyProfile,
@@ -47,13 +48,14 @@ router.post('/patients/:pid/etapes', ...isDoctor, createPatientEtape);
 router.delete('/patients/:pid/etapes/:id', ...isDoctor, deletePatientEtape);
 
 router.get('/patients/:pid/documents', ...isDoctor, listPatientDocuments);
+router.get('/patients/:pid/documents/:id/download', ...isDoctor, downloadPatientDocument);
 router.post(
   '/patients/:pid/documents/upload',
   ...isDoctor,
   (req, res, next) => {
     upload.single('file')(req, res, (err) => {
       if (!err) return next();
-      handleUploadError(err, res);
+      handleUploadError(err, req, res);
     });
   },
   uploadDocumentForPatient

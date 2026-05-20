@@ -6,6 +6,7 @@ import {
   listEtablissements,
   createEtablissement,
   updateUserEtablissement,
+  listAuditLogs,
 } from '../controllers/adminController.js';
 
 const router = Router();
@@ -17,5 +18,7 @@ router.put('/users/:id/etablissement', ...isSuperAdmin, updateUserEtablissement)
 
 router.get('/etablissements', ...isSuperAdmin, listEtablissements);
 router.post('/etablissements', ...isSuperAdmin, createEtablissement);
+
+router.get('/audit-logs', ...isSuperAdmin, listAuditLogs);
 
 export default router;
