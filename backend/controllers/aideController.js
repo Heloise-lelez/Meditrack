@@ -50,11 +50,14 @@ export async function getPatientTaches(req, res, next) {
       return res.status(403).json({ error: 'Accès refusé' });
     }
 
-    const { data, error } = await supabaseAdmin
+    const { date } = req.query;
+    let query = supabaseAdmin
       .from('tachesjour')
       .select('*')
       .eq('user_id', patientId)
       .order('created_at', { ascending: false });
+    if (date) query = query.eq('date_tache', date);
+    const { data, error } = await query;
 
     if (error) throw error;
     res.json(data);

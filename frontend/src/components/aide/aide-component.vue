@@ -59,8 +59,8 @@ onMounted(async () => {
     const data = await api.get('/api/aide/patients');
     patients.value = (data || []).map((item) => ({
       id: item.patient_id,
-      nom: item.profiles.nom,
-      prenom: item.profiles.prenom,
+      nom: item.profiles?.nom ?? '',
+      prenom: item.profiles?.prenom ?? '',
     }));
   } catch {
     patients.value = [];

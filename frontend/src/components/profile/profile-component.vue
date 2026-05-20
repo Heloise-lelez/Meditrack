@@ -23,7 +23,7 @@
 
     <!-- Mes médecins (PATIENT uniquement) -->
     <section
-      v-if="userRole === 'PATIENT'"
+      v-if="isPatient"
       class="info-section doctors-section"
       aria-label="Mes médecins"
     >
@@ -58,7 +58,7 @@
     </section>
 
     <!-- Mes aides (PATIENT uniquement) -->
-    <section v-if="userRole === 'PATIENT'" class="info-section" aria-label="Mes aides">
+    <section v-if="isPatient" class="info-section" aria-label="Mes aides">
       <h3 class="section-title">Mes aides</h3>
       <div v-if="loadingAides" class="doctors-loading" role="status">
         <div class="mini-spinner" aria-hidden="true"></div>
@@ -117,7 +117,7 @@
 
     <!-- Accès documents (PATIENT uniquement) -->
     <router-link
-      v-if="userRole === 'PATIENT'"
+      v-if="isPatient"
       to="/documents"
       class="documents-btn"
       aria-label="Accéder à mes documents"
@@ -140,7 +140,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 import { api } from '../../lib/api';
 
@@ -162,6 +162,8 @@ const initials = computed(() => {
   const email = user.value?.email ?? '';
   return email[0]?.toUpperCase() || '?';
 });
+
+const isPatient = computed(() => userRole.value === 'PATIENT');
 
 const loggingOut = ref(false);
 const logoutError = ref(null);
@@ -215,8 +217,10 @@ async function saveDoctorProfile() {
   }
 }
 
-onMounted(async () => {
-  if (userRole.value === 'PATIENT') {
+watch(
+  isPatient,
+  async (val) => {
+    if (!val) return;
     loadingDoctors.value = true;
     loadingAides.value = true;
     try {
@@ -228,7 +232,11 @@ onMounted(async () => {
       loadingDoctors.value = false;
       loadingAides.value = false;
     }
-  }
+  },
+  { immediate: true }
+);
+
+onMounted(async () => {
   if (userRole.value === 'DOCTOR') {
     try {
       const p = await api.get('/api/doctor/profile');
