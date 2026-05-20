@@ -235,6 +235,16 @@ La pipeline exécute les étapes suivantes:
 Les tags `v*` déclenchent aussi une release GitHub, uniquement si le commit taggé
 appartient bien à `main` et si toute la quality gate passe.
 
+Les déploiements Vercel automatiques depuis Git sont désactivés dans les
+fichiers `vercel.json` du frontend et du backend. Le déploiement production se
+fait uniquement depuis cette pipeline GitHub Actions lorsqu'un tag `v*` est
+poussé. Les secrets GitHub suivants doivent être configurés:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_FRONTEND_PROJECT_ID`
+- `VERCEL_BACKEND_PROJECT_ID`
+
 Exemple de release:
 
 ```bash
