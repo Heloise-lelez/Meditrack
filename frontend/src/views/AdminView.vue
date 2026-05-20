@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import UserList from '@/components/admin/UserList.vue';
-import EstablishmentList from '@/components/admin/FacilityList.vue';
 import { api } from '@/lib/api';
 import FacilityList from '@/components/admin/FacilityList.vue';
 
