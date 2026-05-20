@@ -58,9 +58,15 @@ const routes = [
   },
   {
     path: "/add-patient",
-    name: "add-patient",
+    name: "add-patient-doctor",
     component: () => import("@/views/AddPatientView.vue"),
-    meta: { requiresRole: ['DOCTOR', 'ASSISTANT'] },
+    meta: { requiresRole: 'DOCTOR' },
+  },
+  {
+    path: "/add-patient",
+    name: "add-patient-assistant",
+    component: () => import("@/views/AddPatientView.vue"),
+    meta: { requiresRole: 'ASSISTANT' },
   },
   {
     path: '/profile',
