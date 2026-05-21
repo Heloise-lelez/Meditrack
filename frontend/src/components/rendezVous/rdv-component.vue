@@ -70,6 +70,14 @@ const handleRdvDeleted = async () => {
   await loadRdvs();
 };
 
+const handleChecklistUpdated = (data) => {
+  // Trouver et mettre à jour le rendez-vous correspondant
+  const rdvIndex = rdvs.value.findIndex((rdv) => rdv.id_rendezvous === data.id);
+  if (rdvIndex !== -1) {
+    rdvs.value[rdvIndex].checklist = data.checklist;
+  }
+};
+
 // État des dropdowns
 const isUpcomingOpen = ref(true);
 const isHistoryOpen = ref(false);
@@ -161,6 +169,7 @@ const isHistoryOpen = ref(false);
       :is-past="selectedIsPast"
       @close="closeDetails"
       @deleted="handleRdvDeleted"
+      @updated="handleChecklistUpdated"
     />
   </div>
 </template>

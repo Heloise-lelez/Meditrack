@@ -1,7 +1,7 @@
 .home-page {
   display: flex;
-    flex-direction: column;
-    gap: 24px;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .greeting h2 {
