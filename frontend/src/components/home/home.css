@@ -1,48 +1,13 @@
-.home {
-  background: #f5f5f5;
-  min-height: 100vh;
-  padding-bottom: 60px;
-}
-
-.header {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: white;
-  padding: 32px 16px;
-  border-radius: 0 0 20px 20px;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.header p {
-  margin: 0;
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-.container {
-  padding: 16px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.greeting {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.home-page {
+  display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 .greeting h2 {
   margin: 0 0 8px 0;
-  font-size: 24px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-primary);
 }
 
 .greeting p {
@@ -495,16 +460,19 @@
   font-weight: 600;
   padding: 4px 8px;
   border-radius: 4px;
+  border: none;
 }
 
 .task-status.done {
-  color: #10b981;
-  background: #ecfdf5;
+  color: var(--color-success-text);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success);
 }
 
 .task-status.pending {
-  color: #f59e0b;
-  background: #fffbeb;
+  color: var(--color-warning-text);
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning);
 }
 
 .documents {
@@ -578,7 +546,7 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
 }
 
 .rdv-item {
@@ -588,7 +556,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border-left: 3px solid var(--color-primary);
+  border-left: 8px solid var(--color-primary);
 }
 
 .rdv-patient {
@@ -620,17 +588,5 @@
 
   .header h1 {
     font-size: 32px;
-  }
-
-  .container {
-    padding: 24px;
-  }
-
-  .greeting {
-    padding: 24px;
-  }
-
-  .greeting h2 {
-    font-size: 28px;
   }
 }

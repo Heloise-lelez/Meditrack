@@ -1,10 +1,5 @@
 <template>
   <main class="search-page" role="main" aria-label="Rechercher un patient">
-    <header class="search-header">
-      <h1>Chirurgie Suivi</h1>
-      <p>Rechercher un patient</p>
-    </header>
-
     <div class="search-box">
       <input
         v-model="query"
@@ -116,22 +111,10 @@ onMounted(loadAssigned);
 
 <style scoped>
 .search-page {
-  min-height: calc(100vh - 56px);
-  padding: 24px 16px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
-}
-
-.search-header {
-  text-align: center;
-}
-
-.search-header h1 {
-  margin: 0 0 4px;
-  font-size: 20px;
-  color: #0f2722;
 }
 
 .search-header p {
@@ -148,8 +131,8 @@ onMounted(loadAssigned);
 .search-input {
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid var(--color-primary-background);
-  border-radius: 12px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
   font-size: 15px;
   color: #0f2722;
   background: #fff;

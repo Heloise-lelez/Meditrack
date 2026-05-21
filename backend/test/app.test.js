@@ -44,3 +44,13 @@ test('public audit client endpoint rejects unsupported audit actions', async () 
 
   assert.deepEqual(response.body, { error: 'Unsupported audit action' });
 });
+
+test('PUT /api/profile/update/:id rejects invalid is_accompanied value', async () => {
+  const response = await request(app)
+    .put('/api/profile/update/123')
+    .set('Authorization', 'Bearer test-token')
+    .send({ is_accompanied: 'invalid' })
+    .expect(400);
+
+  assert.deepEqual(response.body, { error: 'is_accompanied doit être un boolean' });
+});

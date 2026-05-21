@@ -331,7 +331,6 @@ onMounted(async () => {
 
 .add-rdv-text h2 {
   margin: 0;
-  font-size: 24px;
   color: #0f2722;
 }
 .add-rdv-text p {

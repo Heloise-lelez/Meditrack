@@ -75,7 +75,7 @@ async function handleSave() {
 
 <template>
   <section class="card" aria-label="Informations professionnelles">
-    <h3 class="card-title">Informations professionnelles</h3>
+    <h2 class="card-title">Informations professionnelles</h2>
 
     <div v-if="saveSuccess" class="success-state">
       <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
@@ -274,7 +274,7 @@ async function handleSave() {
   gap: 8px;
   padding: 8px 20px;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   background: var(--color-primary);
   color: var(--color-white);
   font-size: 14px;

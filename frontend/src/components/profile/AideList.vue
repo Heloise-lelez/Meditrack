@@ -3,20 +3,26 @@ import { onMounted, ref } from 'vue';
 import { api } from '@/lib/api.js';
 
 const myDoctors = ref([]);
+const myAides = ref([]);
 const loadingDoctors = ref(false);
+const loadingAides = ref(false);
 
 onMounted(async () => {
   loadingDoctors.value = true;
   try {
     myDoctors.value = await api.get('/api/profile/my-doctors');
+    myAides.value = await api.get('/api/profile/my-aides');
+
+    console.log(myAides.value);
   } finally {
     loadingDoctors.value = false;
+    loadingAides.value = false;
   }
 });
 
-const getInitials = (doctor) => {
-  const p = doctor.prenom?.[0] ?? '';
-  const n = doctor.nom?.[0] ?? '';
+const getInitials = (aide) => {
+  const p = aide.profiles.prenom?.[0] ?? '';
+  const n = aide.profiles.nom?.[0] ?? '';
   return (p + n).toUpperCase() || '?';
 };
 
@@ -30,40 +36,28 @@ const infoDoctor = [
 
 <template>
   <section class="card" aria-label="Mes médecins">
-    <h2 class="card-title">Mes médecins</h2>
+    <h2 class="card-title">Mes aides</h2>
 
     <div v-if="loadingDoctors" class="loading-state">
       <div class="mini-spinner" aria-hidden="true"></div>
     </div>
 
-    <p v-else-if="myDoctors.length === 0" class="empty-state">
+    <p v-else-if="myAides.length === 0" class="empty-state">
       <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
-      Aucun médecin assigné
+      Aucun aide assigné
     </p>
 
     <div v-else class="doctors-list">
-      <div v-for="doctor in myDoctors" :key="doctor.id" class="doctor-card">
+      <div v-for="aide in myAides" :key="aide.id" class="doctor-card">
         <div class="doctor-header">
-          <div class="doctor-avatar">{{ getInitials(doctor) }}</div>
+          <div class="doctor-avatar">{{ getInitials(aide) }}</div>
           <div class="doctor-identity">
-            <p class="doctor-name">Dr. {{ doctor.prenom }} {{ doctor.nom }}</p>
-            <span v-if="doctor.specialite" class="doctor-speciality">{{ doctor.specialite }}</span>
+            <p class="doctor-name">Dr. {{ aide.profiles.prenom }} {{ aide.profiles.nom }}</p>
+            <a v-if="aide.profiles.tel" :href="`tel:${aide.profiles.tel}`" class="contact-link">
+              <i class="fa-solid fa-phone" aria-hidden="true"></i>
+              {{ aide.profiles.tel }}
+            </a>
           </div>
-        </div>
-        <div class="doctor-info">
-          <template v-for="field in infoDoctor" :key="field.key">
-            <div v-if="doctor[field.key]" class="info-row">
-              <span class="info-label"> <i :class="field.icon"></i> {{ field.label }} </span>
-              <a
-                v-if="field.href"
-                :href="field.href(doctor[field.key])"
-                class="info-value info-link"
-              >
-                {{ doctor[field.key] }}
-              </a>
-              <span v-else class="info-value">{{ doctor[field.key] }}</span>
-            </div>
-          </template>
         </div>
       </div>
     </div>
@@ -158,7 +152,7 @@ const infoDoctor = [
 .doctor-identity {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .doctor-name {
@@ -168,58 +162,19 @@ const infoDoctor = [
   color: var(--color-black);
 }
 
-.doctor-speciality {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-white);
-  background: var(--color-primary);
-  padding: 2px 8px;
-  border-radius: var(--radius-md);
-  width: fit-content;
-}
-
-.doctor-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  border-top: 1px solid var(--color-gray-light);
-  gap: 12px;
-}
-
-.info-label {
-  width: 100px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--color-gray-dark);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
 .info-label i {
   font-size: 12px;
 }
 
-.info-value {
-  color: var(--color-black);
-  font-weight: 500;
-  text-align: right;
-  word-break: break-all;
-}
-
-.info-link {
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-primary);
   text-decoration: none;
-  transition: color 0.2s ease;
 }
 
-.info-link:hover {
+.contact-link:hover {
   text-decoration: underline;
   color: var(--color-primary-dark);
 }

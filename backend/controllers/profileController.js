@@ -79,7 +79,7 @@ export async function getMyAides(req, res, next) {
     const aideIds = assignments.map((a) => a.aide_id);
     const { data: aides, error: aideError } = await supabaseAdmin
       .from('profiles')
-      .select('id, nom, prenom')
+      .select('id, nom, prenom, tel')
       .in('id', aideIds);
 
     if (aideError) throw aideError;

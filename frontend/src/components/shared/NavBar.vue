@@ -28,17 +28,12 @@ export default {
         },
         {
           link: '/add-patient',
-          title: 'Ajouter un patient',
-          label: 'add-patient-doctor',
+          title: 'Nouveau',
+          pageTitle: 'Ajouter un patient',
+          label: 'add-patient',
           icon: 'fa-user-plus',
-          isDisplayed: isDoctor,
-        },
-        {
-          link: '/add-patient',
-          title: 'Ajouter un patient',
-          label: 'add-patient-assistant',
-          icon: 'fa-user-plus',
-          isDisplayed: isAssistant,
+          isDisplayed: isDoctor || isAssistant || isAide,
+          isPageTitleDisplayedMobile: true,
         },
         {
           link: '/patients',
@@ -51,19 +46,12 @@ export default {
         },
         {
           link: '/search-patients',
-          title: 'Rechercher',
-          pageTitle: 'Rechercher',
+          title: 'Chercher',
+          pageTitle: 'Chercher un patient',
           label: 'search',
           icon: 'fa-magnifying-glass',
           isDisplayed: isDoctor,
           isPageTitleDisplayedMobile: true,
-        },
-        {
-          link: '/add-patient',
-          title: 'Ajouter un patient',
-          label: 'add-patient',
-          icon: 'fa-user-plus',
-          isDisplayed: isAssistant,
         },
         {
           link: '/assistant',
@@ -267,16 +255,10 @@ export default {
   height: 56px;
   color: var(--color-white);
   background-color: var(--color-primary);
-  border-bottom: 1px solid var(--color-gray-light);
+  border-radius: 0 0 12px 12px;
   position: sticky;
   top: 0;
   z-index: 100;
-}
-
-.header-mobile-title {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-gray-dark);
 }
 
 .navbar-mobile {

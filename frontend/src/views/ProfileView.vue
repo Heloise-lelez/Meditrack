@@ -4,14 +4,21 @@
       <ProfileCard :user="user" :user-role="userRole" @sign-out="handleSignOut" />
 
       <div class="profile-content">
-        <ProfileDoctorsCard
-          v-if="userRole === ROLES.PATIENT"
-          :my-doctors="myDoctors"
-          :loading-doctors="loadingDoctors"
-        />
+        <InfoCard />
+
+        <DoctorList v-if="userRole === ROLES.PATIENT" />
 
         <DoctorCard
           v-if="userRole === ROLES.DOCTOR"
+          :doctor-profile="doctorProfile"
+          :saving="saving"
+          :save-error="saveError"
+          :save-success="saveSuccess"
+          @save="saveDoctorProfile"
+        />
+
+        <AideList
+          v-if="userRole === ROLES.PATIENT"
           :doctor-profile="doctorProfile"
           :saving="saving"
           :save-error="saveError"
@@ -29,8 +36,10 @@ import { useAuth } from '@/composables/useAuth.js';
 import { api } from '@/lib/api.js';
 import ProfileCard from '@/components/profile/ProfileCard.vue';
 import { ROLES } from '@/constants/roles.js';
-import ProfileDoctorsCard from '@/components/profile/DoctorList.vue';
 import DoctorCard from '@/components/profile/DoctorCard.vue';
+import DoctorList from '@/components/profile/DoctorList.vue';
+import AideList from '@/components/profile/AideList.vue';
+import InfoCard from '@/components/profile/InfoCard.vue';
 
 const { user, userRole, signOut } = useAuth();
 
@@ -115,12 +124,14 @@ onMounted(async () => {
   align-items: start;
 }
 
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 /* Mobile — colonne unique */
 @media (max-width: 768px) {
-  .profile-page {
-    margin-bottom: 70px;
-  }
-
   .profile-layout {
     grid-template-columns: 1fr;
   }
