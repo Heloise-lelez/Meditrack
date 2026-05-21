@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import './rdv.css';
 import RdvCardsComponent from './rdvCards/rdv-cards-component.vue';
 import RdvDetailsModal from './rdv-details-modal/rdv-details-modal.vue';
-import { api } from '../../lib/api';
+import { api } from '@/lib/api.js';
 
 const rdvs = ref([]);
 const loading = ref(true);
@@ -77,7 +77,7 @@ const isHistoryOpen = ref(false);
 
 <template>
   <div class="rdv-page">
-    <h1 class="rdv-title">Vos rendez-vous</h1>
+    <h2 class="rdv-title">Vos rendez-vous</h2>
 
     <p v-if="loading">Chargement…</p>
     <p v-else-if="errorMessage">
@@ -167,11 +167,9 @@ const isHistoryOpen = ref(false);
 
 <style scoped>
 .rdv-page {
-  margin: 16px auto;
-  padding: 0 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 .rdv-component {
@@ -183,9 +181,6 @@ const isHistoryOpen = ref(false);
 }
 
 .rdv-title {
-  font-size: 32px;
-  margin: 0;
-  padding: 24px 0;
   font-weight: 700;
   color: var(--color-primary);
   letter-spacing: -0.5px;

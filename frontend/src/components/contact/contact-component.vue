@@ -37,9 +37,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="contact-page" aria-label="Page de contact">
-    <section class="section" aria-labelledby="hotlines-title">
-      <h2 id="hotlines-title" class="section-title">Numéros utiles</h2>
+  <div class="contact-page" aria-label="Page de contact">
+    <div class="contact-section" aria-labelledby="hotlines-title">
+      <h2 id="hotlines-title">Numéros utiles</h2>
       <ul class="hotlines-grid" role="list">
         <li v-for="h in HOTLINES" :key="h.number" class="hotline-card">
           <a
@@ -52,10 +52,10 @@ onMounted(async () => {
           <span class="hotline-label">{{ h.label }}</span>
         </li>
       </ul>
-    </section>
+    </div>
 
-    <section v-if="isPatient" class="section" aria-labelledby="doctors-title">
-      <h2 id="doctors-title" class="section-title">Mes médecins</h2>
+    <div v-if="isPatient" class="contact-section" aria-labelledby="doctors-title">
+      <h2 id="doctors-title">Mes médecins</h2>
 
       <p v-if="loadingDoctors" class="state-message">Chargement…</p>
       <p v-else-if="errorDoctors" class="state-message state-error">{{ errorDoctors }}</p>
@@ -84,26 +84,21 @@ onMounted(async () => {
           </div>
         </li>
       </ul>
-    </section>
-  </main>
+    </div>
+  </div>
 </template>
 
 <style scoped>
 .contact-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 24px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.section {
-  margin-bottom: 40px;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-primary-dark);
-  margin-bottom: 16px;
+.contact-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* Hotlines */
@@ -215,7 +210,7 @@ onMounted(async () => {
 }
 
 .state-error {
-  color: var(--color-danger, #c0392b);
+  color: var(--color-error, #c0392b);
 }
 
 @media (max-width: 768px) {

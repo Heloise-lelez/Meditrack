@@ -1,5 +1,5 @@
 <template>
-  <main class="doctor" role="main" aria-label="Tableau de bord médecin">
+  <main class="doctor-patient-page" role="main" aria-label="Tableau de bord médecin">
     <!-- Patient detail view -->
     <DoctorPatientDetail
       v-if="selectedPatient"
@@ -9,9 +9,7 @@
 
     <!-- Patient list view -->
     <template v-else>
-      <header class="doctor-header">
-        <h1>Mes patients</h1>
-      </header>
+      <h2>Mes patients</h2>
 
       <div class="doctor-container">
         <div v-if="loading" class="doctor-loading" role="status">

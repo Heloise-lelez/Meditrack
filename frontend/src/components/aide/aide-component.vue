@@ -1,8 +1,6 @@
 <template>
-  <main class="aide" role="main" aria-label="Tableau de bord aide">
-    <header class="aide-header">
-      <h1>Mes patients</h1>
-    </header>
+  <div class="aide-page" role="main" aria-label="Tableau de bord aide">
+    <h2>Mes patients</h2>
 
     <div v-if="loading" class="aide-loading" role="status">
       <div class="spinner" aria-hidden="true"></div>
@@ -47,7 +45,7 @@
     </div>
 
     <AidePatientDetail v-else :patient="selectedPatient" @back="selectedPatient = null" />
-  </main>
+  </div>
 </template>
 
 <script setup>

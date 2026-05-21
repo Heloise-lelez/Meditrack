@@ -94,7 +94,7 @@ const incompleteTasks = computed(() => {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
   border: 1px solid #e8eef2;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition:
@@ -150,6 +150,7 @@ const incompleteTasks = computed(() => {
 }
 
 .card__info {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 10px;
