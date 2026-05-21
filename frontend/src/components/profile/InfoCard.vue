@@ -208,12 +208,11 @@ function toggleVisibility() {
 }
 
 .input-wrapper {
+  position: relative;
   flex: 1;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 8px;
-  position: relative;
 }
 
 .info-input {
@@ -224,7 +223,7 @@ function toggleVisibility() {
   color: var(--color-black);
   font-weight: 500;
   text-align: right;
-  padding: 8px 12px;
+  padding: 8px 44px 8px 12px;
   border-radius: var(--radius-sm);
   font-size: 14px;
   transition: all 0.2s ease;
@@ -257,18 +256,22 @@ function toggleVisibility() {
 }
 
 .password-toggle-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--color-gray-light);
-  border-radius: var(--radius-sm);
-  background: var(--color-white);
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-left: 1px solid var(--color-gray-light);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: transparent;
   color: var(--color-gray-dark);
   cursor: pointer;
   transition: all 0.2s;
-  flex-shrink: 0;
 }
 
 .password-toggle-btn:hover:not(:disabled) {
@@ -278,7 +281,7 @@ function toggleVisibility() {
 }
 
 .password-toggle-btn:active:not(:disabled) {
-  transform: scale(0.95);
+  transform: translateY(-50%) scale(0.95);
 }
 
 .password-toggle-btn:disabled {
@@ -372,8 +375,12 @@ function toggleVisibility() {
   }
 
   .input-wrapper {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .info-input {
     max-width: 100%;
-    margin-left: 0;
   }
 
   .action-row {
