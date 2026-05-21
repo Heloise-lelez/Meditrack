@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import UserList from '@/components/admin/UserList.vue';
-import { api } from '@/lib/api';
 import FacilityList from '@/components/admin/FacilityList.vue';
+import DashboardTab from '@/components/admin/DashboardTab.vue';
+import { api } from '@/lib/api';
 
-const activeTab = ref<'users' | 'facilities'>('users');
+const activeTab = ref<'dashboard' | 'users' | 'facilities'>('dashboard');
 
 const users = ref([]);
 const loading = ref(true);
@@ -32,6 +33,12 @@ onMounted(loadAll);
 
 <template>
   <div class="tabs">
+    <button
+      :class="['tab', { active: activeTab === 'dashboard' }]"
+      @click="activeTab = 'dashboard'"
+    >
+      Dashboard
+    </button>
     <button :class="['tab', { active: activeTab === 'users' }]" @click="activeTab = 'users'">
       Utilisateurs
     </button>
@@ -44,6 +51,8 @@ onMounted(loadAll);
   </div>
 
   <div class="tab-content">
+    <DashboardTab v-if="activeTab === 'dashboard'" />
+
     <UserList
       v-if="activeTab === 'users'"
       :users="users"

@@ -177,10 +177,12 @@ const toggleAccompanied = async () => {
   font-weight: 500;
 }
 .info-value {
+  min-width: 0;
   color: var(--color-black);
   font-weight: 500;
   text-align: right;
-  word-break: break-all;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .accompagnement-row {
   display: flex;

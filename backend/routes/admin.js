@@ -7,6 +7,7 @@ import {
   createEtablissement,
   updateUserEtablissement,
   listAuditLogs,
+  getDashboardStats,
 } from '../controllers/adminController.js';
 
 const router = Router();
@@ -20,5 +21,6 @@ router.get('/etablissements', ...isSuperAdmin, listEtablissements);
 router.post('/etablissements', ...isSuperAdmin, createEtablissement);
 
 router.get('/audit-logs', ...isSuperAdmin, listAuditLogs);
+router.get('/dashboard-stats', ...isSuperAdmin, getDashboardStats);
 
 export default router;
