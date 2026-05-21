@@ -69,3 +69,13 @@ body {
   padding: 12px;
   max-width: 1200px;
 }
+
+h2 {
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-bottom: 70px;
+  }
+}

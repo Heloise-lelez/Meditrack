@@ -17,7 +17,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close', 'deleted']);
+const emit = defineEmits(['close', 'deleted', 'updated']);
 
 const deleteError = ref(null);
 const checklistItems = ref([]);
@@ -74,14 +74,17 @@ const toggleChecklistItem = async (index) => {
     await api.put(`/api/rendezvous/${props.rdv.id_rendezvous}`, {
       checklist: checklistItems.value,
     });
+    // Émettre l'événement pour mettre à jour la card
+    emit('updated', {
+      id: props.rdv.id_rendezvous,
+      checklist: checklistItems.value,
+    });
   } catch (err) {
     // Revert on failure
     console.error('Erreur mise à jour checklist:', err);
     checklistItems.value[index].fait = previousValue;
   }
 };
-
-console.warn('RdvDetailsModal: checklistItems', checklistItems.value);
 </script>
 
 <template>

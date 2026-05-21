@@ -1,8 +1,6 @@
 <template>
-  <main class="assistant" role="main" aria-label="Gestion des assignations">
-    <header class="assistant-header">
-      <h1>Assignations patients</h1>
-    </header>
+  <div class="assistant-page" role="main" aria-label="Gestion des assignations">
+    <h2>Assignations patients</h2>
 
     <div v-if="loading" class="assistant-loading" role="status">
       <div class="spinner" aria-hidden="true"></div>
@@ -253,7 +251,7 @@
         </section>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup>

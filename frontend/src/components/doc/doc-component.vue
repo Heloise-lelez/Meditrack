@@ -1,10 +1,5 @@
 <template>
   <main class="doc" role="main" aria-label="Page Documents médicaux">
-    <header class="header">
-      <h1>Chirurgie Suivi</h1>
-      <p>Votre parcours chirurgical étape par étape</p>
-    </header>
-
     <div class="container">
       <section class="documents-header" aria-label="En-tête documents">
         <h2 tabindex="0">Documents médicaux</h2>

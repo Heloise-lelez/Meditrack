@@ -1,5 +1,7 @@
-.assistant {
-  padding: 16px;
+.assistant-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .assistant-header {

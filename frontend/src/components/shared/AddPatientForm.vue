@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useNewPatient } from '../../composables/useNewPatient';
-import { useAuth } from '../../composables/useAuth';
-import { api } from '../../lib/api';
+import { useNewPatient } from '@/composables/useNewPatient.js';
+import { useAuth } from '@/composables/useAuth.js';
+import { api } from '@/lib/api.js';
+import { ROLES } from '@/constants/roles.js';
 
 const { createPatient } = useNewPatient();
 
@@ -28,8 +29,8 @@ async function submit() {
   successMessage.value = null;
   submitting.value = true;
 
-  if (userRole.value === 'ASSISTANT' && !form.value.doctor) {
-    if (form.value.doctor === '') {
+  if (userRole.value === ROLES.ASSISTANT) {
+    if (!form.value.doctor) {
       errorMessage.value = 'Vous devez sélectionner un médecin pour ce patient.';
       submitting.value = false;
       return;
@@ -42,34 +43,19 @@ async function submit() {
         tel: form.value.tel,
       });
 
-      const doctor_id = await api
-        .get('/single-doctor', {
-          params: {
-            prenom: form.value.doctor.split(' ')[0],
-            nom: form.value.doctor.split(' ')[1],
-          },
-        })
-        .then((res) => {
-          const doctor = res.data.find((d) => `${d.prenom} ${d.nom}` === form.value.doctor);
-          return doctor.id;
-        });
-
       const patient_id = await api
-        .get('/single-patient', {
-          params: {
-            prenom: form.value.prenom,
-            nom: form.value.nom,
-          },
-        })
-        .then((res) => {
-          const patient = res.data.find(
+        .get(
+          `/api/assistant/single-patient?prenom=${encodeURIComponent(form.value.prenom)}&nom=${encodeURIComponent(form.value.nom)}`
+        )
+        .then((patients) => {
+          const patient = patients.find(
             (p) => `${p.prenom} ${p.nom}` === `${form.value.prenom} ${form.value.nom}`
           );
           return patient.id;
         });
 
-      await api.post('/assignments', {
-        doctor_id,
+      await api.post('/api/assistant/assignments', {
+        doctor_id: form.value.doctor,
         patient_id,
       });
 
@@ -79,7 +65,7 @@ async function submit() {
     } finally {
       submitting.value = false;
     }
-  } else if (userRole.value === 'DOCTOR') {
+  } else if (userRole.value === ROLES.DOCTOR) {
     try {
       await createPatient(form.value.email, {
         nom: form.value.nom,
@@ -104,10 +90,10 @@ function translateError(msg) {
 }
 
 onMounted(async () => {
-  if (userRole.value === 'PATIENT') {
+  if (userRole.value === ROLES.ASSISTANT) {
     loadingDoctors.value = true;
     try {
-      registeredDoctors.value = await api.get('/doctors');
+      registeredDoctors.value = await api.get('/api/assistant/doctors');
     } finally {
       loadingDoctors.value = false;
     }
@@ -119,28 +105,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="detail" :aria-label="`Inscrire un patient`">
-    <!-- Header -->
-    <header class="detail-header">
-      <!-- <button class="back-btn" @click="$emit('back')" aria-label="Retour à la liste">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-        Retour
-      </button> -->
-      <h1>Inscrire un patient</h1>
-    </header>
-
-    <!-- Sub-tabs
-    <nav class="sub-tabs" role="tablist" aria-label="Sections du dossier">
-      <button
-        v-for="tab in TABS"
-        :key="tab.id"
-        class="sub-tab"
-        :class="{ active: activeTab === tab.id }"
-        role="tab"
-        :aria-selected="activeTab === tab.id"
-        @click="activeTab = tab.id"
-      >{{ tab.label }}</button>
-    </nav> -->
+  <div class="add-patient-page" :aria-label="`Inscrire un patient`">
+    <h2>Inscrire un patient</h2>
 
     <!-- ── Formulaire création du patient ─────────────────────────────────────────────── -->
     <form @submit.prevent="submit" aria-label="Formulaire d'ajout d'un patient''">
@@ -198,7 +164,7 @@ onMounted(async () => {
           <span>Médecin en charge du patient</span>
           <select v-model.trim="form.doctor">
             <option value="">Médecin de votre service</option>
-            <option v-for="doctor in registeredDoctors" :key="doctor.id">
+            <option v-for="doctor in registeredDoctors" :key="doctor.id" :value="doctor.id">
               {{ doctor.prenom }} {{ doctor.nom }}
             </option>
           </select>
@@ -216,51 +182,36 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.detail {
+.add-patient-page {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 24px;
-  width: 100%;
-  height: 100%;
-}
-
-.detail-header {
-  max-width: 420px;
-  padding-top: 35px;
-  padding-bottom: 35px;
+  gap: 24px;
 }
 
 form {
+  padding: 32px 24px;
+  height: 100%;
+  width: 100%;
+  max-width: clamp(320px, calc(100vw - 48px), 1400px);
+  overflow: auto;
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
-  padding: 32px 24px;
-  max-width: clamp(320px, calc(100vw - 48px), 1400px);
-  width: 100%;
-  height: 100%;
-  align-items: stretch;
-  overflow: auto;
-  background: #fff;
-  box-sizing: border-box;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(15, 39, 34, 0.1);
+  gap: 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-light);
 }
 
 .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 13px;
-  color: #374151;
-  margin-bottom: 14px;
+  color: var(--color-gray-dark);
 }
 
 .field input {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border: 1px solid var(--color-gray-light);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
-  font-size: 14px;
   outline: none;
   transition: border-color 0.15s;
 }
@@ -270,7 +221,7 @@ form {
 }
 
 .field select {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-gray-light);
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 14px;
@@ -292,14 +243,8 @@ form {
   min-width: 0;
 }
 
-.field-hint {
-  font-size: 11px;
-  color: #9ca3af;
-  margin-top: -2px;
-}
-
 .required {
-  color: #b91c1c;
+  color: var(--color-error-text);
 }
 
 .optional {
@@ -308,8 +253,8 @@ form {
 }
 
 .form-submit-error {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
   border-radius: 8px;
   padding: 10px 12px;
   font-size: 13px;
@@ -317,8 +262,8 @@ form {
 }
 
 .form-submit-success {
-  background: #f0fdf4;
-  color: #166534;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
   border-radius: 8px;
   padding: 10px 12px;
   font-size: 13px;
@@ -331,7 +276,7 @@ form {
   border: none;
   border-radius: 10px;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-white);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -345,5 +290,12 @@ form {
 .form-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  form {
+    display: flex;
+    flex-direction: column;
+  }
 }
 </style>
