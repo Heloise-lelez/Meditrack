@@ -29,8 +29,8 @@ async function submit() {
   successMessage.value = null;
   submitting.value = true;
 
-  if (userRole.value === ROLES.ASSISTANT && !form.value.doctor) {
-    if (form.value.doctor === '') {
+  if (userRole.value === ROLES.ASSISTANT) {
+    if (!form.value.doctor) {
       errorMessage.value = 'Vous devez sélectionner un médecin pour ce patient.';
       submitting.value = false;
       return;
@@ -43,34 +43,19 @@ async function submit() {
         tel: form.value.tel,
       });
 
-      const doctor_id = await api
-        .get('/single-doctor', {
-          params: {
-            prenom: form.value.doctor.split(' ')[0],
-            nom: form.value.doctor.split(' ')[1],
-          },
-        })
-        .then((res) => {
-          const doctor = res.data.find((d) => `${d.prenom} ${d.nom}` === form.value.doctor);
-          return doctor.id;
-        });
-
       const patient_id = await api
-        .get('/single-patient', {
-          params: {
-            prenom: form.value.prenom,
-            nom: form.value.nom,
-          },
-        })
-        .then((res) => {
-          const patient = res.data.find(
+        .get(
+          `/api/assistant/single-patient?prenom=${encodeURIComponent(form.value.prenom)}&nom=${encodeURIComponent(form.value.nom)}`
+        )
+        .then((patients) => {
+          const patient = patients.find(
             (p) => `${p.prenom} ${p.nom}` === `${form.value.prenom} ${form.value.nom}`
           );
           return patient.id;
         });
 
-      await api.post('/assignments', {
-        doctor_id,
+      await api.post('/api/assistant/assignments', {
+        doctor_id: form.value.doctor,
         patient_id,
       });
 
@@ -105,10 +90,10 @@ function translateError(msg) {
 }
 
 onMounted(async () => {
-  if (userRole.value === ROLES.PATIENT) {
+  if (userRole.value === ROLES.ASSISTANT) {
     loadingDoctors.value = true;
     try {
-      registeredDoctors.value = await api.get('/doctors');
+      registeredDoctors.value = await api.get('/api/assistant/doctors');
     } finally {
       loadingDoctors.value = false;
     }
@@ -179,7 +164,7 @@ onMounted(async () => {
           <span>Médecin en charge du patient</span>
           <select v-model.trim="form.doctor">
             <option value="">Médecin de votre service</option>
-            <option v-for="doctor in registeredDoctors" :key="doctor.id">
+            <option v-for="doctor in registeredDoctors" :key="doctor.id" :value="doctor.id">
               {{ doctor.prenom }} {{ doctor.nom }}
             </option>
           </select>
