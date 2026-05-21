@@ -2,8 +2,8 @@
 import { ROLES } from '@/constants/roles.js';
 import { computed, ref } from 'vue';
 import { api } from '@/lib/api.js';
+/* 
 import { useProfile } from '@/composables/useProfile';
-
 const { getPassword, updatePassword } = useProfile();
 
 const newPassword = ref(getPassword() || '');
@@ -11,7 +11,7 @@ const saving = ref(false);
 const errorMessage = ref(null);
 const successMessage = ref(null);
 const showPassword = ref(false);
-
+ */
 const props = defineProps({
   user: { type: Object, required: true },
   userRole: { type: String, required: true },

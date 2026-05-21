@@ -100,7 +100,6 @@
   flex-direction: column;
   gap: 24px;
   overflow-y: auto;
-
 }
 
 .detail-header {
@@ -205,8 +204,8 @@
   border: 1px solid var(--color-gray-light);
   padding: 20px;
   transition:
-          transform 0.2s,
-          box-shadow 0.2s;
+    transform 0.2s,
+    box-shadow 0.2s;
   display: flex;
   align-items: flex-start;
   gap: 16px;
@@ -293,12 +292,12 @@
 
 .statut-ratee {
   color: var(--color-error-text);
-    background-color: var(--color-error-bg);
+  background-color: var(--color-error-bg);
 }
 
 .statut-a_faire {
   color: #888;
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
 .type-badge {
@@ -437,4 +436,3 @@
     display: none;
   }
 }
-

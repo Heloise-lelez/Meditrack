@@ -26,12 +26,12 @@ const getInitials = (aide) => {
   return (p + n).toUpperCase() || '?';
 };
 
-const infoDoctor = [
+/* const infoDoctor = [
   { label: 'Email', key: 'email', icon: 'fa-solid fa-envelope', href: (v) => `mailto:${v}` },
   { label: 'Téléphone', key: 'tel', icon: 'fa-solid fa-phone', href: (v) => `tel:${v}` },
   { label: 'N° de service', key: 'num_service', icon: 'fa-solid fa-hospital', href: null },
   { label: 'Horaires', key: 'horaire_service', icon: 'fa-solid fa-clock', href: null },
-];
+]; */
 </script>
 
 <template>
