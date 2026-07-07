@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
 import rendezvousRouter from './routes/rendezvous.js';
 import documentsRouter from './routes/documents.js';
 import tachesRouter from './routes/taches.js';
@@ -16,7 +15,22 @@ import aideRouter from './routes/aide.js';
 import auditRouter from './routes/audit.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { auditRequestLogger } from './middleware/audit.js';
+import Pyroscope from '@pyroscope/nodejs';
 
+Pyroscope.init({
+  serverAddress: process.env.PYROSCOPE_SERVER_ADDRESS,
+  appName: 'meditrack-backend',
+  basicAuthUser: process.env.PYROSCOPE_USER,
+  basicAuthPassword: process.env.PYROSCOPE_TOKEN,
+  logLevel: 'debug', // force les logs, même les erreurs internes
+});
+Pyroscope.start();
+
+console.log('--- PYROSCOPE CONFIG ---');
+console.log('serverAddress:', process.env.PYROSCOPE_SERVER_ADDRESS);
+console.log('user:', process.env.PYROSCOPE_USER);
+console.log('token présent:', !!process.env.PYROSCOPE_TOKEN);
+console.log('------------------------');
 const app = express();
 const trustProxy = ['1', 'true', 'yes'].includes(String(process.env.TRUST_PROXY).toLowerCase());
 

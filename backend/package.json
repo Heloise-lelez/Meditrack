@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@pyroscope/nodejs": "^0.4.13",
     "@supabase/supabase-js": "^2.93.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
