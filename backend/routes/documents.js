@@ -12,16 +12,27 @@ import { faker } from '@faker-js/faker';
 
 const router = Router();
 
+// Cache en mémoire
+let cachedDossiers = null;
+
+function getDossiers() {
+  if (!cachedDossiers) {
+    const genStart = Date.now();
+    cachedDossiers = Array.from({ length: 50000 }, () => ({
+      id: faker.string.uuid(),
+      patient: faker.person.fullName(),
+      dateRdv: faker.date.recent({ days: 90 }),
+      statut: faker.helpers.arrayElement(['en_attente', 'termine', 'en_retard']),
+      document: faker.lorem.paragraph(),
+    }));
+  }
+  return cachedDossiers;
+}
+
 // Route de test perf
 router.get('/heavy-report', (req, res) => {
   const start = Date.now();
-  const dossiers = Array.from({ length: 50000 }, () => ({
-    id: faker.string.uuid(),
-    patient: faker.person.fullName(),
-    dateRdv: faker.date.recent({ days: 90 }),
-    statut: faker.helpers.arrayElement(['en_attente', 'termine', 'en_retard']),
-    document: faker.lorem.paragraph(),
-  }));
+  const dossiers = getDossiers();
 
   const resultat = dossiers
     .filter((d) => d.statut !== 'termine')
@@ -49,4 +60,5 @@ router.post(
   uploadDocument
 );
 router.delete('/:id', deleteDocument);
+
 export default router;
