@@ -16,19 +16,6 @@ import auditRouter from './routes/audit.js';
 import landingRouter from './routes/landing.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { auditRequestLogger } from './middleware/audit.js';
-import Pyroscope from '@pyroscope/nodejs';
-
-if (!process.env.VERCEL) {
-  const Pyroscope = (await import('@pyroscope/nodejs')).default;
-  Pyroscope.init({
-    serverAddress: process.env.PYROSCOPE_SERVER_ADDRESS,
-    appName: 'meditrack-backend',
-    basicAuthUser: process.env.PYROSCOPE_USER,
-    basicAuthPassword: process.env.PYROSCOPE_TOKEN,
-    logLevel: 'debug',
-  });
-  Pyroscope.start();
-}
 
 const app = express();
 const trustProxy = ['1', 'true', 'yes'].includes(String(process.env.TRUST_PROXY).toLowerCase());
@@ -60,8 +47,3 @@ app.use('/api/audit', auditRouter);
 app.use(errorHandler);
 
 export default app;
-
-if (!process.env.VERCEL) {
-  const PORT = process.env.PORT ?? 3000;
-  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-}
