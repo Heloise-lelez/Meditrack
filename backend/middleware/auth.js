@@ -17,6 +17,9 @@ async function attachUserRole(req) {
 }
 
 export async function requireAuth(req, res, next) {
+  // Données utilisateur : jamais de cache partagé (CDN/proxy) ni de cache disque navigateur.
+  res.setHeader('Cache-Control', 'private, no-store');
+
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) {
     res.status(401);
