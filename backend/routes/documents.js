@@ -12,12 +12,12 @@ import { faker } from '@faker-js/faker';
 
 const router = Router();
 
-// Cache en mémoire
+// Cache en mémoire : données sources + résultat du calcul déjà agrégé
 let cachedDossiers = null;
+let cachedReport = null;
 
 function getDossiers() {
   if (!cachedDossiers) {
-    const genStart = Date.now();
     cachedDossiers = Array.from({ length: 50000 }, () => ({
       id: faker.string.uuid(),
       patient: faker.person.fullName(),
@@ -29,20 +29,26 @@ function getDossiers() {
   return cachedDossiers;
 }
 
-// Route de test perf
+function computeReport() {
+  return getDossiers()
+    .filter((d) => d.statut !== 'termine' && d.patient.length > 5)
+    .sort((a, b) => b.dateRdv - a.dateRdv)
+    .map((d) => ({ ...d, label: `${d.statut.toUpperCase()} - ${d.patient}` }));
+}
+
+// Route de test perf : le calcul (filter+sort+map sur 50k lignes) n'est fait
+// qu'une fois par instance chaude, les requêtes suivantes lisent le cache.
 router.get('/heavy-report', (req, res) => {
   const start = Date.now();
-  const dossiers = getDossiers();
-
-  const resultat = dossiers
-    .filter((d) => d.statut !== 'termine')
-    .sort((a, b) => new Date(b.dateRdv) - new Date(a.dateRdv))
-    .filter((d) => d.patient.length > 5)
-    .map((d) => ({ ...d, label: `${d.statut.toUpperCase()} - ${d.patient}` }));
+  const cacheHit = cachedReport !== null;
+  if (!cacheHit) {
+    cachedReport = computeReport();
+  }
 
   const duration = Date.now() - start;
-  console.log(`heavy-report traité en ${duration}ms`);
-  res.json({ count: resultat.length, duration_ms: duration, sample: resultat.slice(0, 5) });
+  console.log(`heavy-report ${cacheHit ? 'cache HIT' : 'cache MISS'} en ${duration}ms`);
+  res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
+  res.json({ count: cachedReport.length, duration_ms: duration, sample: cachedReport.slice(0, 5) });
 });
 
 router.use(requireAuth); // tout ce qui suit reste protégé
