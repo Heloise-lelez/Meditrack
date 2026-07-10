@@ -14,7 +14,9 @@ export async function listRendezvous(req, res, next) {
     const db = createUserClient(req.userToken);
     const { data, error } = await db
       .from('rendezvous')
-      .select('*')
+      .select(
+        'id_rendezvous, doctor_first_name, doctor_last_name, profession, operation, address, starts_at, profile_picture, checklist'
+      )
       .eq('user_id', req.user.id)
       .order('starts_at', { ascending: true });
 
@@ -30,7 +32,9 @@ export async function nextRendezvous(req, res, next) {
     const db = createUserClient(req.userToken);
     const { data, error } = await db
       .from('rendezvous')
-      .select('*')
+      .select(
+        'id_rendezvous, doctor_first_name, doctor_last_name, profession, operation, address, starts_at, profile_picture, checklist'
+      )
       .eq('user_id', req.user.id)
       .gte('starts_at', new Date().toISOString())
       .order('starts_at', { ascending: true })

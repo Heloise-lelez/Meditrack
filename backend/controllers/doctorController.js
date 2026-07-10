@@ -168,7 +168,7 @@ export async function listPatientTaches(req, res, next) {
 
     let query = supabaseAdmin
       .from('tachesjour')
-      .select('*')
+      .select('id_tache, statut, heure, date_tache, nom_tache, commentaire')
       .eq('user_id', pid)
       .order('date_tache', { ascending: false });
 
