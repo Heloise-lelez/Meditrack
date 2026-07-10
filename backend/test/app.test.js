@@ -14,7 +14,8 @@ const { default: app } = await import('../server.js');
 test('GET / exposes the API health response', async () => {
   const response = await request(app).get('/').expect(200);
 
-  assert.deepEqual(response.body, { message: 'API is running' });
+  assert.equal(response.body.message, 'API is running');
+  assert.equal(response.headers['cache-control'], 'public, s-maxage=60, stale-while-revalidate=30');
 });
 
 test('protected endpoints reject missing bearer token', async () => {

@@ -1,14 +1,14 @@
 <script>
 import { watch, onUnmounted } from 'vue';
 import NavBar from './components/shared/NavBar.vue';
-import AuthComponent from './components/auth/auth-component.vue';
 import NotificationToast from './components/shared/NotificationToast.vue';
 import { useAuth } from './composables/useAuth';
 import { usePatientNotifications } from './composables/usePatientNotifications';
 import { api } from './lib/api';
+import LandingPage from '@/views/LandingPage.vue';
 
 export default {
-  components: { NavBar, AuthComponent, NotificationToast },
+  components: { LandingPage, NavBar, NotificationToast },
   setup() {
     const { user, loading, userRole } = useAuth();
     const { notifications, init, cleanup, dismiss } = usePatientNotifications();
@@ -35,7 +35,7 @@ export default {
   <div v-if="loading" class="loading-container">
     <div class="loader"></div>
   </div>
-  <AuthComponent v-else-if="!user" />
+  <LandingPage v-else-if="!user" />
   <div v-else id="app-content">
     <NavBar />
     <main class="main-content">

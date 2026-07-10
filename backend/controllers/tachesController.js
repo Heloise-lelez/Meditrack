@@ -5,7 +5,7 @@ export async function listTaches(req, res, next) {
     const db = createUserClient(req.userToken);
     let query = db
       .from('tachesjour')
-      .select('*')
+      .select('id_tache, statut, heure, date_tache, nom_tache, commentaire')
       .eq('user_id', req.user.id)
       .order('heure', { ascending: true, nullsFirst: true });
 

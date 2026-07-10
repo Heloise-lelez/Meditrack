@@ -125,6 +125,87 @@ export async function updateUserEtablissement(req, res, next) {
   }
 }
 
+export async function getDashboardStats(req, res, next) {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.days, 10) || 7, 1), 90);
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+    const [totalResult, errorResult, rowsResult] = await Promise.all([
+      supabaseAdmin
+        .from('audit_logs')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', since),
+      supabaseAdmin
+        .from('audit_logs')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', since)
+        .eq('outcome', 'error'),
+      supabaseAdmin
+        .from('audit_logs')
+        .select('actor_id, actor_role, route, method, outcome, duration_ms, created_at')
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(5000),
+    ]);
+
+    if (totalResult.error) throw totalResult.error;
+    if (errorResult.error) throw errorResult.error;
+    if (rowsResult.error) throw rowsResult.error;
+
+    const rows = rowsResult.data ?? [];
+    const total = totalResult.count ?? 0;
+    const errors = errorResult.count ?? 0;
+
+    const byRoleMap = {};
+    const byDayMap = {};
+    const byRouteMap = {};
+    let durationSum = 0;
+    let durationCount = 0;
+    const actorIds = new Set();
+
+    for (const row of rows) {
+      if (row.actor_id) actorIds.add(row.actor_id);
+      if (row.actor_role) byRoleMap[row.actor_role] = (byRoleMap[row.actor_role] ?? 0) + 1;
+
+      const day = row.created_at.slice(0, 10);
+      if (!byDayMap[day]) byDayMap[day] = { total: 0, errors: 0 };
+      byDayMap[day].total++;
+      if (row.outcome === 'error') byDayMap[day].errors++;
+
+      if (row.route) {
+        const key = row.route;
+        byRouteMap[key] = (byRouteMap[key] ?? 0) + 1;
+      }
+
+      if (row.duration_ms != null) {
+        durationSum += row.duration_ms;
+        durationCount++;
+      }
+    }
+
+    res.json({
+      period_days: days,
+      total,
+      errors,
+      success_rate: total > 0 ? Math.round(((total - errors) / total) * 100) : 100,
+      avg_duration_ms: durationCount > 0 ? Math.round(durationSum / durationCount) : 0,
+      active_users: actorIds.size,
+      by_role: Object.entries(byRoleMap)
+        .map(([role, count]) => ({ role, count }))
+        .sort((a, b) => b.count - a.count),
+      top_routes: Object.entries(byRouteMap)
+        .map(([route, count]) => ({ route, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10),
+      by_day: Object.entries(byDayMap)
+        .map(([date, d]) => ({ date, ...d }))
+        .sort((a, b) => a.date.localeCompare(b.date)),
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listAuditLogs(req, res, next) {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 500);

@@ -7,7 +7,7 @@ export async function listDocuments(req, res, next) {
     const db = createUserClient(req.userToken);
     let query = db
       .from('document')
-      .select('*')
+      .select('id_document, titre, type, publication_date, size_kb, download_link')
       .eq('user_id', req.user.id)
       .order('publication_date', { ascending: false });
 
